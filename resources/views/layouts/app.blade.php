@@ -626,5 +626,46 @@
         })();
     </script>
 
+    <!-- 🛡️ Smart Silent CSRF Token Auto-Refresh System -->
+    <script>
+        (function() {
+            document.addEventListener('submit', function(e) {
+                const form = e.target;
+                const csrfInput = form.querySelector('input[name="_token"]');
+                
+                // Only intercept POST forms that contain a CSRF token
+                if (form.method.toLowerCase() === 'post' && csrfInput) {
+                    e.preventDefault(); // Stop initial submit to check token
+                    
+                    fetch("{{ url('/refresh-csrf') }}")
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.token) {
+                                // Update all CSRF inputs on the page with the fresh token
+                                document.querySelectorAll('input[name="_token"]').forEach(input => {
+                                    input.value = data.token;
+                                });
+                                
+                                // Update meta tag if present
+                                const metaToken = document.querySelector('meta[name="csrf-token"]');
+                                if (metaToken) {
+                                    metaToken.setAttribute('content', data.token);
+                                }
+                                
+                                // Silent success! Directly submit form
+                                HTMLFormElement.prototype.submit.call(form);
+                            } else {
+                                HTMLFormElement.prototype.submit.call(form);
+                            }
+                        })
+                        .catch(() => {
+                            // Fallback to direct submit if error
+                            HTMLFormElement.prototype.submit.call(form);
+                        });
+                }
+            });
+        })();
+    </script>
+
 </body>
 </html>

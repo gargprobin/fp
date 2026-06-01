@@ -64,6 +64,10 @@ Route::get('/referee/upload/{token}', [RefereeController::class, 'showForm'])->n
 Route::post('/referee/upload/{token}', [RefereeController::class, 'submit'])->name('referee.submit');
 Route::get('/referee/success/{token}', [RefereeController::class, 'success'])->name('referee.success');
 
+Route::get('/refresh-csrf', function() {
+    return response()->json(['token' => csrf_token()]);
+});
+
 // 6. Admin Panel settings (SaaS customization)
 use App\Http\Controllers\AdminController;
 Route::get('/admin/settings', [AdminController::class, 'index'])->name('admin.settings');
