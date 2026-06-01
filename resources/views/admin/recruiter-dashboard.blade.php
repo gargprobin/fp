@@ -3,7 +3,13 @@
 @section('title', 'Recruiter Sourcing Console - ' . $institution->company_name)
 
 @section('content')
-<div x-data="{ activeTab: 'pipeline' }" class="space-y-8">
+<div x-data="{ 
+    activeTab: localStorage.getItem('recruiter_active_tab') || 'pipeline',
+    selectTab(tab) {
+        this.activeTab = tab;
+        localStorage.setItem('recruiter_active_tab', tab);
+    }
+}" class="space-y-8">
     
     <!-- Recruiter Header Banner -->
     <div class="p-8 rounded-2xl bg-gradient-to-br from-theme-primary/10 via-theme-accent/5 to-[var(--theme-card)] border border-[var(--theme-border)] shadow-sm relative overflow-hidden transition-all duration-300">
@@ -23,7 +29,7 @@
             
             <div class="flex gap-2">
                 <span class="px-4 py-2 bg-theme-primary/10 text-theme-primary border border-theme-primary/20 text-xs font-black rounded-full uppercase tracking-wider">
-                    SaaS Client: {{ ucfirst($institution->type) }}
+                    Partner Brand: {{ ucfirst($institution->type) }}
                 </span>
             </div>
         </div>
@@ -82,13 +88,13 @@
 
     <!-- Navigation Tabs -->
     <div class="flex border-b border-[var(--theme-border)] gap-6 text-sm font-semibold">
-        <button @click="activeTab = 'pipeline'" :class="activeTab === 'pipeline' ? 'text-theme-primary border-b-2 border-theme-primary pb-3' : 'text-theme-text/60 pb-3 hover:text-theme-text transition'">
+        <button @click="selectTab('pipeline')" :class="activeTab === 'pipeline' ? 'text-theme-primary border-b-2 border-theme-primary pb-3' : 'text-theme-text/60 pb-3 hover:text-theme-text transition cursor-pointer'">
             🔎 Sourced Candidates Pipeline
         </button>
-        <button @click="activeTab = 'post-vacancy'" :class="activeTab === 'post-vacancy' ? 'text-theme-primary border-b-2 border-theme-primary pb-3' : 'text-theme-text/60 pb-3 hover:text-theme-text transition'">
+        <button @click="selectTab('post-vacancy')" :class="activeTab === 'post-vacancy' ? 'text-theme-primary border-b-2 border-theme-primary pb-3' : 'text-theme-text/60 pb-3 hover:text-theme-text transition cursor-pointer'">
             ➕ Post New Vacancy
         </button>
-        <button @click="activeTab = 'my-vacancies'" :class="activeTab === 'my-vacancies' ? 'text-theme-primary border-b-2 border-theme-primary pb-3' : 'text-theme-text/60 pb-3 hover:text-theme-text transition'">
+        <button @click="selectTab('my-vacancies')" :class="activeTab === 'my-vacancies' ? 'text-theme-primary border-b-2 border-theme-primary pb-3' : 'text-theme-text/60 pb-3 hover:text-theme-text transition cursor-pointer'">
             💼 My Posted Vacancies ({{ $vacancies->count() }})
         </button>
     </div>
@@ -101,7 +107,7 @@
             <div class="flex justify-between items-center border-b border-[var(--theme-border)] pb-3">
                 <h3 class="text-lg font-bold">Confidential Faculty Placement Pipeline</h3>
                 <span class="px-2.5 py-1 bg-amber-500/10 text-amber-500 text-xs font-bold rounded-full">
-                    SaaS Masking Rules Active
+                    Candidate Privacy Masking Active
                 </span>
             </div>
 

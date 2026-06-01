@@ -178,6 +178,18 @@
 </head>
 <body class="theme-{{ $themePreference ?? 'light' }} min-h-screen flex flex-col antialiased">
 
+    @if(session()->has('impersonate_admin_id'))
+        <div class="bg-amber-500 text-white px-4 py-2.5 text-center text-sm font-bold flex justify-center items-center gap-2 relative z-50 shadow-md">
+            <span>👤 You are currently logged in as: <strong>{{ auth()->user()->name }}</strong> (Impersonating Mode)</span>
+            <form action="{{ route('admin.impersonate-leave') }}" method="POST" class="inline">
+                @csrf
+                <button type="submit" class="ml-2 bg-white text-amber-600 px-3.5 py-1 rounded-full text-xs font-black hover:bg-amber-50 transition-all duration-200 active:scale-95 cursor-pointer shadow-sm">
+                    Return to Admin Panel ↩
+                </button>
+            </form>
+        </div>
+    @endif
+
     <!-- Top Navigation Header -->
     <header x-data="{ mobileMenuOpen: false }" class="shadow-sm border-b border-[var(--theme-border)] bg-[var(--theme-card)] sticky top-0 z-40 transition-colors">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -206,14 +218,14 @@
 
                 <!-- Navigation Links (Desktop) -->
                 <nav class="hidden md:flex space-x-8 items-center text-sm">
-                    <a href="/" class="text-theme-text/80 hover:text-theme-primary font-medium transition">Explore Jobs</a>
+                    <a href="{{ route('home') }}" class="text-theme-text/80 hover:text-theme-primary font-medium transition">Explore Jobs</a>
                     @auth
                         @if(auth()->user()->isAdmin())
-                            <a href="/admin/settings" class="text-red-500 font-bold hover:text-red-600 transition flex items-center gap-1">⚙️ Admin Panel</a>
+                            <a href="{{ route('admin.settings') }}" class="text-red-500 font-bold hover:text-red-600 transition flex items-center gap-1">⚙️ Admin Panel</a>
                         @elseif(auth()->user()->isInstitution())
-                            <a href="/recruiter/dashboard" class="text-theme-primary font-bold hover:text-theme-accent transition flex items-center gap-1">🏢 Recruiter Dashboard</a>
+                            <a href="{{ route('recruiter.dashboard') }}" class="text-theme-primary font-bold hover:text-theme-accent transition flex items-center gap-1">🏢 Recruiter Dashboard</a>
                         @elseif(auth()->user()->isCandidate())
-                            <a href="/faculty/dashboard" class="text-theme-primary font-bold hover:text-theme-accent transition flex items-center gap-1">🧑‍🏫 Faculty Dashboard</a>
+                            <a href="{{ route('faculty.dashboard') }}" class="text-theme-primary font-bold hover:text-theme-accent transition flex items-center gap-1">🧑‍🏫 Faculty Dashboard</a>
                         @endif
                     @endauth
                 </nav>
@@ -277,16 +289,16 @@
                         </button>
                         
                         <div x-show="open" @click.away="open = false" class="absolute right-0 mt-2 w-52 rounded-lg shadow-xl bg-[var(--theme-card)] border border-[var(--theme-border)] py-1 z-50 text-sm max-h-72 overflow-y-auto" x-cloak>
-                            <a href="/set-theme?theme=light" class="block px-4 py-2 hover:bg-theme-primary/15 transition text-theme-text">☀️ Light Mode</a>
-                            <a href="/set-theme?theme=dark" class="block px-4 py-2 hover:bg-theme-primary/15 transition text-theme-text">🌙 Dark Slate</a>
-                            <a href="/set-theme?theme=sepia" class="block px-4 py-2 hover:bg-theme-primary/15 transition text-theme-text">☕ Sepia Gold</a>
-                            <a href="/set-theme?theme=academic_blue" class="block px-4 py-2 hover:bg-theme-primary/15 transition text-theme-text">🎓 Academic Blue</a>
-                            <a href="/set-theme?theme=forest_emerald" class="block px-4 py-2 hover:bg-theme-primary/15 transition text-theme-text">🌲 Forest Emerald</a>
-                            <a href="/set-theme?theme=vintage_plum" class="block px-4 py-2 hover:bg-theme-primary/15 transition text-theme-text">🍇 Vintage Plum</a>
-                            <a href="/set-theme?theme=sunset_amber" class="block px-4 py-2 hover:bg-theme-primary/15 transition text-theme-text">🍊 Sunset Amber</a>
-                            <a href="/set-theme?theme=ocean_breeze" class="block px-4 py-2 hover:bg-theme-primary/15 transition text-theme-text">🌊 Ocean Breeze</a>
-                            <a href="/set-theme?theme=crimson_ruby" class="block px-4 py-2 hover:bg-theme-primary/15 transition text-theme-text">🌹 Crimson Ruby</a>
-                            <a href="/set-theme?theme=nord_minimal" class="block px-4 py-2 hover:bg-theme-primary/15 transition text-theme-text">⚖️ Nord Minimal</a>
+                            <a href="{{ route('set-theme', ['theme' => 'light']) }}" class="block px-4 py-2 hover:bg-theme-primary/15 transition text-theme-text">☀️ Light Mode</a>
+                            <a href="{{ route('set-theme', ['theme' => 'dark']) }}" class="block px-4 py-2 hover:bg-theme-primary/15 transition text-theme-text">🌙 Dark Slate</a>
+                            <a href="{{ route('set-theme', ['theme' => 'sepia']) }}" class="block px-4 py-2 hover:bg-theme-primary/15 transition text-theme-text">☕ Sepia Gold</a>
+                            <a href="{{ route('set-theme', ['theme' => 'academic_blue']) }}" class="block px-4 py-2 hover:bg-theme-primary/15 transition text-theme-text">🎓 Academic Blue</a>
+                            <a href="{{ route('set-theme', ['theme' => 'forest_emerald']) }}" class="block px-4 py-2 hover:bg-theme-primary/15 transition text-theme-text">🌲 Forest Emerald</a>
+                            <a href="{{ route('set-theme', ['theme' => 'vintage_plum']) }}" class="block px-4 py-2 hover:bg-theme-primary/15 transition text-theme-text">🍇 Vintage Plum</a>
+                            <a href="{{ route('set-theme', ['theme' => 'sunset_amber']) }}" class="block px-4 py-2 hover:bg-theme-primary/15 transition text-theme-text">🍊 Sunset Amber</a>
+                            <a href="{{ route('set-theme', ['theme' => 'ocean_breeze']) }}" class="block px-4 py-2 hover:bg-theme-primary/15 transition text-theme-text">🌊 Ocean Breeze</a>
+                            <a href="{{ route('set-theme', ['theme' => 'crimson_ruby']) }}" class="block px-4 py-2 hover:bg-theme-primary/15 transition text-theme-text">🌹 Crimson Ruby</a>
+                            <a href="{{ route('set-theme', ['theme' => 'nord_minimal']) }}" class="block px-4 py-2 hover:bg-theme-primary/15 transition text-theme-text">⚖️ Nord Minimal</a>
                         </div>
                     </div>
 
@@ -294,12 +306,12 @@
                     <div class="hidden md:flex items-center gap-3">
                         @auth
                             <span class="text-sm font-medium">{{ auth()->user()->name }}</span>
-                            <a href="/logout" class="px-4 py-2 text-sm rounded-lg text-white bg-red-600 hover:bg-red-700 font-semibold transition">Logout</a>
+                            <a href="{{ route('logout') }}" class="px-4 py-2 text-sm rounded-lg text-white bg-red-600 hover:bg-red-700 font-semibold transition">Logout</a>
                         @else
-                            <a href="/login-demo" class="px-4 py-2 text-sm rounded-lg text-theme-text hover:bg-theme-primary/10 border border-[var(--theme-border)] font-semibold transition">
+                            <a href="{{ route('login-demo') }}" class="px-4 py-2 text-sm rounded-lg text-theme-text hover:bg-theme-primary/10 border border-[var(--theme-border)] font-semibold transition">
                                 Sign In
                             </a>
-                            <a href="/signup" class="px-4 py-2 text-sm rounded-lg text-white bg-theme-primary hover:bg-theme-accent font-semibold transition shadow-md">
+                            <a href="{{ route('signup') }}" class="px-4 py-2 text-sm rounded-lg text-white bg-theme-primary hover:bg-theme-accent font-semibold transition shadow-md">
                                 Sign Up
                             </a>
                         @endauth
@@ -321,23 +333,23 @@
 
         <!-- Mobile Navigation Menu Dropdown Panel -->
         <div x-show="mobileMenuOpen" @click.away="mobileMenuOpen = false" class="md:hidden border-t border-[var(--theme-border)] bg-[var(--theme-card)] px-4 py-4 space-y-3 shadow-inner" x-cloak>
-            <a href="/" class="block px-3 py-2 rounded-lg text-base font-semibold text-theme-text/80 hover:bg-theme-primary/10 hover:text-theme-primary transition">Explore Jobs</a>
+            <a href="{{ route('home') }}" class="block px-3 py-2 rounded-lg text-base font-semibold text-theme-text/80 hover:bg-theme-primary/10 hover:text-theme-primary transition">Explore Jobs</a>
             @auth
                 @if(auth()->user()->isAdmin())
-                    <a href="/admin/settings" class="block px-3 py-2 rounded-lg text-base font-bold text-red-500 hover:bg-red-500/10 transition">⚙️ Admin Panel</a>
+                    <a href="{{ route('admin.settings') }}" class="block px-3 py-2 rounded-lg text-base font-bold text-red-500 hover:bg-red-500/10 transition">⚙️ Admin Panel</a>
                 @elseif(auth()->user()->isInstitution())
-                    <a href="/recruiter/dashboard" class="block px-3 py-2 rounded-lg text-base font-bold text-theme-primary hover:bg-theme-primary/10 transition">🏢 Recruiter Dashboard</a>
+                    <a href="{{ route('recruiter.dashboard') }}" class="block px-3 py-2 rounded-lg text-base font-bold text-theme-primary hover:bg-theme-primary/10 transition">🏢 Recruiter Dashboard</a>
                 @endif
                 <div class="border-t border-[var(--theme-border)] pt-3 flex items-center justify-between px-3">
                     <span class="text-sm font-semibold text-theme-text/70">{{ auth()->user()->name }}</span>
-                    <a href="/logout" class="px-3 py-1.5 text-xs rounded-lg text-white bg-red-600 hover:bg-red-700 font-semibold transition">Logout</a>
+                    <a href="{{ route('logout') }}" class="px-3 py-1.5 text-xs rounded-lg text-white bg-red-600 hover:bg-red-700 font-semibold transition">Logout</a>
                 </div>
             @else
                 <div class="grid grid-cols-2 gap-3">
-                    <a href="/login-demo" class="block text-center px-4 py-2.5 text-sm font-bold text-theme-text hover:bg-theme-primary/10 border border-[var(--theme-border)] rounded-lg transition">
+                    <a href="{{ route('login-demo') }}" class="block text-center px-4 py-2.5 text-sm font-bold text-theme-text hover:bg-theme-primary/10 border border-[var(--theme-border)] rounded-lg transition">
                         Sign In
                     </a>
-                    <a href="/signup" class="block text-center px-4 py-2.5 text-sm font-bold text-white bg-theme-primary hover:bg-theme-accent rounded-lg shadow-md transition">
+                    <a href="{{ route('signup') }}" class="block text-center px-4 py-2.5 text-sm font-bold text-white bg-theme-primary hover:bg-theme-accent rounded-lg shadow-md transition">
                         Sign Up
                     </a>
                 </div>
@@ -361,7 +373,7 @@
         </div>
     </footer>
 
-    <!-- 🎨 SaaS Dynamic Theme Engine Slide-out Customizer Widget (Same to Same c:\jobs) -->
+    <!-- 🎨 Portal Dynamic Theme Engine Slide-out Customizer Widget -->
     <div x-data="{ 
         open: false, 
         primary: '{{ isset($activeInstitution) ? ($activeInstitution->branding_settings['primary_color'] ?? '#059669') : '#059669' }}', 
@@ -372,9 +384,9 @@
             document.body.className = document.body.className.replace(/\btheme-\S+/g, '');
         }
     }">
-        <!-- Floating Gear Button (Left side, same to same c:\jobs) -->
+        <!-- Floating Gear Button (Left side) -->
         <div class="fixed bottom-6 left-6 z-50">
-            <button @click="open = true" class="p-4 bg-slate-900 text-white rounded-full shadow-2xl hover:scale-110 active:scale-95 transition transform duration-300 flex items-center justify-center border border-white/10 animate-bounce" title="Open SaaS Theme Engine Demo Customizer">
+            <button @click="open = true" class="p-4 bg-slate-900 text-white rounded-full shadow-2xl hover:scale-110 active:scale-95 transition transform duration-300 flex items-center justify-center border border-white/10 animate-bounce" title="Open Portal Theme Engine Demo Customizer">
                 <svg class="w-6 h-6 animate-[spin_8s_linear_infinite] text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
@@ -399,14 +411,14 @@
                 
                 <div class="flex justify-between items-center border-b border-gray-100 pb-4 mb-6">
                     <div>
-                        <h4 class="font-extrabold text-slate-900 text-lg">SaaS Theme Engine</h4>
+                        <h4 class="font-extrabold text-slate-900 text-lg">Portal Theme Engine</h4>
                         <p class="text-[10px] text-gray-500 font-bold uppercase tracking-wider mt-0.5">Live Demo Preview</p>
                     </div>
                     <button @click="open = false" class="text-gray-400 hover:text-gray-600 text-lg font-bold p-1">&times;</button>
                 </div>
 
                 <p class="text-xs text-gray-500 mb-4 leading-relaxed bg-gray-50 p-3.5 rounded-xl border border-gray-100">
-                    💡 <strong>SaaS Preview:</strong> Click any preset below to instantly transform the entire portal branding. This demonstrates how easily you can sell the platform to different coaching clients!
+                    💡 <strong>Live Theme Selector:</strong> Click any preset below to custom-brand your recruitment portal!
                 </p>
 
                 <!-- Reset Button at the Top -->
@@ -576,6 +588,43 @@
             </div>
         </div>
     </div>
+
+    <!-- 🧠 Smart Universal Scroll Position Restoration System -->
+    <script>
+        (function() {
+            const path = window.location.pathname;
+            const scrollKey = 'scroll_pos_' + path;
+            
+            // Save scroll position
+            window.addEventListener('scroll', () => {
+                sessionStorage.setItem(scrollKey, window.scrollY);
+            });
+
+            // Restore scroll position under certain conditions (reload, same-page form submit/action, etc.)
+            window.addEventListener('DOMContentLoaded', () => {
+                const isSamePage = document.referrer && document.referrer.includes(path);
+                const isReload = window.performance && window.performance.navigation && window.performance.navigation.type === 1;
+                const isModernReload = window.performance && window.performance.getEntriesByType && 
+                                     window.performance.getEntriesByType('navigation')[0] && 
+                                     window.performance.getEntriesByType('navigation')[0].type === 'reload';
+                
+                if (isSamePage || isReload || isModernReload) {
+                    const scrollPos = sessionStorage.getItem(scrollKey);
+                    if (scrollPos) {
+                        setTimeout(() => {
+                            window.scrollTo({
+                                top: parseInt(scrollPos, 10),
+                                behavior: 'instant'
+                            });
+                        }, 50);
+                    }
+                } else {
+                    // Fresh landing, clear scroll pos to start at top
+                    sessionStorage.removeItem(scrollKey);
+                }
+            });
+        })();
+    </script>
 
 </body>
 </html>

@@ -51,7 +51,7 @@ class Notification extends Model
      * @param  User    $user         User model (for contact info & logging)
      * @return bool
      */
-    private static function dispatchWhatsApp(string $phone, string $templateName, array $variables, User $user): bool
+    public static function dispatchWhatsApp(string $phone, string $templateName, array $variables, User $user): bool
     {
         // ── 1. Retrieve Settings ──────────────────────────────────────
         $apiUrl = SiteSetting::getVal('whatsapp_api_url', '');

@@ -23,7 +23,7 @@
             
             <div class="flex gap-2">
                 <span class="px-4 py-2 bg-theme-primary/10 text-theme-primary border border-theme-primary/20 text-xs font-black rounded-full uppercase tracking-wider">
-                    SaaS Candidate: {{ ucfirst(auth()->user()->candidateProfile?->type ?? 'Academic') }}
+                    Verified Candidate: {{ ucfirst(auth()->user()->candidateProfile?->type ?? 'Academic') }}
                 </span>
             </div>
         </div>
@@ -303,7 +303,7 @@
                 <p class="font-bold">No vacancy applications submitted yet.</p>
                 <p class="text-xs text-theme-text/50 mt-1">Browse the active jobs and apply to start sourcing pipelines!</p>
                 <div class="mt-4">
-                    <a href="/vacancies" class="inline-block px-4 py-2 text-xs font-black text-white bg-theme-primary hover:bg-theme-accent rounded-lg shadow transition">
+                    <a href="{{ route('vacancies.index') }}" class="inline-block px-4 py-2 text-xs font-black text-white bg-theme-primary hover:bg-theme-accent rounded-lg shadow transition">
                         Explore Open Vacancies &rarr;
                     </a>
                 </div>

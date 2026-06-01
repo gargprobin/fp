@@ -16,7 +16,7 @@
             </p>
 
             <!-- Search Filter Form -->
-            <form action="/vacancies" method="GET" class="flex flex-col md:flex-row gap-3 bg-[var(--theme-bg)] p-3 rounded-xl border border-[var(--theme-border)] shadow-md">
+            <form action="{{ route('vacancies.index') }}" method="GET" class="flex flex-col md:flex-row gap-3 bg-[var(--theme-bg)] p-3 rounded-xl border border-[var(--theme-border)] shadow-md">
                 <div class="flex-grow">
                     <input type="text" name="subject" value="{{ request('subject') }}" placeholder="Search by Subject (e.g., Physics, Computer Science)" class="w-full px-4 py-3 bg-[var(--theme-card)] border border-[var(--theme-border)] rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-theme-primary text-theme-text" />
                 </div>
@@ -64,7 +64,7 @@
                     <div class="flex justify-between items-start mb-3 pl-3">
                         <div>
                             <h3 class="text-xl font-bold text-theme-text group-hover:text-theme-primary transition">
-                                <a href="/vacancy/{{ $vacancy->id }}">{{ $vacancy->title }}</a>
+                                <a href="{{ route('vacancies.show', $vacancy->id) }}">{{ $vacancy->title }}</a>
                             </h3>
                             <div class="flex items-center gap-2 text-sm text-theme-text/60 mt-1">
                                 <span class="font-semibold text-theme-text/80">{{ $vacancy->institution->company_name }}</span>
@@ -103,7 +103,7 @@
                                 </span>
                             @endif
 
-                            <a href="/vacancy/{{ $vacancy->id }}" class="px-4 py-2 font-bold rounded-lg text-white transition text-xs shadow" style="background-color: {{ $vacancy->institution->primary_color }}">
+                            <a href="{{ route('vacancies.show', $vacancy->id) }}" class="px-4 py-2 font-bold rounded-lg text-white transition text-xs shadow" style="background-color: {{ $vacancy->institution->primary_color }}">
                                 View Details
                             </a>
                         </div>
@@ -138,17 +138,17 @@
                         <div class="pt-2 border-t border-[var(--theme-border)]">
                             <p class="font-semibold text-xs text-theme-text/50 mb-2">Switch Theme Instantly:</p>
                             <div class="grid grid-cols-2 gap-2 text-xs">
-                                <a href="/set-theme?theme=light" class="p-2 border border-[var(--theme-border)] rounded-lg text-center font-bold hover:bg-theme-primary/10 transition">☀️ Light</a>
-                                <a href="/set-theme?theme=dark" class="p-2 border border-[var(--theme-border)] rounded-lg text-center font-bold hover:bg-theme-primary/10 transition">🌙 Dark</a>
-                                <a href="/set-theme?theme=sepia" class="p-2 border border-[var(--theme-border)] rounded-lg text-center font-bold hover:bg-theme-primary/10 transition">☕ Sepia</a>
-                                <a href="/set-theme?theme=academic_blue" class="p-2 border border-[var(--theme-border)] rounded-lg text-center font-bold hover:bg-theme-primary/10 transition">🎓 Academic</a>
+                                <a href="{{ route('set-theme', ['theme' => 'light']) }}" class="p-2 border border-[var(--theme-border)] rounded-lg text-center font-bold hover:bg-theme-primary/10 transition">☀️ Light</a>
+                                <a href="{{ route('set-theme', ['theme' => 'dark']) }}" class="p-2 border border-[var(--theme-border)] rounded-lg text-center font-bold hover:bg-theme-primary/10 transition">🌙 Dark</a>
+                                <a href="{{ route('set-theme', ['theme' => 'sepia']) }}" class="p-2 border border-[var(--theme-border)] rounded-lg text-center font-bold hover:bg-theme-primary/10 transition">☕ Sepia</a>
+                                <a href="{{ route('set-theme', ['theme' => 'academic_blue']) }}" class="p-2 border border-[var(--theme-border)] rounded-lg text-center font-bold hover:bg-theme-primary/10 transition">🎓 Academic</a>
                             </div>
                         </div>
                     @else
                         <p class="text-theme-text/70 mb-4">
                             You are browsing as a Guest. Log in to apply to vacancies and see matching credentials.
                         </p>
-                        <a href="/login-demo" class="block w-full py-3 text-center bg-theme-primary hover:bg-theme-accent text-white font-bold rounded-xl shadow transition">
+                        <a href="{{ route('login-demo') }}" class="block w-full py-3 text-center bg-theme-primary hover:bg-theme-accent text-white font-bold rounded-xl shadow transition">
                             Open Quick Login
                         </a>
                     @endauth

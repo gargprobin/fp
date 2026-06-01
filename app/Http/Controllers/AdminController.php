@@ -44,11 +44,17 @@ class AdminController extends Controller
         $vacancies = Vacancy::with('institution')->latest()->get();
         $applications = Application::with('vacancy', 'candidate')->latest()->get();
 
+        // 4. Soft Deleted (Trash Lists)
+        $deletedUsers = User::onlyTrashed()->with('candidateProfile', 'institution')->latest()->get();
+        $deletedVacancies = Vacancy::onlyTrashed()->with('institution')->latest()->get();
+        $deletedApplications = Application::onlyTrashed()->with('vacancy', 'candidate')->latest()->get();
+
         return view('admin.settings', compact(
             'platformName', 'platformTagline', 'supportEmail',
             'whatsappProvider', 'whatsappApiKey', 'whatsappApiUrl', 'whatsappEnabled', 'whatsappSentLogs',
             'totalCandidates', 'totalInstitutions', 'totalVacancies', 'totalApplications',
-            'users', 'vacancies', 'applications'
+            'users', 'vacancies', 'applications',
+            'deletedUsers', 'deletedVacancies', 'deletedApplications'
         ));
     }
 
@@ -72,7 +78,7 @@ class AdminController extends Controller
             SiteSetting::setVal('platform_tagline', $request->platform_tagline);
             SiteSetting::setVal('support_email', $request->support_email);
 
-            return back()->with('success', 'SaaS Platform global settings updated successfully!');
+            return back()->with('success', 'Portal Platform global settings updated successfully!');
         }
 
         if ($request->has('whatsapp_api_provider')) {
@@ -242,5 +248,345 @@ class AdminController extends Controller
         }
 
         return back()->with('success', "Institution unlock request approved! Faculty contact details are now fully visible to the recruiter.");
+    }
+
+    /* ================================================================
+     | USER IMPERSONATION SYSTEM
+     | ================================================================ */
+
+    /**
+     * Login as a different user (Candidate or Recruiter).
+     */
+    public function impersonate($id)
+    {
+        if (!auth()->check() || !auth()->user()->isAdmin()) {
+            abort(403, 'Unauthorized.');
+        }
+
+        $user = User::findOrFail($id);
+
+        if ($user->isAdmin()) {
+            return back()->with('error', '❌ Admin cannot impersonate another Admin.');
+        }
+
+        // Store original admin ID in session
+        session(['impersonate_admin_id' => auth()->id()]);
+
+        // Login as target user
+        auth()->login($user);
+
+        // Redirect to their dashboard
+        if ($user->isCandidate()) {
+            return redirect()->route('faculty.dashboard')->with('success', "👤 Impersonating: You are now logged in as {$user->name}.");
+        } elseif ($user->isInstitution() || $user->isRecruiter()) {
+            return redirect()->route('recruiter.dashboard')->with('success', "👤 Impersonating: You are now logged in as {$user->name}.");
+        }
+
+        return redirect()->route('home')->with('success', "👤 Impersonating: You are now logged in as {$user->name}.");
+    }
+
+    /**
+     * Leave impersonation mode and return to admin.
+     */
+    public function leaveImpersonate()
+    {
+        if (!session()->has('impersonate_admin_id')) {
+            return redirect()->route('home')->with('error', 'No active impersonation session.');
+        }
+
+        $adminId = session('impersonate_admin_id');
+        $admin = User::find($adminId);
+
+        if (!$admin) {
+            session()->forget('impersonate_admin_id');
+            auth()->logout();
+            return redirect()->route('login-demo')->with('error', 'Admin user not found.');
+        }
+
+        // Login as Admin
+        auth()->login($admin);
+        session()->forget('impersonate_admin_id');
+
+        return redirect()->route('admin.settings')->with('success', '⚡ Returned to Portal Control Center successfully.');
+    }
+
+    /* ================================================================
+     | ADVANCED USER CRUD & MODERATION
+     | ================================================================ */
+
+    /**
+     * Create a new Candidate or Recruiter User.
+     */
+    public function storeUser(Request $request)
+    {
+        if (!auth()->check() || !auth()->user()->isAdmin()) {
+            abort(403, 'Unauthorized.');
+        }
+
+        $request->validate([
+            'name'     => 'required|string|max:100',
+            'email'    => 'required|email|unique:users,email',
+            'phone'    => 'required|string|max:15',
+            'role'     => 'required|in:candidate,institution',
+            'password' => 'required|string|min:6',
+            // Recruiter specific
+            'company_name' => 'required_if:role,institution|nullable|string|max:100',
+        ]);
+
+        $user = User::create([
+            'name'        => $request->name,
+            'email'       => $request->email,
+            'phone'       => $request->phone,
+            'role'        => $request->role,
+            'password'    => bcrypt($request->password),
+            'is_verified' => true,
+        ]);
+
+        if ($request->role === 'candidate') {
+            \App\Models\CandidateProfile::create([
+                'user_id' => $user->id,
+                'subject_specialization' => 'General',
+                'highest_degree' => 'Postgraduate',
+                'teaching_experience_years' => 1,
+                'current_organization' => 'None',
+            ]);
+        } elseif ($request->role === 'institution') {
+            \App\Models\Institution::create([
+                'user_id'      => $user->id,
+                'company_name' => $request->company_name ?? 'Sourcing Partner',
+                'address'      => 'General Address',
+                'website'      => 'https://fp.rj19web.com',
+            ]);
+        }
+
+        return back()->with('success', "👥 User '{$user->name}' successfully created!");
+    }
+
+    /**
+     * Update a user's details.
+     */
+    public function updateUser(Request $request, $id)
+    {
+        if (!auth()->check() || !auth()->user()->isAdmin()) {
+            abort(403, 'Unauthorized.');
+        }
+
+        $user = User::findOrFail($id);
+
+        $request->validate([
+            'name'  => 'required|string|max:100',
+            'email' => 'required|email|unique:users,email,' . $id,
+            'phone' => 'required|string|max:15',
+            // Recruiter specific
+            'company_name' => 'nullable|string|max:100',
+        ]);
+
+        $user->name = $request->name;
+        $user->email = $request->email;
+        $user->phone = $request->phone;
+        $user->is_verified = $request->has('is_verified');
+        $user->save();
+
+        if ($user->isInstitution() && $user->institution) {
+            $user->institution->company_name = $request->company_name ?? $user->institution->company_name;
+            $user->institution->save();
+        }
+
+        return back()->with('success', "👥 User '{$user->name}' updated successfully!");
+    }
+
+    /**
+     * Soft delete a User.
+     */
+    public function deleteUser($id)
+    {
+        if (!auth()->check() || !auth()->user()->isAdmin()) {
+            abort(403, 'Unauthorized.');
+        }
+
+        $user = User::findOrFail($id);
+
+        if ($user->id === auth()->id()) {
+            return back()->with('error', '❌ Admin cannot delete their own account.');
+        }
+
+        $user->delete();
+
+        return back()->with('success', "👥 User '{$user->name}' successfully soft-deleted! Added to System Trash.");
+    }
+
+    /**
+     * Restore a soft-deleted User.
+     */
+    public function restoreUser($id)
+    {
+        if (!auth()->check() || !auth()->user()->isAdmin()) {
+            abort(403, 'Unauthorized.');
+        }
+
+        $user = User::onlyTrashed()->findOrFail($id);
+        $user->restore();
+
+        return back()->with('success', "👥 User '{$user->name}' successfully restored!");
+    }
+
+    /* ================================================================
+     | ADVANCED VACANCY CRUD
+     | ================================================================ */
+
+    /**
+     * Create a new Vacancy.
+     */
+    public function storeVacancy(Request $request)
+    {
+        if (!auth()->check() || !auth()->user()->isAdmin()) {
+            abort(403, 'Unauthorized.');
+        }
+
+        $request->validate([
+            'institution_id'      => 'required|exists:institutions,id',
+            'title'               => 'required|string|max:100',
+            'description'         => 'required|string',
+            'subject'             => 'required|string|max:50',
+            'target_class'        => 'required|string|max:50',
+            'experience_required' => 'required|string|max:50',
+            'location'            => 'required|string|max:100',
+            'salary_min'          => 'required|numeric',
+            'salary_max'          => 'required|numeric',
+            'deadline'            => 'required|date',
+        ]);
+
+        Vacancy::create($request->all() + ['status' => 'open']);
+
+        return back()->with('success', '💼 Vacancy successfully created under Sourcing Institution!');
+    }
+
+    /**
+     * Update a Vacancy.
+     */
+    public function updateVacancy(Request $request, $id)
+    {
+        if (!auth()->check() || !auth()->user()->isAdmin()) {
+            abort(403, 'Unauthorized.');
+        }
+
+        $vacancy = Vacancy::findOrFail($id);
+
+        $request->validate([
+            'title'               => 'required|string|max:100',
+            'description'         => 'required|string',
+            'subject'             => 'required|string|max:50',
+            'target_class'        => 'required|string|max:50',
+            'experience_required' => 'required|string|max:50',
+            'location'            => 'required|string|max:100',
+            'salary_min'          => 'required|numeric',
+            'salary_max'          => 'required|numeric',
+            'deadline'            => 'required|date',
+        ]);
+
+        $vacancy->update($request->all());
+
+        return back()->with('success', "💼 Vacancy '{$vacancy->title}' updated successfully!");
+    }
+
+    /**
+     * Restore a soft-deleted Vacancy.
+     */
+    public function restoreVacancy($id)
+    {
+        if (!auth()->check() || !auth()->user()->isAdmin()) {
+            abort(403, 'Unauthorized.');
+        }
+
+        $vacancy = Vacancy::onlyTrashed()->findOrFail($id);
+        $vacancy->restore();
+
+        return back()->with('success', "💼 Vacancy '{$vacancy->title}' successfully restored!");
+    }
+
+    /* ================================================================
+     | PIPELINE APPLICATION CRUD
+     | ================================================================ */
+
+    /**
+     * Soft delete an Application.
+     */
+    public function deleteApplication($id)
+    {
+        if (!auth()->check() || !auth()->user()->isAdmin()) {
+            abort(403, 'Unauthorized.');
+        }
+
+        $application = Application::findOrFail($id);
+        $application->delete();
+
+        return back()->with('success', "📝 Application successfully soft-deleted! Added to System Trash.");
+    }
+
+    /**
+     * Restore an Application.
+     */
+    public function restoreApplication($id)
+    {
+        if (!auth()->check() || !auth()->user()->isAdmin()) {
+            abort(403, 'Unauthorized.');
+        }
+
+        $application = Application::onlyTrashed()->findOrFail($id);
+        $application->restore();
+
+        return back()->with('success', "📝 Application successfully restored!");
+    }
+
+    /* ================================================================
+     | WHATSAPP API TEST BENCH (SANDBOX)
+     | ================================================================ */
+
+    /**
+     * Send manual WhatsApp message using registered templates.
+     */
+    public function sendTestWhatsApp(Request $request)
+    {
+        if (!auth()->check() || !auth()->user()->isAdmin()) {
+            abort(403, 'Unauthorized.');
+        }
+
+        $request->validate([
+            'phone_number'  => 'required|string|max:15',
+            'template_name' => 'required|string',
+            'field_1'       => 'nullable|string',
+            'field_2'       => 'nullable|string',
+            'field_3'       => 'nullable|string',
+            'field_4'       => 'nullable|string',
+            'field_5'       => 'nullable|string',
+            'field_6'       => 'nullable|string',
+            'field_7'       => 'nullable|string',
+        ]);
+
+        // Construct clean variables array
+        $variables = [];
+        if ($request->filled('field_1')) $variables[] = $request->field_1;
+        if ($request->filled('field_2')) $variables[] = $request->field_2;
+        if ($request->filled('field_3')) $variables[] = $request->field_3;
+        if ($request->filled('field_4')) $variables[] = $request->field_4;
+        if ($request->filled('field_5')) $variables[] = $request->field_5;
+        if ($request->filled('field_6')) $variables[] = $request->field_6;
+        if ($request->filled('field_7')) $variables[] = $request->field_7;
+
+        $user = auth()->user();
+
+        // Dispatch manual test
+        $success = \App\Models\Notification::dispatchWhatsApp(
+            $request->phone_number,
+            $request->template_name,
+            $variables,
+            $user
+        );
+
+        if ($success) {
+            return back()->with('success', '⚡ WhatsApp sandbox message successfully sent! Verify your phone.');
+        }
+
+        return back()->with('error', '❌ WhatsApp sandbox dispatch failed. Check laravel.log for errors.');
     }
 }

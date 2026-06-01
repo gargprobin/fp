@@ -69,9 +69,26 @@ use App\Http\Controllers\AdminController;
 Route::get('/admin/settings', [AdminController::class, 'index'])->name('admin.settings');
 Route::post('/admin/settings', [AdminController::class, 'update'])->name('admin.settings.update');
 Route::post('/admin/clear-cache', [AdminController::class, 'clearCache'])->name('admin.clear-cache');
+
+// Impersonate Routes
+Route::post('/admin/impersonate/{id}', [AdminController::class, 'impersonate'])->name('admin.impersonate');
+Route::post('/admin/impersonate-leave', [AdminController::class, 'leaveImpersonate'])->name('admin.impersonate-leave');
+
+// CRUD & Restore Routes
+Route::post('/admin/user/store', [AdminController::class, 'storeUser'])->name('admin.user.store');
+Route::post('/admin/user/{id}/update', [AdminController::class, 'updateUser'])->name('admin.user.update');
+Route::delete('/admin/user/{id}', [AdminController::class, 'deleteUser'])->name('admin.user.delete');
+Route::post('/admin/user/{id}/restore', [AdminController::class, 'restoreUser'])->name('admin.user.restore');
+
 Route::post('/admin/user/{id}/toggle-verification', [AdminController::class, 'toggleVerification'])->name('admin.user.toggle-verification');
+Route::post('/admin/vacancy/store', [AdminController::class, 'storeVacancy'])->name('admin.vacancy.store');
+Route::post('/admin/vacancy/{id}/update', [AdminController::class, 'updateVacancy'])->name('admin.vacancy.update');
 Route::post('/admin/vacancy/{id}/toggle-status', [AdminController::class, 'toggleVacancyStatus'])->name('admin.vacancy.toggle-status');
 Route::delete('/admin/vacancy/{id}', [AdminController::class, 'deleteVacancy'])->name('admin.vacancy.delete');
+Route::post('/admin/vacancy/{id}/restore', [AdminController::class, 'restoreVacancy'])->name('admin.vacancy.restore');
+
+// WhatsApp Sandbox
+Route::post('/admin/whatsapp/test-send', [AdminController::class, 'sendTestWhatsApp'])->name('admin.whatsapp.test-send');
 
 // 7. Recruiter Dashboard & Funnel Pipeline Management
 use App\Http\Controllers\RecruiterController;
@@ -83,6 +100,8 @@ Route::post('/recruiter/application/{application}/pipeline', [RecruiterControlle
 // 8. Admin Advanced Faculty Sourcing Pipeline Moderation
 Route::post('/admin/application/{id}/shortlist', [AdminController::class, 'shortlistApplication'])->name('admin.application.shortlist');
 Route::post('/admin/application/{id}/unlock-approve', [AdminController::class, 'unlockApprove'])->name('admin.application.unlock-approve');
+Route::delete('/admin/application/{id}', [AdminController::class, 'deleteApplication'])->name('admin.application.delete');
+Route::post('/admin/application/{id}/restore', [AdminController::class, 'restoreApplication'])->name('admin.application.restore');
 
 // 9. Real-Time Notification Center routes
 Route::post('/notifications/read-all', function() {

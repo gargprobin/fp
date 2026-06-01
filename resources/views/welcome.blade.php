@@ -70,7 +70,7 @@
             </p>
 
             <!-- Fully Interactive Search Bar (Submits to route for SSR + matches locally via Alpine) -->
-            <form action="/" method="GET" @submit.prevent="" class="w-full max-w-2xl bg-[var(--theme-card)] p-3 rounded-2xl md:rounded-full shadow-xl border border-[var(--theme-border)] flex flex-col md:flex-row gap-2 items-center mb-12">
+            <form action="{{ route('home') }}" method="GET" @submit.prevent="" class="w-full max-w-2xl bg-[var(--theme-card)] p-3 rounded-2xl md:rounded-full shadow-xl border border-[var(--theme-border)] flex flex-col md:flex-row gap-2 items-center mb-12">
                 <div class="w-full flex items-center px-4 gap-2">
                     <svg class="w-5 h-5 text-theme-text/40 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                     <input 
@@ -400,7 +400,7 @@
 
             <div class="flex gap-4 mt-6">
                 <a 
-                    href="/login-demo" 
+                    href="{{ route('login-demo') }}" 
                     class="flex-1 py-3 text-xs font-bold text-white bg-theme-primary hover:bg-theme-accent rounded-xl shadow-md transition-all text-center cursor-pointer"
                 >
                     Request Candidate Shortlist
@@ -435,7 +435,7 @@
 
             @auth
                 <!-- Authenticated Quick Application Form -->
-                <form :action="'/vacancy/' + (applyVacancy ? applyVacancy.id : '') + '/apply'" method="POST" class="space-y-4">
+                <form :action="'{{ url('/vacancy') }}/' + (applyVacancy ? applyVacancy.id : '') + '/apply'" method="POST" class="space-y-4">
                     @csrf
                     <div>
                         <label class="block text-xs font-bold uppercase tracking-wider mb-2 text-theme-text/70">Cover Note</label>
@@ -469,7 +469,7 @@
                     </p>
                     <div class="flex gap-3 justify-center pt-2">
                         <button type="button" @click="applyVacancy = null" class="px-5 py-2.5 text-xs font-bold bg-gray-100 hover:bg-gray-250 text-gray-700 rounded-xl transition">Close</button>
-                        <a href="/login-demo" class="px-6 py-2.5 text-xs font-bold text-white bg-theme-primary hover:bg-theme-accent rounded-xl shadow transition">Sign In via Demo Accounts</a>
+                        <a href="{{ route('login-demo') }}" class="px-6 py-2.5 text-xs font-bold text-white bg-theme-primary hover:bg-theme-accent rounded-xl shadow transition">Sign In via Demo Accounts</a>
                     </div>
                 </div>
             @endauth

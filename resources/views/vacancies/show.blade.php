@@ -23,7 +23,7 @@
     
     <!-- Breadcrumb -->
     <nav class="text-sm text-theme-text/60">
-        <a href="/vacancies" class="hover:text-theme-primary transition">Jobs</a> &rarr; 
+        <a href="{{ route('vacancies.index') }}" class="hover:text-theme-primary transition">Jobs</a> &rarr; 
         <span>{{ $vacancy->title }}</span>
     </nav>
 
@@ -157,7 +157,7 @@
                     @endif
 
                     @if(auth()->user()->isCandidate())
-                        <form action="/vacancy/{{ $vacancy->id }}/apply" method="POST" class="space-y-4">
+                        <form action="{{ route('vacancies.apply', $vacancy->id) }}" method="POST" class="space-y-4">
                             @csrf
                             
                             <div>
@@ -192,7 +192,7 @@
                 @else
                     <div class="text-center p-4">
                         <p class="text-sm text-theme-text/70 mb-4">Please sign in with your candidate profile to apply.</p>
-                        <a href="/login-demo" class="block w-full py-3 text-white font-bold rounded-xl shadow-md transition text-sm" style="background-color: {{ $vacancy->institution->primary_color }}">
+                        <a href="{{ route('login-demo') }}" class="block w-full py-3 text-white font-bold rounded-xl shadow-md transition text-sm" style="background-color: {{ $vacancy->institution->primary_color }}">
                             Log In to Apply
                         </a>
                     </div>
