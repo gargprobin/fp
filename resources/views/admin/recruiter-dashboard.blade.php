@@ -144,7 +144,7 @@
                                         <div class="space-y-1">
                                             <div class="font-black text-theme-text text-base">🟢 {{ $app->candidate->name }}</div>
                                             <div class="text-xs font-bold text-theme-text/70">
-                                                📧 Email: <a href="mailto:{{ $app->candidate->email }}" class="text-theme-primary hover:underline">{{ $app->candidate->email }}</a> &bull; 📞 Mob: {{ $app->candidate->candidateProfile?->preferred_location ?? 'N/A' }}
+                                                📧 Email: <a href="mailto:{{ $app->candidate->email }}" class="text-theme-primary hover:underline">{{ $app->candidate->email }}</a> &bull; 📞 Mob: {{ $app->candidate->phone ?? 'N/A' }}
                                             </div>
                                         </div>
                                     @endif
