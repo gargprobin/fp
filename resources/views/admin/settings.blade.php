@@ -84,7 +84,7 @@
                 </p>
             </div>
             <div class="flex items-center gap-3">
-                <form action="{{ route('admin.clear-cache') }}" method="POST" onsubmit="return confirm('Bhai, kya aap sachme pure system ka cache clear karna chahte hain?')">
+                <form action="{{ route('admin.clear-cache') }}" method="POST" onsubmit="return confirm('Are you sure you want to clear the entire system cache? This will reset all cached views and route settings.')">
                     @csrf
                     <button type="submit" class="px-4 py-2.5 bg-amber-500 hover:bg-amber-600 active:scale-95 text-white font-bold text-xs rounded-xl shadow-sm transition-all duration-200 flex items-center gap-1.5 border border-amber-600/20 cursor-pointer">
                         ⚡ Clear System Cache
@@ -296,7 +296,7 @@
 
                                         <!-- Delete User -->
                                         @if($user->id !== auth()->id())
-                                            <form action="{{ route('admin.user.delete', $user->id) }}" method="POST" class="inline" onsubmit="return confirm('Bhai, kya aap sachme is user ko system trash me bhejna chahte hain?')">
+                                            <form action="{{ route('admin.user.delete', $user->id) }}" method="POST" class="inline" onsubmit="return confirm('Are you sure you want to move this user to the system trash?')">
                                                 @csrf
                                                 @method('DELETE')
                                                 <button type="submit" class="px-2.5 py-1.5 text-xs font-bold rounded-lg text-red-500 bg-red-500/10 hover:bg-red-500 hover:text-white transition cursor-pointer">
@@ -383,7 +383,7 @@
                                         </button>
 
                                         <!-- Delete Vacancy -->
-                                        <form action="{{ route('admin.vacancy.delete', $vacancy->id) }}" method="POST" class="inline" onsubmit="return confirm('Bhai, kya aap sachme is job vacancy ko trash me bhejna chahte hain?');">
+                                        <form action="{{ route('admin.vacancy.delete', $vacancy->id) }}" method="POST" class="inline" onsubmit="return confirm('Are you sure you want to move this job vacancy to the system trash?');">
                                             @csrf
                                             @method('DELETE')
                                             <button type="submit" class="px-2.5 py-1.5 text-xs font-bold rounded-lg text-red-500 bg-red-500/10 hover:bg-red-500 hover:text-white transition cursor-pointer">
@@ -498,7 +498,7 @@
                                         @endif
 
                                         <!-- Soft Delete Application -->
-                                        <form action="{{ route('admin.application.delete', $application->id) }}" method="POST" class="inline" onsubmit="return confirm('Bhai, kya aap is application record ko trash me bhejna chahte hain?')">
+                                        <form action="{{ route('admin.application.delete', $application->id) }}" method="POST" class="inline" onsubmit="return confirm('Are you sure you want to move this application record to the system trash?')">
                                             @csrf
                                             @method('DELETE')
                                             <button type="submit" class="px-2.5 py-1.5 text-xs font-bold rounded-lg text-red-500 bg-red-500/10 hover:bg-red-500 hover:text-white transition cursor-pointer">
