@@ -88,6 +88,27 @@ class AdminController extends Controller
     }
 
     /**
+     * Clear and reload all system caches (configs, routes, views, app cache).
+     */
+    public function clearCache()
+    {
+        if (!auth()->check() || !auth()->user()->isAdmin()) {
+            abort(403, 'Unauthorized.');
+        }
+
+        try {
+            \Illuminate\Support\Facades\Artisan::call('config:clear');
+            \Illuminate\Support\Facades\Artisan::call('route:clear');
+            \Illuminate\Support\Facades\Artisan::call('view:clear');
+            \Illuminate\Support\Facades\Artisan::call('cache:clear');
+
+            return back()->with('success', '⚡ System Cache cleared successfully! All settings and routes have been reloaded.');
+        } catch (\Exception $e) {
+            return back()->with('error', '❌ Failed to clear system cache: ' . $e->getMessage());
+        }
+    }
+
+    /**
      * Toggle a user's verification badge.
      */
     public function toggleVerification($id)

@@ -16,9 +16,17 @@
                     Manage global dynamic settings, configure WhatsApp API integrations, moderate active vacancies, track applications, and verify candidate/partner credentials.
                 </p>
             </div>
-            <span class="px-4 py-2 bg-red-500/10 text-red-500 border border-red-500/20 text-xs font-bold rounded-full">
-                SYSTEM CONTROL
-            </span>
+            <div class="flex items-center gap-3">
+                <form action="{{ route('admin.clear-cache') }}" method="POST" onsubmit="return confirm('Bhai, kya aap sachme pure system ka cache clear karna chahte hain?')">
+                    @csrf
+                    <button type="submit" class="px-4 py-2.5 bg-amber-500 hover:bg-amber-600 active:scale-95 text-white font-bold text-xs rounded-xl shadow-sm transition-all duration-200 flex items-center gap-1.5 border border-amber-600/20">
+                        ⚡ Clear System Cache
+                    </button>
+                </form>
+                <span class="px-4 py-2.5 bg-red-500/10 text-red-500 border border-red-500/20 text-xs font-bold rounded-full">
+                    SYSTEM CONTROL
+                </span>
+            </div>
         </div>
     </div>
 
@@ -26,6 +34,11 @@
     @if(session('success'))
         <div class="p-4 rounded-xl bg-green-500/10 text-green-500 border border-green-500/20 font-semibold shadow-sm transition">
             {{ session('success') }}
+        </div>
+    @endif
+    @if(session('error'))
+        <div class="p-4 rounded-xl bg-red-500/10 text-red-500 border border-red-500/20 font-semibold shadow-sm transition">
+            {{ session('error') }}
         </div>
     @endif
 

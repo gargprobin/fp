@@ -68,6 +68,7 @@ Route::get('/referee/success/{token}', [RefereeController::class, 'success'])->n
 use App\Http\Controllers\AdminController;
 Route::get('/admin/settings', [AdminController::class, 'index'])->name('admin.settings');
 Route::post('/admin/settings', [AdminController::class, 'update'])->name('admin.settings.update');
+Route::post('/admin/clear-cache', [AdminController::class, 'clearCache'])->name('admin.clear-cache');
 Route::post('/admin/user/{id}/toggle-verification', [AdminController::class, 'toggleVerification'])->name('admin.user.toggle-verification');
 Route::post('/admin/vacancy/{id}/toggle-status', [AdminController::class, 'toggleVacancyStatus'])->name('admin.vacancy.toggle-status');
 Route::delete('/admin/vacancy/{id}', [AdminController::class, 'deleteVacancy'])->name('admin.vacancy.delete');
