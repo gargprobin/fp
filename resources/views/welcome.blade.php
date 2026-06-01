@@ -3,6 +3,12 @@
 @section('title', ($siteSettings->platform_name ?? 'EduStaff Hub') . ' - ' . ($siteSettings->platform_tagline ?? 'Premium Faculty Recruitment Ecosystem'))
 
 @section('content')
+@php
+    $appliedVacancyIds = [];
+    if (auth()->check() && auth()->user()->isCandidate()) {
+        $appliedVacancyIds = auth()->user()->applications->pluck('vacancy_id')->toArray();
+    }
+@endphp
 <div x-data="{ 
     // State management for local filter matching c:\jobs
     searchSubject: '{{ request('subject', '') }}',
@@ -238,16 +244,22 @@
                                 @endif
                             </p>
                             <p class="text-sm text-theme-text/75 max-w-3xl leading-relaxed">{{ $job->description }}</p>
-                            <span class="text-[10px] text-theme-text/40 block">Posted by: <strong>{{ $job->institution->company_name }}</strong></span>
+                            <span class="text-[10px] text-theme-text/40 block">Posted by: <strong>Confidential Partner Brand</strong></span>
                         </div>
 
-                        <!-- 1-Click Apply Trigger -->
-                        <button 
-                            @click="applyVacancy = { id: {{ $job->id }}, title: '{{ $job->title }}', institution: '{{ $job->institution->company_name }}' }"
-                            class="px-6 py-2.5 text-xs font-bold text-white bg-theme-primary hover:bg-theme-accent rounded-xl shadow-md shadow-theme-primary/10 hover:shadow-xl shrink-0 text-center w-full md:w-auto cursor-pointer"
-                        >
-                            Apply with 1-Click
-                        </button>
+                        <!-- 1-Click Apply Trigger or Applied Badge -->
+                        @if(in_array($job->id, $appliedVacancyIds))
+                            <span class="px-6 py-2.5 text-xs font-black text-green-500 bg-green-500/10 border border-green-500/20 rounded-xl shrink-0 text-center w-full md:w-auto">
+                                ✓ Applied
+                            </span>
+                        @else
+                            <button 
+                                @click="applyVacancy = { id: {{ $job->id }}, title: '{{ $job->title }}', institution: 'Confidential Partner Brand' }"
+                                class="px-6 py-2.5 text-xs font-bold text-white bg-theme-primary hover:bg-theme-accent rounded-xl shadow-md shadow-theme-primary/10 hover:shadow-xl shrink-0 text-center w-full md:w-auto cursor-pointer"
+                            >
+                                Apply with 1-Click
+                            </button>
+                        @endif
                     </div>
                 @endforeach
 
