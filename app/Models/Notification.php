@@ -54,8 +54,8 @@ class Notification extends Model
     public static function dispatchWhatsApp(string $phone, string $templateName, array $variables, User $user): bool
     {
         // ── 1. Retrieve Settings ──────────────────────────────────────
-        $apiUrl = SiteSetting::getVal('whatsapp_api_url', '');
-        $token  = SiteSetting::getVal('whatsapp_api_key', '');
+        $apiUrl = SiteSetting::getVal('whatsapp_api_url', 'https://wa.rj19web.com/api/6e2f51c7-21b0-450b-9329-14955a8c79a/contact/send-message');
+        $token  = SiteSetting::getVal('whatsapp_api_key', 'jUDMUIGKNETSvQ4CaAjYbyRJS9YNAMXsVTQvJjxUPlpc5LvQIluo36YrMNAcGB5O');
 
         if (empty($apiUrl)) {
             Log::warning('WhatsApp: API URL not configured in Site Settings.');
