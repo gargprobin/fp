@@ -111,6 +111,9 @@ Route::post('/admin/application/{id}/restore', [AdminController::class, 'restore
 Route::post('/notifications/read-all', function() {
     if (auth()->check()) {
         \App\Models\Notification::where('user_id', auth()->id())->update(['is_read' => true]);
+        if (request()->wantsJson() || request()->ajax()) {
+            return response()->json(['success' => true]);
+        }
     }
     return back()->with('success', 'All notifications marked as read.');
 })->name('notifications.read-all');
@@ -119,6 +122,9 @@ Route::post('/notifications/{notification}/toggle-read', function(\App\Models\No
     if (auth()->check() && $notification->user_id === auth()->id()) {
         $notification->is_read = !$notification->is_read;
         $notification->save();
+        if (request()->wantsJson() || request()->ajax()) {
+            return response()->json(['success' => true, 'is_read' => $notification->is_read]);
+        }
     }
     return back();
 })->name('notifications.toggle-read');

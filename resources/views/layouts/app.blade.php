@@ -251,34 +251,46 @@
                     
                     <!-- Real-Time Notification Center Dropdown (FB style, same to same) -->
                     @auth
-                    <div x-data="{ open: false }" class="relative">
+                    <div x-data="{ open: false, unreadCount: {{ $unreadNotificationsCount }} }" class="relative">
                         <button @click="open = !open" class="p-2 rounded-lg bg-[var(--theme-card)] hover:bg-theme-primary/10 border border-[var(--theme-border)] text-theme-text/80 flex items-center justify-center transition relative">
                             <span class="text-base">🔔</span>
-                            @if($unreadNotificationsCount > 0)
-                                <span class="absolute -top-1 -right-1 w-5 h-5 bg-red-600 text-white text-[10px] font-black rounded-full flex items-center justify-center animate-pulse">
-                                    {{ $unreadNotificationsCount }}
-                                </span>
-                            @endif
+                            <span x-show="unreadCount > 0" class="absolute -top-1 -right-1 w-5 h-5 bg-red-600 text-white text-[10px] font-black rounded-full flex items-center justify-center animate-pulse" x-text="unreadCount" x-cloak>
+                                {{ $unreadNotificationsCount }}
+                            </span>
                         </button>
                         
                         <div x-show="open" @click.away="open = false" class="absolute right-0 mt-2 w-80 rounded-2xl shadow-xl bg-[var(--theme-card)] border border-[var(--theme-border)] py-2 z-50 text-xs overflow-hidden" x-cloak>
                             <div class="flex justify-between items-center px-4 py-2 border-b border-[var(--theme-border)] font-bold text-theme-text bg-[var(--theme-card)]">
                                 <span>Notifications</span>
-                                @if($unreadNotificationsCount > 0)
-                                    <form action="{{ route('notifications.read-all') }}" method="POST">
-                                        @csrf
-                                        <button type="submit" class="text-[10px] text-theme-primary hover:underline font-black uppercase tracking-wider">
-                                            Mark all read
-                                        </button>
-                                    </form>
-                                @endif
+                                <form x-show="unreadCount > 0" @submit.prevent="
+                                    fetch('{{ route('notifications.read-all') }}', {
+                                        method: 'POST',
+                                        headers: {
+                                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                                            'Accept': 'application/json'
+                                        }
+                                    })
+                                    .then(res => {
+                                        if (res.ok) {
+                                            unreadCount = 0;
+                                            $dispatch('mark-all-read');
+                                        }
+                                    })
+                                " class="inline" x-cloak>
+                                    @csrf
+                                    <button type="submit" class="text-[10px] text-theme-primary hover:underline font-black uppercase tracking-wider cursor-pointer">
+                                        Mark all read
+                                    </button>
+                                </form>
                             </div>
                             
                             <div class="max-h-72 overflow-y-auto divide-y divide-[var(--theme-border)]">
                                 @forelse($notificationsList as $notif)
-                                    <div class="relative group flex items-center justify-between hover:bg-[var(--theme-bg)] transition-colors">
+                                    <div x-data="{ isRead: {{ $notif->is_read ? 'true' : 'false' }} }" 
+                                         @mark-all-read.window="isRead = true"
+                                         class="relative group flex items-center justify-between hover:bg-[var(--theme-bg)] transition-colors">
                                         <!-- Main Notification Link -->
-                                        <a href="{{ route('notifications.read', $notif->id) }}" class="flex-grow px-4 py-3 text-left space-y-1 {{ !$notif->is_read ? 'bg-theme-primary/5 font-semibold' : '' }}">
+                                        <a href="{{ route('notifications.read', $notif->id) }}" class="flex-grow px-4 py-3 text-left space-y-1 transition-all duration-200" :class="!isRead ? 'bg-theme-primary/5 font-semibold' : 'bg-transparent'">
                                             <div class="flex justify-between items-start gap-2">
                                                 <span class="font-bold text-theme-text flex items-center gap-1">
                                                     @if($notif->type === 'success') 🟢 @elseif($notif->type === 'warning') 🟡 @elseif($notif->type === 'alert') 🔴 @else 🔵 @endif
@@ -291,11 +303,26 @@
 
                                         <!-- FB-Style Toggle Dot Button -->
                                         <div class="pr-4 py-3 shrink-0 flex items-center justify-center bg-transparent">
-                                            <form action="{{ route('notifications.toggle-read', $notif->id) }}" method="POST" class="inline">
-                                                @csrf
-                                                <button type="submit" @click.stop="" class="w-3 h-3 rounded-full border-2 border-theme-primary transition-all duration-200 transform hover:scale-125 focus:outline-none cursor-pointer {{ !$notif->is_read ? 'bg-theme-primary' : 'bg-transparent border-theme-text/30' }}" title="{{ !$notif->is_read ? 'Mark as read' : 'Mark as unread' }}">
-                                                </button>
-                                            </form>
+                                            <button type="button" 
+                                                    @click.stop="
+                                                        fetch('{{ route('notifications.toggle-read', $notif->id) }}', {
+                                                            method: 'POST',
+                                                            headers: {
+                                                                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                                                                'Accept': 'application/json'
+                                                            }
+                                                        })
+                                                        .then(res => {
+                                                            if (res.ok) {
+                                                                isRead = !isRead;
+                                                                unreadCount = isRead ? unreadCount - 1 : unreadCount + 1;
+                                                            }
+                                                        })
+                                                    " 
+                                                    class="w-3 h-3 rounded-full border-2 border-theme-primary transition-all duration-200 transform hover:scale-125 focus:outline-none cursor-pointer"
+                                                    :class="!isRead ? 'bg-theme-primary' : 'bg-transparent border-theme-text/30'"
+                                                    :title="!isRead ? 'Mark as read' : 'Mark as unread'">
+                                            </button>
                                         </div>
                                     </div>
                                 @empty
@@ -649,6 +676,23 @@
                 } else {
                     // Fresh landing, clear scroll pos to start at top
                     sessionStorage.removeItem(scrollKey);
+                }
+            });
+        })();
+    </script>
+
+    <!-- 🎯 Auto-Scroll to Target and Highlight Glow (for notifications redirection) -->
+    <script>
+        (function() {
+            window.addEventListener('load', () => {
+                if (window.location.hash && window.location.hash.startsWith('#app-')) {
+                    // Wait slightly for Alpine tabs to toggle classes and show the elements in the DOM
+                    setTimeout(() => {
+                        const targetEl = document.querySelector(window.location.hash);
+                        if (targetEl) {
+                            targetEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        }
+                    }, 200);
                 }
             });
         })();
