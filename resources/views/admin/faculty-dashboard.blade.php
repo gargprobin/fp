@@ -52,7 +52,7 @@
                 $isLinedUp = in_array($app->status, ['unlocked', 'written_test', 'interview', 'demo', 'appointed']);
             @endphp
             
-            <div class="bg-[var(--theme-card)] rounded-2xl p-6 border border-[var(--theme-border)] shadow-sm space-y-6 relative overflow-hidden transition-all hover:shadow-md">
+            <div id="app-{{ $app->id }}" class="bg-[var(--theme-card)] rounded-2xl p-6 border border-[var(--theme-border)] shadow-sm space-y-6 relative overflow-hidden transition-all hover:shadow-md">
                 
                 <!-- Status Colored Accent -->
                 <div class="absolute left-0 top-0 bottom-0 w-1.5 {{ $app->status === 'appointed' ? 'bg-emerald-500' : ($isLinedUp ? 'bg-indigo-500' : 'bg-amber-500') }}"></div>

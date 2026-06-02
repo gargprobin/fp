@@ -186,7 +186,7 @@ class VacancyController extends Controller
             $user->id,
             '📥 Application Submitted',
             "You have applied for {$vacancy->title}. Your profile is sent for Admin screening.",
-            route('faculty.dashboard'),
+            route('faculty.dashboard') . '#app-' . $application->id,
             'success'
         );
 
@@ -194,7 +194,7 @@ class VacancyController extends Controller
             $vacancy->institution->user_id,
             '📥 New Sourced Applicant',
             "A new candidate has applied for {$vacancy->title}. Sourcing & Admin screening is underway.",
-            route('recruiter.dashboard'),
+            route('recruiter.dashboard') . '#app-' . $application->id,
             'info'
         );
 
@@ -204,7 +204,7 @@ class VacancyController extends Controller
                 $ad->id,
                 '📥 New Faculty Applicant',
                 "{$user->name} has applied for {$vacancy->title}. Review and shortlist.",
-                route('admin.settings'),
+                route('admin.settings') . '#app-' . $application->id,
                 'info'
             );
         }

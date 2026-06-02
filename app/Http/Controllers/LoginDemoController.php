@@ -227,7 +227,7 @@ class LoginDemoController extends Controller
                 $ad->id,
                 '🔔 New User Registered',
                 "New user {$user->name} ({$user->email}) registered as " . ($user->role === 'candidate' ? 'Faculty Candidate' : 'Institution Recruiter') . ". Check verification.",
-                route('admin.settings'),
+                route('admin.settings', ['tab' => 'users']),
                 'info'
             );
         }

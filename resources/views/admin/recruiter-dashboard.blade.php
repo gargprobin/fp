@@ -4,7 +4,7 @@
 
 @section('content')
 <div x-data="{ 
-    activeTab: localStorage.getItem('recruiter_active_tab') || 'pipeline',
+    activeTab: window.location.hash.startsWith('#app-') ? 'pipeline' : (localStorage.getItem('recruiter_active_tab') || 'pipeline'),
     selectTab(tab) {
         this.activeTab = tab;
         localStorage.setItem('recruiter_active_tab', tab);
@@ -123,7 +123,7 @@
                     </thead>
                     <tbody class="divide-y divide-[var(--theme-border)]">
                         @forelse($applications as $app)
-                            <tr class="hover:bg-[var(--theme-bg)] transition-colors">
+                            <tr id="app-{{ $app->id }}" class="hover:bg-[var(--theme-bg)] transition-colors">
                                 <!-- Applied Vacancy info -->
                                 <td class="px-6 py-4">
                                     <div class="font-bold text-theme-text">{{ $app->vacancy->title }}</div>

@@ -4,7 +4,9 @@
 
 @section('content')
 <div x-data="{ 
-    activeTab: localStorage.getItem('admin_active_tab') || 'settings',
+    activeTab: (window.location.hash.startsWith('#app-') || '{{ request('tab') }}' === 'applications') 
+        ? 'applications' 
+        : ('{{ request('tab') }}' === 'users' ? 'users' : (localStorage.getItem('admin_active_tab') || 'settings')),
     selectTab(tab) {
         this.activeTab = tab;
         localStorage.setItem('admin_active_tab', tab);
@@ -433,7 +435,7 @@
                     </thead>
                     <tbody class="divide-y divide-[var(--theme-border)] bg-[var(--theme-bg)]">
                         @forelse($applications as $application)
-                            <tr class="hover:bg-theme-primary/5 transition-colors"
+                            <tr id="app-{{ $application->id }}" class="hover:bg-theme-primary/5 transition-colors"
                                 x-show="appSearch === '' || '{{ strtolower($application->candidate->name) }}'.includes(appSearch.toLowerCase()) || '{{ strtolower($application->vacancy->title) }}'.includes(appSearch.toLowerCase()) || '{{ strtolower($application->status) }}'.includes(appSearch.toLowerCase())">
                                 <td class="px-6 py-4">
                                     <div class="font-bold text-theme-text">{{ $application->candidate->name }}</div>

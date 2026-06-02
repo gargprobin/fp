@@ -115,6 +115,14 @@ Route::post('/notifications/read-all', function() {
     return back()->with('success', 'All notifications marked as read.');
 })->name('notifications.read-all');
 
+Route::post('/notifications/{notification}/toggle-read', function(\App\Models\Notification $notification) {
+    if (auth()->check() && $notification->user_id === auth()->id()) {
+        $notification->is_read = !$notification->is_read;
+        $notification->save();
+    }
+    return back();
+})->name('notifications.toggle-read');
+
 Route::get('/notifications/{notification}/read', function(\App\Models\Notification $notification) {
     if (auth()->check() && $notification->user_id === auth()->id()) {
         $notification->is_read = true;

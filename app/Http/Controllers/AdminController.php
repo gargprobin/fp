@@ -180,7 +180,7 @@ class AdminController extends Controller
             $application->candidate_id,
             '🔎 Profile Shortlisted',
             "Good news! Admin has screened and shortlisted your profile for {$application->vacancy->title}. Recruiter is reviewing.",
-            route('faculty.dashboard'),
+            route('faculty.dashboard') . '#app-' . $application->id,
             'success'
         );
 
@@ -188,7 +188,7 @@ class AdminController extends Controller
             $application->vacancy->institution->user_id,
             '🔎 Masked Profile Sourced',
             "Admin has shortlisted Candidate #{$application->candidate_id} for {$application->vacancy->title}. Review masked CV and request Line Up.",
-            route('recruiter.dashboard'),
+            route('recruiter.dashboard') . '#app-' . $application->id,
             'info'
         );
 
@@ -198,7 +198,7 @@ class AdminController extends Controller
                 $ad->id,
                 '🔎 Candidate Shortlisted',
                 "You shortlisted {$application->candidate->name} for {$application->vacancy->title}.",
-                route('admin.settings'),
+                route('admin.settings') . '#app-' . $application->id,
                 'success'
             );
         }
@@ -224,7 +224,7 @@ class AdminController extends Controller
             $application->candidate_id,
             '🟢 Line Up Approved!',
             "Congratulations! You are Lined Up with {$application->vacancy->institution->company_name} for {$application->vacancy->title}. Coaching details unlocked!",
-            route('faculty.dashboard'),
+            route('faculty.dashboard') . '#app-' . $application->id,
             'success'
         );
 
@@ -232,7 +232,7 @@ class AdminController extends Controller
             $application->vacancy->institution->user_id,
             '🟢 Line Up Approved!',
             "Admin approved Line Up for {$application->candidate->name} for {$application->vacancy->title}. Contact details unlocked!",
-            route('recruiter.dashboard'),
+            route('recruiter.dashboard') . '#app-' . $application->id,
             'success'
         );
 
@@ -242,7 +242,7 @@ class AdminController extends Controller
                 $ad->id,
                 '🟢 Line Up Approved',
                 "You approved the Line Up of {$application->candidate->name} under {$application->vacancy->institution->company_name}.",
-                route('admin.settings'),
+                route('admin.settings') . '#app-' . $application->id,
                 'success'
             );
         }

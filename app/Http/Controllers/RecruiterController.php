@@ -118,7 +118,7 @@ class RecruiterController extends Controller
             $application->candidate_id,
             '🤝 Recruiter Shortlisted',
             "Exciting! The recruiter has shortlisted your profile for {$application->vacancy->title} and requested a Line Up. Awaiting Admin approval.",
-            route('faculty.dashboard'),
+            route('faculty.dashboard') . '#app-' . $application->id,
             'info'
         );
 
@@ -126,7 +126,7 @@ class RecruiterController extends Controller
             $application->vacancy->institution->user_id,
             '🔑 Line Up Requested',
             "Your request to Line Up Candidate #{$application->candidate_id} has been submitted to Admin.",
-            route('recruiter.dashboard'),
+            route('recruiter.dashboard') . '#app-' . $application->id,
             'success'
         );
 
@@ -136,7 +136,7 @@ class RecruiterController extends Controller
                 $ad->id,
                 '🔑 Line Up Approval Required',
                 "{$application->vacancy->institution->company_name} requested a Line Up for Candidate #{$application->candidate_id} for {$application->vacancy->title}. Please approve.",
-                route('admin.settings'),
+                route('admin.settings') . '#app-' . $application->id,
                 'alert'
             );
         }
@@ -177,7 +177,7 @@ class RecruiterController extends Controller
             $application->candidate_id,
             '📊 Vetting Stage Updated',
             "Your placement funnel for {$application->vacancy->title} moved to: {$stageName}.",
-            route('faculty.dashboard'),
+            route('faculty.dashboard') . '#app-' . $application->id,
             'info'
         );
 
@@ -185,7 +185,7 @@ class RecruiterController extends Controller
             $application->vacancy->institution->user_id,
             '📊 Funnel State Updated',
             "Updated Candidate #{$application->candidate_id} to: {$stageName}.",
-            route('recruiter.dashboard'),
+            route('recruiter.dashboard') . '#app-' . $application->id,
             'success'
         );
 
@@ -195,7 +195,7 @@ class RecruiterController extends Controller
                 $ad->id,
                 '📊 Vetting Funnel Updated',
                 "{$application->candidate->name} funnel state updated to {$stageName} under {$application->vacancy->institution->company_name}.",
-                route('admin.settings'),
+                route('admin.settings') . '#app-' . $application->id,
                 'info'
             );
         }

@@ -174,6 +174,22 @@
             backdrop-filter: blur(12px);
             border: 1px solid var(--theme-border);
         }
+
+        /* High-quality highlight fade animation for targeted notification items */
+        :target {
+            animation: highlight-fade 3s ease-in-out;
+            border-color: var(--theme-primary) !important;
+            box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.15) !important;
+        }
+
+        @keyframes highlight-fade {
+            0% {
+                background-color: rgba(37, 99, 235, 0.08);
+            }
+            100% {
+                background-color: transparent;
+            }
+        }
     </style>
 </head>
 <body class="theme-{{ $themePreference ?? 'light' }} min-h-screen flex flex-col antialiased">
@@ -260,16 +276,28 @@
                             
                             <div class="max-h-72 overflow-y-auto divide-y divide-[var(--theme-border)]">
                                 @forelse($notificationsList as $notif)
-                                    <a href="{{ route('notifications.read', $notif->id) }}" class="block px-4 py-3 hover:bg-theme-primary/5 transition text-left space-y-1 {{ !$notif->is_read ? 'bg-theme-primary/5 font-semibold' : '' }}">
-                                        <div class="flex justify-between items-start gap-2">
-                                            <span class="font-bold text-theme-text flex items-center gap-1">
-                                                @if($notif->type === 'success') 🟢 @elseif($notif->type === 'warning') 🟡 @elseif($notif->type === 'alert') 🔴 @else 🔵 @endif
-                                                {{ $notif->title }}
-                                            </span>
-                                            <span class="text-[9px] text-theme-text/40 shrink-0">{{ $notif->created_at->diffForHumans() }}</span>
+                                    <div class="relative group flex items-center justify-between hover:bg-[var(--theme-bg)] transition-colors">
+                                        <!-- Main Notification Link -->
+                                        <a href="{{ route('notifications.read', $notif->id) }}" class="flex-grow px-4 py-3 text-left space-y-1 {{ !$notif->is_read ? 'bg-theme-primary/5 font-semibold' : '' }}">
+                                            <div class="flex justify-between items-start gap-2">
+                                                <span class="font-bold text-theme-text flex items-center gap-1">
+                                                    @if($notif->type === 'success') 🟢 @elseif($notif->type === 'warning') 🟡 @elseif($notif->type === 'alert') 🔴 @else 🔵 @endif
+                                                    {{ $notif->title }}
+                                                </span>
+                                                <span class="text-[9px] text-theme-text/40 shrink-0">{{ $notif->created_at->diffForHumans() }}</span>
+                                            </div>
+                                            <p class="text-theme-text/70 leading-normal text-[11px]">{{ $notif->message }}</p>
+                                        </a>
+
+                                        <!-- FB-Style Toggle Dot Button -->
+                                        <div class="pr-4 py-3 shrink-0 flex items-center justify-center bg-transparent">
+                                            <form action="{{ route('notifications.toggle-read', $notif->id) }}" method="POST" class="inline">
+                                                @csrf
+                                                <button type="submit" @click.stop="" class="w-3 h-3 rounded-full border-2 border-theme-primary transition-all duration-200 transform hover:scale-125 focus:outline-none cursor-pointer {{ !$notif->is_read ? 'bg-theme-primary' : 'bg-transparent border-theme-text/30' }}" title="{{ !$notif->is_read ? 'Mark as read' : 'Mark as unread' }}">
+                                                </button>
+                                            </form>
                                         </div>
-                                        <p class="text-theme-text/70 leading-normal text-[11px]">{{ $notif->message }}</p>
-                                    </a>
+                                    </div>
                                 @empty
                                     <div class="text-center py-8 text-theme-text/50">
                                         <span class="text-2xl block mb-1">📭</span>
