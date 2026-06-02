@@ -283,13 +283,13 @@
 
                                         <!-- Edit User Trigger -->
                                         <button @click="openEditUser({
-                                            id: '{{ $user->id }}',
-                                            name: '{{ addslashes($user->name) }}',
-                                            email: '{{ addslashes($user->email) }}',
-                                            phone: '{{ addslashes($user->phone) }}',
-                                            role: '{{ $user->role }}',
-                                            company_name: '{{ $user->institution ? addslashes($user->institution->company_name) : '' }}',
-                                            is_verified: {{ $user->is_verified ? 1 : 0 }}
+                                            id: {{ json_encode($user->id) }},
+                                            name: {{ json_encode($user->name) }},
+                                            email: {{ json_encode($user->email) }},
+                                            phone: {{ json_encode($user->phone) }},
+                                            role: {{ json_encode($user->role) }},
+                                            company_name: {{ json_encode($user->institution ? $user->institution->company_name : '') }},
+                                            is_verified: {{ $user->is_verified ? 'true' : 'false' }}
                                         })" class="px-2.5 py-1.5 text-xs font-bold rounded-lg border border-theme-primary/20 text-theme-primary bg-theme-primary/5 hover:bg-theme-primary hover:text-white transition cursor-pointer">
                                             Edit
                                         </button>
@@ -367,17 +367,17 @@
 
                                         <!-- Edit Vacancy Button -->
                                         <button @click="openEditVacancy({
-                                            id: '{{ $vacancy->id }}',
-                                            title: '{{ addslashes($vacancy->title) }}',
-                                            description: '{{ addslashes($vacancy->description) }}',
-                                            subject: '{{ addslashes($vacancy->subject) }}',
-                                            target_class: '{{ addslashes($vacancy->target_class) }}',
-                                            experience_required: '{{ addslashes($vacancy->experience_required) }}',
-                                            location: '{{ addslashes($vacancy->location) }}',
-                                            salary_min: '{{ $vacancy->salary_min }}',
-                                            salary_max: '{{ $vacancy->salary_max }}',
-                                            deadline: '{{ $vacancy->deadline ? $vacancy->deadline->format('Y-m-d') : '' }}',
-                                            institution_id: '{{ $vacancy->institution_id }}'
+                                            id: {{ json_encode($vacancy->id) }},
+                                            title: {{ json_encode($vacancy->title) }},
+                                            description: {{ json_encode($vacancy->description) }},
+                                            subject: {{ json_encode($vacancy->subject) }},
+                                            target_class: {{ json_encode($vacancy->target_class) }},
+                                            experience_required: {{ json_encode($vacancy->experience_required) }},
+                                            location: {{ json_encode($vacancy->location) }},
+                                            salary_min: {{ json_encode($vacancy->salary_min) }},
+                                            salary_max: {{ json_encode($vacancy->salary_max) }},
+                                            deadline: {{ json_encode($vacancy->deadline ? $vacancy->deadline->format('Y-m-d') : '') }},
+                                            institution_id: {{ json_encode($vacancy->institution_id) }}
                                         })" class="px-2.5 py-1.5 text-xs font-bold rounded-lg border border-theme-primary/20 text-theme-primary bg-theme-primary/5 hover:bg-theme-primary hover:text-white transition cursor-pointer">
                                             Edit
                                         </button>

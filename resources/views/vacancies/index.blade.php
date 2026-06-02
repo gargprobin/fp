@@ -3,6 +3,12 @@
 @section('title', 'Academic & Coaching Vacancies - ' . ($siteSettings->platform_name ?? 'Sourcing Portal'))
 
 @section('content')
+@php
+    $appliedVacancyIds = [];
+    if (auth()->check() && auth()->user()->isCandidate()) {
+        $appliedVacancyIds = auth()->user()->applications->pluck('vacancy_id')->toArray();
+    }
+@endphp
 <div class="space-y-8">
     
     <!-- Hero / Job Search Header -->
@@ -67,7 +73,24 @@
                                 <a href="{{ route('vacancies.show', $vacancy->id) }}">{{ $vacancy->title }}</a>
                             </h3>
                             <div class="flex items-center gap-2 text-sm text-theme-text/60 mt-1">
-                                <span class="font-semibold text-theme-text/80">{{ $vacancy->institution->company_name }}</span>
+                                @php
+                                    $showRealName = false;
+                                    if (auth()->check()) {
+                                        if (auth()->user()->isAdmin() || (auth()->user()->isInstitution() && auth()->user()->id == $vacancy->institution->user_id)) {
+                                            $showRealName = true;
+                                        } elseif (auth()->user()->isCandidate()) {
+                                            $userApp = \App\Models\Application::where('vacancy_id', $vacancy->id)
+                                                ->where('candidate_id', auth()->id())
+                                                ->first();
+                                            if ($userApp && in_array($userApp->status, ['unlocked', 'written_test', 'interview', 'demo', 'appointed'])) {
+                                                $showRealName = true;
+                                            }
+                                        }
+                                    }
+                                @endphp
+                                <span class="font-semibold text-theme-text/80">
+                                    {{ $showRealName ? $vacancy->institution->company_name : 'Confidential Partner Brand' }}
+                                </span>
                                 <span>&bull;</span>
                                 <span>{{ $vacancy->location }}</span>
                             </div>
@@ -97,6 +120,12 @@
                         </div>
                         
                         <div class="flex items-center gap-3">
+                            @if(in_array($vacancy->id, $appliedVacancyIds))
+                                <span class="px-3 py-1.5 text-xs font-black text-green-500 bg-green-500/10 border border-green-500/20 rounded-lg">
+                                    ✓ Applied
+                                </span>
+                            @endif
+
                             @if($vacancy->salary_max)
                                 <span class="font-bold text-theme-text/90 text-sm">
                                     ₹{{ number_format($vacancy->salary_min/100000, 1) }}L - ₹{{ number_format($vacancy->salary_max/100000, 1) }}L / yr

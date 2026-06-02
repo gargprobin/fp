@@ -1,5 +1,6 @@
 @php
     $hasUnmaskedAccess = false;
+    $hasApplied = false;
     if (auth()->check()) {
         if (auth()->user()->isAdmin() || (auth()->user()->isInstitution() && auth()->user()->id == $vacancy->institution->user_id)) {
             $hasUnmaskedAccess = true;
@@ -7,8 +8,11 @@
             $userApp = \App\Models\Application::where('vacancy_id', $vacancy->id)
                 ->where('candidate_id', auth()->id())
                 ->first();
-            if ($userApp && in_array($userApp->status, ['unlocked', 'written_test', 'interview', 'demo', 'appointed'])) {
-                $hasUnmaskedAccess = true;
+            if ($userApp) {
+                $hasApplied = true;
+                if (in_array($userApp->status, ['unlocked', 'written_test', 'interview', 'demo', 'appointed'])) {
+                    $hasUnmaskedAccess = true;
+                }
             }
         }
     }
@@ -157,32 +161,38 @@
                     @endif
 
                     @if(auth()->user()->isCandidate())
-                        <form action="{{ route('vacancies.apply', $vacancy->id) }}" method="POST" class="space-y-4">
-                            @csrf
-                            
-                            <div>
-                                <label class="block text-xs font-bold text-theme-text/60 uppercase mb-1">Cover Letter</label>
-                                <textarea name="cover_letter" rows="3" class="w-full p-3 text-sm bg-[var(--theme-bg)] border border-[var(--theme-border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-theme-primary text-theme-text" placeholder="Explain why you are the perfect fit for this faculty position..."></textarea>
+                        @if($hasApplied)
+                            <div class="p-4 rounded-xl bg-green-500/10 text-green-500 border border-green-500/20 text-center font-bold text-sm">
+                                ✓ Applied
                             </div>
-
-                            <!-- Referee Request (Confidential Reference Letters Pipeline) -->
-                            <div class="p-4 rounded-lg bg-theme-primary/5 border border-theme-primary/10 space-y-3">
-                                <span class="block text-xs font-bold text-theme-primary uppercase">Confidential Recommendation Pipeline</span>
-                                <p class="text-[10px] text-theme-text/60">
-                                    Specify a referee (Dean, HOD, or Mentor). The system will automatically request a confidential letter via secure signed URLs.
-                                </p>
+                        @else
+                            <form action="{{ route('vacancies.apply', $vacancy->id) }}" method="POST" class="space-y-4">
+                                @csrf
+                                
                                 <div>
-                                    <input type="text" name="referee_name" placeholder="Referee Name" class="w-full px-3 py-2 text-xs bg-[var(--theme-bg)] border border-[var(--theme-border)] rounded focus:outline-none focus:ring-1 focus:ring-theme-primary text-theme-text" />
+                                    <label class="block text-xs font-bold text-theme-text/60 uppercase mb-1">Cover Letter</label>
+                                    <textarea name="cover_letter" rows="3" class="w-full p-3 text-sm bg-[var(--theme-bg)] border border-[var(--theme-border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-theme-primary text-theme-text" placeholder="Explain why you are the perfect fit for this faculty position..."></textarea>
                                 </div>
-                                <div>
-                                    <input type="email" name="referee_email" placeholder="Referee Email" class="w-full px-3 py-2 text-xs bg-[var(--theme-bg)] border border-[var(--theme-border)] rounded focus:outline-none focus:ring-1 focus:ring-theme-primary text-theme-text" />
-                                </div>
-                            </div>
 
-                            <button type="submit" class="w-full py-3 text-white font-bold rounded-xl shadow-md transition transform active:scale-95 text-sm" style="background-color: {{ $vacancy->institution->primary_color }}">
-                                Submit Application &rarr;
-                            </button>
-                        </form>
+                                <!-- Referee Request (Confidential Reference Letters Pipeline) -->
+                                <div class="p-4 rounded-lg bg-theme-primary/5 border border-theme-primary/10 space-y-3">
+                                    <span class="block text-xs font-bold text-theme-primary uppercase">Confidential Recommendation Pipeline</span>
+                                    <p class="text-[10px] text-theme-text/60">
+                                        Specify a referee (Dean, HOD, or Mentor). The system will automatically request a confidential letter via secure signed URLs.
+                                    </p>
+                                    <div>
+                                        <input type="text" name="referee_name" placeholder="Referee Name" class="w-full px-3 py-2 text-xs bg-[var(--theme-bg)] border border-[var(--theme-border)] rounded focus:outline-none focus:ring-1 focus:ring-theme-primary text-theme-text" />
+                                    </div>
+                                    <div>
+                                        <input type="email" name="referee_email" placeholder="Referee Email" class="w-full px-3 py-2 text-xs bg-[var(--theme-bg)] border border-[var(--theme-border)] rounded focus:outline-none focus:ring-1 focus:ring-theme-primary text-theme-text" />
+                                    </div>
+                                </div>
+
+                                <button type="submit" class="w-full py-3 text-white font-bold rounded-xl shadow-md transition transform active:scale-95 text-sm" style="background-color: {{ $vacancy->institution->primary_color }}">
+                                    Submit Application &rarr;
+                                </button>
+                            </form>
+                        @endif
                     @else
                         <div class="p-4 rounded-xl bg-theme-primary/5 text-center text-sm border border-theme-primary/10">
                             <p class="text-theme-text/70 mb-2">You are currently logged in as a <strong>Recruiter / Institution</strong>.</p>

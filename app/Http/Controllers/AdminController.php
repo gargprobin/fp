@@ -344,18 +344,28 @@ class AdminController extends Controller
 
         if ($request->role === 'candidate') {
             \App\Models\CandidateProfile::create([
-                'user_id' => $user->id,
-                'subject_specialization' => 'General',
-                'highest_degree' => 'Postgraduate',
-                'teaching_experience_years' => 1,
-                'current_organization' => 'None',
+                'user_id'             => $user->id,
+                'type'                => 'academic',
+                'current_designation' => 'Lecturer',
+                'highest_degree'      => 'Postgraduate',
+                'subjects_taught'     => ['General'],
+                'experience_summary'  => 'A passionate academic educator.',
+                'experience_years'    => 1.0,
+                'preferred_location'  => 'Kota',
             ]);
         } elseif ($request->role === 'institution') {
             \App\Models\Institution::create([
-                'user_id'      => $user->id,
-                'company_name' => $request->company_name ?? 'Sourcing Partner',
-                'address'      => 'General Address',
-                'website'      => 'https://fp.rj19web.com',
+                'user_id'           => $user->id,
+                'company_name'      => $request->company_name ?? 'Sourcing Partner',
+                'type'              => 'coaching_center',
+                'website'           => 'https://fp.rj19web.com',
+                'description'       => 'Leading educational brand and portal partner.',
+                'location'          => 'Kota, Rajasthan',
+                'branding_settings' => [
+                    'primary_color' => '#2563eb',
+                    'accent_color'  => '#3b82f6',
+                    'theme_preset'  => 'classic'
+                ]
             ]);
         }
 

@@ -63,9 +63,11 @@ class RefereeController extends Controller
 
         // Mock state transition: update application status
         $application = $letter->application;
-        $application->update([
-            'status' => 'shortlisted', // Advance application status once recommendation is uploaded
-        ]);
+        if ($application->status === 'applied') {
+            $application->update([
+                'status' => 'shortlisted_by_admin', // Advance status to a valid enum option
+            ]);
+        }
 
         return redirect()->route('referee.success', ['token' => $token]);
     }

@@ -222,7 +222,7 @@
                 @foreach($vacancies as $job)
                     @php $hasVisibleJobs = true; @endphp
                     <div 
-                        x-show="matchesFilters('{{ $job->subject }}', '{{ $job->title }}', '{{ addslashes($job->description) }}', '{{ $job->location }}')"
+                        x-show="matchesFilters('{{ addslashes(str_replace(["'", '"'], ' ', $job->subject)) }}', '{{ addslashes(str_replace(["'", '"'], ' ', $job->title)) }}', '{{ addslashes(str_replace(["\r", "\n", "'", '"'], ' ', $job->description)) }}', '{{ addslashes(str_replace(["'", '"'], ' ', $job->location)) }}')"
                         class="p-6 rounded-2xl bg-[var(--theme-card)] border border-[var(--theme-border)] flex flex-col md:flex-row justify-between items-start md:items-center gap-6 hover:border-theme-primary/30 hover:shadow-lg transition-all duration-300 relative overflow-hidden"
                     >
                         <!-- Institutional Colored Border Strip -->
@@ -244,7 +244,22 @@
                                 @endif
                             </p>
                             <p class="text-sm text-theme-text/75 max-w-3xl leading-relaxed">{{ $job->description }}</p>
-                            <span class="text-[10px] text-theme-text/40 block">Posted by: <strong>Confidential Partner Brand</strong></span>
+                            @php
+                                $showRealName = false;
+                                if (auth()->check()) {
+                                    if (auth()->user()->isAdmin() || (auth()->user()->isInstitution() && auth()->user()->id == $job->institution->user_id)) {
+                                        $showRealName = true;
+                                    } elseif (auth()->user()->isCandidate()) {
+                                        $userApp = \App\Models\Application::where('vacancy_id', $job->id)
+                                            ->where('candidate_id', auth()->id())
+                                            ->first();
+                                        if ($userApp && in_array($userApp->status, ['unlocked', 'written_test', 'interview', 'demo', 'appointed'])) {
+                                            $showRealName = true;
+                                        }
+                                    }
+                                }
+                            @endphp
+                            <span class="text-[10px] text-theme-text/40 block">Posted by: <strong>{{ $showRealName ? $job->institution->company_name : 'Confidential Partner Brand' }}</strong></span>
                         </div>
 
                         <!-- 1-Click Apply Trigger or Applied Badge -->
@@ -254,7 +269,7 @@
                             </span>
                         @else
                             <button 
-                                @click="applyVacancy = { id: {{ $job->id }}, title: '{{ $job->title }}', institution: 'Confidential Partner Brand' }"
+                                @click="applyVacancy = { id: {{ $job->id }}, title: {{ json_encode($job->title) }}, institution: 'Confidential Partner Brand' }"
                                 class="px-6 py-2.5 text-xs font-bold text-white bg-theme-primary hover:bg-theme-accent rounded-xl shadow-md shadow-theme-primary/10 hover:shadow-xl shrink-0 text-center w-full md:w-auto cursor-pointer"
                             >
                                 Apply with 1-Click
