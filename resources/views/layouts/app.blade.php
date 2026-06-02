@@ -250,88 +250,322 @@
                 <div class="flex items-center gap-2 md:gap-4">
                     
                     <!-- Real-Time Notification Center Dropdown (FB style, same to same) -->
+                    <!-- Real-Time Premium Notification Drawer -->
                     @auth
-                    <div x-data="{ open: false, unreadCount: {{ $unreadNotificationsCount }} }" class="relative">
-                        <button @click="open = !open" class="p-2 rounded-lg bg-[var(--theme-card)] hover:bg-theme-primary/10 border border-[var(--theme-border)] text-theme-text/80 flex items-center justify-center transition relative">
+                    <div x-data="{ 
+                        open: false, 
+                        unreadCount: {{ $unreadNotificationsCount }},
+                        currentFilter: 'unread',
+                        notifications: [
+                            @foreach($notificationsList as $notif)
+                            {
+                                id: {{ $notif->id }},
+                                is_read: {{ $notif->is_read ? 'true' : 'false' }},
+                                type: {{ json_encode($notif->type) }},
+                                title: {{ json_encode($notif->title) }},
+                                message: {{ json_encode($notif->message) }},
+                                created_at_human: {{ json_encode($notif->created_at->diffForHumans()) }},
+                                date_group: {{ json_encode($notif->created_at->isToday() ? 'Today' : ($notif->created_at->isYesterday() ? 'Yesterday' : 'Older')) }},
+                                read_url: {{ json_encode(route('notifications.read', $notif->id)) }},
+                                toggle_url: {{ json_encode(route('notifications.toggle-read', $notif->id)) }}
+                            },
+                            @endforeach
+                        ],
+                        toggleRead(notif) {
+                            fetch(notif.toggle_url, {
+                                method: 'POST',
+                                headers: {
+                                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                                    'Accept': 'application/json'
+                                }
+                            })
+                            .then(res => {
+                                if (res.ok) {
+                                    notif.is_read = !notif.is_read;
+                                    this.unreadCount = this.notifications.filter(n => !n.is_read).length;
+                                }
+                            });
+                        },
+                        markAllRead() {
+                            fetch('{{ route('notifications.read-all') }}', {
+                                method: 'POST',
+                                headers: {
+                                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                                    'Accept': 'application/json'
+                                }
+                            })
+                            .then(res => {
+                                if (res.ok) {
+                                    this.notifications.forEach(n => n.is_read = true);
+                                    this.unreadCount = 0;
+                                    $dispatch('mark-all-read');
+                                }
+                            });
+                        },
+                        hasVisibleInGroup(group) {
+                            return this.notifications.some(n => 
+                                n.date_group === group && 
+                                (this.currentFilter === 'all' || 
+                                 (this.currentFilter === 'unread' && !n.is_read) || 
+                                 (this.currentFilter === 'alerts' && (n.type === 'alert' || n.type === 'warning')))
+                            );
+                        }
+                    }" class="relative">
+                        <!-- Bell Icon Trigger -->
+                        <button @click="open = true" class="p-2 rounded-lg bg-[var(--theme-card)] hover:bg-theme-primary/10 border border-[var(--theme-border)] text-theme-text/80 flex items-center justify-center transition relative cursor-pointer active:scale-95 duration-200">
                             <span class="text-base">🔔</span>
                             <span x-show="unreadCount > 0" class="absolute -top-1 -right-1 w-5 h-5 bg-red-600 text-white text-[10px] font-black rounded-full flex items-center justify-center animate-pulse" x-text="unreadCount" x-cloak>
                                 {{ $unreadNotificationsCount }}
                             </span>
                         </button>
                         
-                        <div x-show="open" @click.away="open = false" class="absolute right-0 mt-2 w-80 rounded-2xl shadow-xl bg-[var(--theme-card)] border border-[var(--theme-border)] py-2 z-50 text-xs overflow-hidden" x-cloak>
-                            <div class="flex justify-between items-center px-4 py-2 border-b border-[var(--theme-border)] font-bold text-theme-text bg-[var(--theme-card)]">
-                                <span>Notifications</span>
-                                <form x-show="unreadCount > 0" @submit.prevent="
-                                    fetch('{{ route('notifications.read-all') }}', {
-                                        method: 'POST',
-                                        headers: {
-                                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                                            'Accept': 'application/json'
-                                        }
-                                    })
-                                    .then(res => {
-                                        if (res.ok) {
-                                            unreadCount = 0;
-                                            $dispatch('mark-all-read');
-                                        }
-                                    })
-                                " class="inline" x-cloak>
-                                    @csrf
-                                    <button type="submit" class="text-[10px] text-theme-primary hover:underline font-black uppercase tracking-wider cursor-pointer">
-                                        Mark all read
-                                    </button>
-                                </form>
-                            </div>
-                            
-                            <div class="max-h-72 overflow-y-auto divide-y divide-[var(--theme-border)]">
-                                @forelse($notificationsList as $notif)
-                                    <div x-data="{ isRead: {{ $notif->is_read ? 'true' : 'false' }} }" 
-                                         @mark-all-read.window="isRead = true"
-                                         class="relative group flex items-center justify-between hover:bg-[var(--theme-bg)] transition-colors">
-                                        <!-- Main Notification Link -->
-                                        <a href="{{ route('notifications.read', $notif->id) }}" class="flex-grow px-4 py-3 text-left space-y-1 transition-all duration-200" :class="!isRead ? 'bg-theme-primary/5 font-semibold' : 'bg-transparent'">
-                                            <div class="flex justify-between items-start gap-2">
-                                                <span class="font-bold text-theme-text flex items-center gap-1">
-                                                    @if($notif->type === 'success') 🟢 @elseif($notif->type === 'warning') 🟡 @elseif($notif->type === 'alert') 🔴 @else 🔵 @endif
-                                                    {{ $notif->title }}
-                                                </span>
-                                                <span class="text-[9px] text-theme-text/40 shrink-0">{{ $notif->created_at->diffForHumans() }}</span>
-                                            </div>
-                                            <p class="text-theme-text/70 leading-normal text-[11px]">{{ $notif->message }}</p>
-                                        </a>
+                        <!-- Backdrop (frosted overlay) -->
+                        <div x-show="open" 
+                             x-transition:enter="transition-opacity ease-out duration-300"
+                             x-transition:enter-start="opacity-0"
+                             x-transition:enter-end="opacity-100"
+                             x-transition:leave="transition-opacity ease-in duration-200"
+                             x-transition:leave-start="opacity-100"
+                             x-transition:leave-end="opacity-0"
+                             @click="open = false" 
+                             class="fixed inset-0 bg-black/40 backdrop-blur-xs z-50" 
+                             x-cloak></div>
+                        
+                        <!-- Slide-out Drawer Panel -->
+                        <div x-show="open" 
+                             x-transition:enter="transform transition ease-out duration-300"
+                             x-transition:enter-start="translate-x-full"
+                             x-transition:enter-end="translate-x-0"
+                             x-transition:leave="transform transition ease-in duration-200"
+                             x-transition:leave-start="translate-x-0"
+                             x-transition:leave-end="translate-x-full"
+                             class="fixed right-0 top-0 bottom-0 w-full sm:w-[400px] bg-[var(--theme-card)] border-l border-[var(--theme-border)] shadow-2xl z-55 flex flex-col text-sm overflow-hidden" 
+                             x-cloak>
+                             
+                             <!-- Header -->
+                             <div class="px-5 py-4 border-b border-[var(--theme-border)] flex items-center justify-between bg-[var(--theme-bg)]">
+                                 <div>
+                                     <h2 class="text-lg font-black text-theme-text flex items-center gap-2 tracking-tight">
+                                         Notifications
+                                         <span x-show="unreadCount > 0" class="px-2 py-0.5 text-xs font-extrabold rounded-full bg-theme-primary/10 text-theme-primary" x-text="unreadCount"></span>
+                                     </h2>
+                                 </div>
+                                 <div class="flex items-center gap-3">
+                                     <!-- Help button -->
+                                     <a href="mailto:{{ $siteSettings->support_email ?? 'support@sourcing.com' }}" class="px-3 py-1.5 rounded-full border border-theme-primary/20 bg-theme-primary/5 text-theme-primary hover:bg-theme-primary/10 transition text-[10px] font-black flex items-center gap-1.5 cursor-pointer">
+                                         <span>💬</span> Need help?
+                                     </a>
+                                     <!-- Close Button -->
+                                     <button @click="open = false" class="w-8 h-8 rounded-full hover:bg-theme-text/10 text-theme-text/80 flex items-center justify-center transition cursor-pointer border border-[var(--theme-border)] bg-[var(--theme-card)] shadow-xs" title="Close panel">
+                                         <span class="text-lg font-bold">&times;</span>
+                                     </button>
+                                 </div>
+                             </div>
 
-                                        <!-- FB-Style Toggle Dot Button -->
-                                        <div class="pr-4 py-3 shrink-0 flex items-center justify-center bg-transparent">
-                                            <button type="button" 
-                                                    @click.stop="
-                                                        fetch('{{ route('notifications.toggle-read', $notif->id) }}', {
-                                                            method: 'POST',
-                                                            headers: {
-                                                                'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                                                                'Accept': 'application/json'
-                                                            }
-                                                        })
-                                                        .then(res => {
-                                                            if (res.ok) {
-                                                                isRead = !isRead;
-                                                                unreadCount = isRead ? unreadCount - 1 : unreadCount + 1;
-                                                            }
-                                                        })
-                                                    " 
-                                                    class="w-3 h-3 rounded-full border-2 border-theme-primary transition-all duration-200 transform hover:scale-125 focus:outline-none cursor-pointer"
-                                                    :class="!isRead ? 'bg-theme-primary' : 'bg-transparent border-theme-text/30'"
-                                                    :title="!isRead ? 'Mark as read' : 'Mark as unread'">
-                                            </button>
-                                        </div>
-                                    </div>
-                                @empty
-                                    <div class="text-center py-8 text-theme-text/50">
-                                        <span class="text-2xl block mb-1">📭</span>
-                                        No new notifications.
-                                    </div>
-                                @endforelse
-                            </div>
+                             <!-- Tab Filters & Settings Row -->
+                             <div class="px-5 py-3 border-b border-[var(--theme-border)] flex justify-between items-center bg-[var(--theme-card)] select-none">
+                                 <div class="flex gap-2">
+                                     <button @click="currentFilter = 'unread'" 
+                                             class="px-3.5 py-1.5 rounded-full text-xs font-black transition flex items-center gap-1.5 cursor-pointer"
+                                             :class="currentFilter === 'unread' ? 'bg-theme-primary text-white shadow-md shadow-theme-primary/20' : 'bg-[var(--theme-bg)] text-theme-text/75 hover:bg-theme-primary/10'">
+                                         Unread
+                                         <span class="text-[9px] px-1.5 py-0.5 bg-red-500 text-white rounded-full font-black leading-none" x-text="unreadCount" x-show="unreadCount > 0"></span>
+                                     </button>
+                                     <button @click="currentFilter = 'all'" 
+                                             class="px-3.5 py-1.5 rounded-full text-xs font-black transition cursor-pointer"
+                                             :class="currentFilter === 'all' ? 'bg-theme-primary text-white shadow-md shadow-theme-primary/20' : 'bg-[var(--theme-bg)] text-theme-text/75 hover:bg-theme-primary/10'">
+                                         All
+                                     </button>
+                                     <button @click="currentFilter = 'alerts'" 
+                                             class="px-3.5 py-1.5 rounded-full text-xs font-black transition cursor-pointer"
+                                             :class="currentFilter === 'alerts' ? 'bg-theme-primary text-white shadow-md shadow-theme-primary/20' : 'bg-[var(--theme-bg)] text-theme-text/75 hover:bg-theme-primary/10'">
+                                         Alerts
+                                     </button>
+                                 </div>
+                                 <div class="flex items-center gap-2">
+                                     <!-- Mark all read icon/button if unread notifications exist -->
+                                     <button x-show="unreadCount > 0" @click="markAllRead()" class="p-1.5 rounded-lg hover:bg-theme-text/10 text-theme-text/60 hover:text-theme-primary transition cursor-pointer font-bold text-xs" title="Mark all read" x-cloak>
+                                         ✓✓ Mark all read
+                                     </button>
+                                     <a href="{{ auth()->user()->isAdmin() ? route('admin.settings') : '#' }}" class="p-1.5 rounded-lg hover:bg-theme-text/10 text-theme-text/60 hover:text-theme-primary transition" title="Settings">
+                                         ⚙️
+                                     </a>
+                                 </div>
+                             </div>
+                             
+                             <!-- Scrollable Content Body -->
+                             <div class="flex-grow overflow-y-auto p-4 space-y-4 bg-[var(--theme-bg)]/20">
+                                 
+                                 <!-- Group: Today -->
+                                 <div x-show="hasVisibleInGroup('Today')" class="space-y-2">
+                                     <span class="px-2 text-[10px] font-black text-theme-text/40 uppercase tracking-wider block">Today</span>
+                                     <div class="space-y-2">
+                                         <template x-for="notif in notifications.filter(n => n.date_group === 'Today')" :key="notif.id">
+                                             <div x-show="currentFilter === 'all' || (currentFilter === 'unread' && !notif.is_read) || (currentFilter === 'alerts' && (notif.type === 'alert' || notif.type === 'warning'))"
+                                                  class="relative group flex items-start justify-between p-3.5 rounded-2xl border border-[var(--theme-border)] bg-[var(--theme-card)] hover:bg-[var(--theme-bg)]/60 transition-all duration-200 shadow-xs overflow-hidden">
+                                                 
+                                                 <!-- Corner unread indicator -->
+                                                 <div x-show="!notif.is_read" class="absolute top-0 right-0 w-0 h-0 border-t-[8px] border-r-[8px] border-t-amber-500 border-r-amber-500"></div>
+                                                 
+                                                 <!-- Info Link -->
+                                                 <a :href="notif.read_url" class="flex-grow flex items-start gap-3 text-left">
+                                                     <!-- Dynamic Icon Based on Type -->
+                                                     <div class="p-2 rounded-full flex items-center justify-center shrink-0 border" 
+                                                          :class="{
+                                                              'bg-emerald-500/10 text-emerald-500 border-emerald-500/20': notif.type === 'success',
+                                                              'bg-rose-500/10 text-rose-500 border-rose-500/20': notif.type === 'warning' || notif.type === 'alert',
+                                                              'bg-blue-500/10 text-blue-500 border-blue-500/20': notif.type !== 'success' && notif.type !== 'warning' && notif.type !== 'alert'
+                                                          }">
+                                                         <!-- Success SVGs -->
+                                                         <template x-if="notif.type === 'success'">
+                                                             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg>
+                                                         </template>
+                                                         <!-- Warning/Alert SVGs -->
+                                                         <template x-if="notif.type === 'warning' || notif.type === 'alert'">
+                                                             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                                                         </template>
+                                                         <!-- Default SVGs -->
+                                                         <template x-if="notif.type !== 'success' && notif.type !== 'warning' && notif.type !== 'alert'">
+                                                             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                                         </template>
+                                                     </div>
+                                                     <div class="space-y-0.5 pr-2">
+                                                         <div class="flex items-baseline justify-between gap-2">
+                                                             <span class="font-extrabold text-theme-text text-xs" :class="!notif.is_read ? 'text-theme-primary' : ''" x-text="notif.title"></span>
+                                                         </div>
+                                                         <p class="text-theme-text/70 text-[10px] leading-normal" x-text="notif.message"></p>
+                                                         <span class="text-[8px] text-theme-text/40 block mt-1" x-text="notif.created_at_human"></span>
+                                                     </div>
+                                                 </a>
+                                                 
+                                                 <!-- Toggle Dot -->
+                                                 <div class="shrink-0 flex items-center justify-center pt-2">
+                                                     <button type="button" 
+                                                             @click.stop="toggleRead(notif)" 
+                                                             class="w-3 h-3 rounded-full border-2 border-theme-primary transition-all duration-200 transform hover:scale-125 focus:outline-none cursor-pointer"
+                                                             :class="!notif.is_read ? 'bg-theme-primary' : 'bg-transparent border-theme-text/30'"
+                                                             :title="!notif.is_read ? 'Mark as read' : 'Mark as unread'">
+                                                     </button>
+                                                 </div>
+                                             </div>
+                                         </template>
+                                     </div>
+                                 </div>
+                                 
+                                 <!-- Group: Yesterday -->
+                                 <div x-show="hasVisibleInGroup('Yesterday')" class="space-y-2">
+                                     <span class="px-2 text-[10px] font-black text-theme-text/40 uppercase tracking-wider block">Yesterday</span>
+                                     <div class="space-y-2">
+                                         <template x-for="notif in notifications.filter(n => n.date_group === 'Yesterday')" :key="notif.id">
+                                             <div x-show="currentFilter === 'all' || (currentFilter === 'unread' && !notif.is_read) || (currentFilter === 'alerts' && (notif.type === 'alert' || notif.type === 'warning'))"
+                                                  class="relative group flex items-start justify-between p-3.5 rounded-2xl border border-[var(--theme-border)] bg-[var(--theme-card)] hover:bg-[var(--theme-bg)]/60 transition-all duration-200 shadow-xs overflow-hidden">
+                                                 
+                                                 <!-- Corner unread indicator -->
+                                                 <div x-show="!notif.is_read" class="absolute top-0 right-0 w-0 h-0 border-t-[8px] border-r-[8px] border-t-amber-500 border-r-amber-500"></div>
+                                                 
+                                                 <!-- Info Link -->
+                                                 <a :href="notif.read_url" class="flex-grow flex items-start gap-3 text-left">
+                                                     <!-- Dynamic Icon -->
+                                                     <div class="p-2 rounded-full flex items-center justify-center shrink-0 border" 
+                                                          :class="{
+                                                              'bg-emerald-500/10 text-emerald-500 border-emerald-500/20': notif.type === 'success',
+                                                              'bg-rose-500/10 text-rose-500 border-rose-500/20': notif.type === 'warning' || notif.type === 'alert',
+                                                              'bg-blue-500/10 text-blue-500 border-blue-500/20': notif.type !== 'success' && notif.type !== 'warning' && notif.type !== 'alert'
+                                                          }">
+                                                         <template x-if="notif.type === 'success'">
+                                                             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg>
+                                                         </template>
+                                                         <template x-if="notif.type === 'warning' || notif.type === 'alert'">
+                                                             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                                                         </template>
+                                                         <template x-if="notif.type !== 'success' && notif.type !== 'warning' && notif.type !== 'alert'">
+                                                             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                                         </template>
+                                                     </div>
+                                                     <div class="space-y-0.5 pr-2">
+                                                         <div class="flex items-baseline justify-between gap-2">
+                                                             <span class="font-extrabold text-theme-text text-xs" :class="!notif.is_read ? 'text-theme-primary' : ''" x-text="notif.title"></span>
+                                                         </div>
+                                                         <p class="text-theme-text/70 text-[10px] leading-normal" x-text="notif.message"></p>
+                                                         <span class="text-[8px] text-theme-text/40 block mt-1" x-text="notif.created_at_human"></span>
+                                                     </div>
+                                                 </a>
+                                                 
+                                                 <!-- Toggle Dot -->
+                                                 <div class="shrink-0 flex items-center justify-center pt-2">
+                                                     <button type="button" 
+                                                             @click.stop="toggleRead(notif)" 
+                                                             class="w-3 h-3 rounded-full border-2 border-theme-primary transition-all duration-200 transform hover:scale-125 focus:outline-none cursor-pointer"
+                                                             :class="!notif.is_read ? 'bg-theme-primary' : 'bg-transparent border-theme-text/30'"
+                                                             :title="!notif.is_read ? 'Mark as read' : 'Mark as unread'">
+                                                     </button>
+                                                 </div>
+                                             </div>
+                                         </template>
+                                     </div>
+                                 </div>
+                                 
+                                 <!-- Group: Older -->
+                                 <div x-show="hasVisibleInGroup('Older')" class="space-y-2">
+                                     <span class="px-2 text-[10px] font-black text-theme-text/40 uppercase tracking-wider block">Older</span>
+                                     <div class="space-y-2">
+                                         <template x-for="notif in notifications.filter(n => n.date_group === 'Older')" :key="notif.id">
+                                             <div x-show="currentFilter === 'all' || (currentFilter === 'unread' && !notif.is_read) || (currentFilter === 'alerts' && (notif.type === 'alert' || notif.type === 'warning'))"
+                                                  class="relative group flex items-start justify-between p-3.5 rounded-2xl border border-[var(--theme-border)] bg-[var(--theme-card)] hover:bg-[var(--theme-bg)]/60 transition-all duration-200 shadow-xs overflow-hidden">
+                                                 
+                                                 <!-- Corner unread indicator -->
+                                                 <div x-show="!notif.is_read" class="absolute top-0 right-0 w-0 h-0 border-t-[8px] border-r-[8px] border-t-amber-500 border-r-amber-500"></div>
+                                                 
+                                                 <!-- Info Link -->
+                                                 <a :href="notif.read_url" class="flex-grow flex items-start gap-3 text-left">
+                                                     <!-- Dynamic Icon -->
+                                                     <div class="p-2 rounded-full flex items-center justify-center shrink-0 border" 
+                                                          :class="{
+                                                              'bg-emerald-500/10 text-emerald-500 border-emerald-500/20': notif.type === 'success',
+                                                              'bg-rose-500/10 text-rose-500 border-rose-500/20': notif.type === 'warning' || notif.type === 'alert',
+                                                              'bg-blue-500/10 text-blue-500 border-blue-500/20': notif.type !== 'success' && notif.type !== 'warning' && notif.type !== 'alert'
+                                                          }">
+                                                         <template x-if="notif.type === 'success'">
+                                                             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg>
+                                                         </template>
+                                                         <template x-if="notif.type === 'warning' || notif.type === 'alert'">
+                                                             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                                                         </template>
+                                                         <template x-if="notif.type !== 'success' && notif.type !== 'warning' && notif.type !== 'alert'">
+                                                             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                                         </template>
+                                                     </div>
+                                                     <div class="space-y-0.5 pr-2">
+                                                         <div class="flex items-baseline justify-between gap-2">
+                                                             <span class="font-extrabold text-theme-text text-xs" :class="!notif.is_read ? 'text-theme-primary' : ''" x-text="notif.title"></span>
+                                                         </div>
+                                                         <p class="text-theme-text/70 text-[10px] leading-normal" x-text="notif.message"></p>
+                                                         <span class="text-[8px] text-theme-text/40 block mt-1" x-text="notif.created_at_human"></span>
+                                                     </div>
+                                                 </a>
+                                                 
+                                                 <!-- Toggle Dot -->
+                                                 <div class="shrink-0 flex items-center justify-center pt-2">
+                                                     <button type="button" 
+                                                             @click.stop="toggleRead(notif)" 
+                                                             class="w-3 h-3 rounded-full border-2 border-theme-primary transition-all duration-200 transform hover:scale-125 focus:outline-none cursor-pointer"
+                                                             :class="!notif.is_read ? 'bg-theme-primary' : 'bg-transparent border-theme-text/30'"
+                                                             :title="!notif.is_read ? 'Mark as read' : 'Mark as unread'">
+                                                     </button>
+                                                 </div>
+                                             </div>
+                                         </template>
+                                     </div>
+                                 </div>
+
+                                 <!-- Empty State -->
+                                 <div x-show="notifications.filter(n => currentFilter === 'all' || (currentFilter === 'unread' && !n.is_read) || (currentFilter === 'alerts' && (n.type === 'alert' || n.type === 'warning'))).length === 0" 
+                                      class="text-center py-16 text-theme-text/40 space-y-3" x-cloak>
+                                     <span class="text-4xl block leading-none">📭</span>
+                                     <p class="font-bold text-xs uppercase tracking-wider">No notifications found</p>
+                                 </div>
+                                 
+                             </div>
                         </div>
                     </div>
                     @endauth
