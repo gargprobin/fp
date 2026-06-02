@@ -339,7 +339,7 @@
                              x-transition:leave="transform transition ease-in duration-200"
                              x-transition:leave-start="translate-x-0"
                              x-transition:leave-end="translate-x-full"
-                             class="fixed right-0 top-0 bottom-0 w-full sm:w-[400px] bg-[var(--theme-card)] border-l border-[var(--theme-border)] shadow-2xl z-55 flex flex-col text-sm overflow-hidden" 
+                             class="fixed right-0 top-0 bottom-0 w-full sm:w-[400px] bg-[var(--theme-bg)] border-l border-[var(--theme-border)] shadow-2xl z-[60] flex flex-col text-sm overflow-hidden" 
                              x-cloak>
                              
                              <!-- Header -->
