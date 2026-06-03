@@ -26,15 +26,8 @@ class AdminController extends Controller
         $supportEmail = SiteSetting::getVal('support_email', 'support@sourcing.com');
 
         // WhatsApp settings
-        $whatsappProvider = SiteSetting::getVal('whatsapp_api_provider', 'Meta Cloud API');
-        $whatsappApiKey = SiteSetting::getVal('whatsapp_api_key');
-        if (empty($whatsappApiKey)) {
-            $whatsappApiKey = config('services.whatsapp.key');
-        }
+        $whatsappProvider = SiteSetting::getVal('whatsapp_api_provider', 'wa.rj19web.com Official Gateway');
         $whatsappApiUrl = SiteSetting::getVal('whatsapp_api_url');
-        if (empty($whatsappApiUrl)) {
-            $whatsappApiUrl = config('services.whatsapp.url');
-        }
         $whatsappEnabled = SiteSetting::getVal('whatsapp_enabled', '1');
 
         $whatsappSentLogs = json_decode(SiteSetting::getVal('whatsapp_sent_logs', '[]'), true);
@@ -122,7 +115,7 @@ class AdminController extends Controller
 
         return view('admin.settings', compact(
             'platformName', 'platformTagline', 'supportEmail',
-            'whatsappProvider', 'whatsappApiKey', 'whatsappApiUrl', 'whatsappEnabled', 'whatsappSentLogs',
+            'whatsappProvider', 'whatsappApiUrl', 'whatsappEnabled', 'whatsappSentLogs',
             'totalCandidates', 'totalInstitutions', 'totalVacancies', 'totalApplications',
             'users', 'vacancies', 'applications',
             'deletedUsers', 'deletedVacancies', 'deletedApplications'

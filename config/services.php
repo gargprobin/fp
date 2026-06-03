@@ -36,8 +36,8 @@ return [
     ],
 
     'whatsapp' => [
-        'key' => env('WHATSAPP_API_KEY', 'jUDMUIGKNETSvQ4CaAjYbyRJS9YNAMXsVTQvJjxUPlpc5LvQIluo36YrMNAcGB5O'),
-        'url' => env('WHATSAPP_API_URL', 'https://wa.rj19web.com/api/6e2f51c7-21b0-450b-9329-14955a8c79a/contact/send-message'),
+        'key' => env('WHATSAPP_API_KEY'),
+        'url' => env('WHATSAPP_API_URL'),
     ],
 
 ];

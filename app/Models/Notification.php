@@ -55,13 +55,6 @@ class Notification extends Model
     {
         // ── 1. Retrieve Settings ──────────────────────────────────────
         $apiUrl = SiteSetting::getVal('whatsapp_api_url');
-        if (empty($apiUrl)) {
-            $apiUrl = config('services.whatsapp.url') ?? '';
-        }
-        $token = SiteSetting::getVal('whatsapp_api_key');
-        if (empty($token)) {
-            $token = config('services.whatsapp.key') ?? '';
-        }
 
         if (empty($apiUrl)) {
             Log::warning('WhatsApp: API URL not configured.');
@@ -79,7 +72,6 @@ class Notification extends Model
         }
 
         // ── 3. Sanitize Variables (RO pattern) ────────────────────────
-        // Meta/FlowHora prohibits newlines, tabs, or multiple spaces in template params
         $cleanVars = [];
         foreach ($variables as $val) {
             $str = (string) $val;
@@ -88,84 +80,32 @@ class Notification extends Model
             $cleanVars[] = trim($str);
         }
 
-        // ── 4. Extract Token from URL if api_key field is empty ───────
-        if (empty($token) && str_contains($apiUrl, 'token=')) {
-            parse_str(parse_url($apiUrl, PHP_URL_QUERY), $urlQuery);
-            $token = $urlQuery['token'] ?? '';
+        // ── 4. Build FlowHora Payload ─────────────────────────────────
+        $payload = [
+            'phone_number'      => $cleanPhone,
+            'template_name'     => $templateName,
+            'template_language' => 'en',
+        ];
+
+        // Map variables to field_1, field_2, field_3, etc.
+        if (!empty($cleanVars)) {
+            foreach ($cleanVars as $index => $val) {
+                $payload['field_' . ($index + 1)] = (string)$val;
+            }
         }
 
-        // ── 5. Auto-detect FlowHora Gateway (rj19web.com) ─────────────
-        $isFlowHora = str_contains($apiUrl, 'rj19web.com')
-                   || str_contains($apiUrl, 'flowhora')
-                   || str_contains($apiUrl, 'contact/send-template-message');
+        $headers = [
+            'Content-Type' => 'application/json',
+            'Accept'       => 'application/json'
+        ];
 
-        // ── 6. Build Target URL & Payload ─────────────────────────────
-        if ($isFlowHora) {
-            // Auto-correct endpoint from send-message to send-template-message for FlowHora
-            if (str_contains($apiUrl, 'contact/send-message') && !str_contains($apiUrl, 'contact/send-template-message')) {
-                $apiUrl = str_replace('contact/send-message', 'contact/send-template-message', $apiUrl);
-            }
-
-            // FlowHora custom flat payload
-            $payload = [
-                'phone_number'      => $cleanPhone,
-                'template_name'     => $templateName,
-                'template_language' => 'en',
-            ];
-
-            // Map variables to field_1, field_2, field_3, etc.
-            if (!empty($cleanVars)) {
-                foreach ($cleanVars as $index => $val) {
-                    $payload['field_' . ($index + 1)] = (string)$val;
-                }
-            }
-
-            // Auto-append token to URL if not already present
-            $apiUrlWithToken = $apiUrl;
-            if (!empty($token) && !str_contains($apiUrl, 'token=')) {
-                $connector = (str_contains($apiUrl, '?') === false) ? '?' : '&';
-                $apiUrlWithToken = $apiUrl . $connector . 'token=' . $token;
-            }
-
-            $headers = [
-                'Content-Type' => 'application/json',
-                'Accept'       => 'application/json'
-            ];
-        } else {
-            // Official Meta Cloud API nested payload format
-            $payload = [
-                'messaging_product' => 'whatsapp',
-                'to'                => $cleanPhone,
-                'type'              => 'template',
-                'template'          => [
-                    'name'     => $templateName,
-                    'language' => ['code' => 'en'],
-                ],
-            ];
-            if (!empty($cleanVars)) {
-                $parameters = array_map(fn($v) => ['type' => 'text', 'text' => $v], $cleanVars);
-                $payload['template']['components'] = [['type' => 'body', 'parameters' => $parameters]];
-            }
-
-            $apiUrlWithToken = $apiUrl;
-            $headers = [
-                'Content-Type' => 'application/json'
-            ];
-        }
-
-        // ── 7. HTTP Request ───────────────────────────────────────────
-        $debugLog = ['target_url' => $apiUrlWithToken, 'payload' => $payload];
+        // ── 5. HTTP Request ───────────────────────────────────────────
+        $debugLog = ['target_url' => $apiUrl, 'payload' => $payload];
         try {
             // withoutVerifying() resolves SSL certificate issues on local XAMPP environments
             $client = Http::withoutVerifying()->withHeaders($headers);
-
-            // Bearer token for Meta Cloud API
-            if (!$isFlowHora && !empty($token)) {
-                $client = $client->withToken($token);
-            }
-
             $startTime   = microtime(true);
-            $response    = $client->post($apiUrlWithToken, $payload);
+            $response    = $client->post($apiUrl, $payload);
             $duration    = round((microtime(true) - $startTime) * 1000, 2);
 
             $debugLog['http_status']   = $response->status();

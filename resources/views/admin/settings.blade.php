@@ -633,13 +633,7 @@
                     </div>
                 </div>
 
-                <div class="space-y-2">
-                    <label class="block text-xs font-bold text-theme-text/75 uppercase tracking-wider mb-1">API Access Token (Optional if already embedded in the URL)</label>
-                    <input type="password" name="whatsapp_api_key" value="{{ old('whatsapp_api_key', $whatsappApiKey) }}" placeholder="e.g. jUDMUIGKNETSvQ4CaAjYbyRJS9YNAMXs..." class="w-full p-3 text-sm bg-[var(--theme-bg)] border border-[var(--theme-border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 text-theme-text" />
-                    <p class="text-[10px] text-theme-text/50 leading-relaxed font-semibold italic">
-                        💡 <strong>Flexible Config:</strong> URL only (with token=... in query parameter) OR separate URL and Token parameter. Our backend dynamically supports both and auto-broadcasts!
-                    </p>
-                </div>
+
 
                 <div class="flex items-center gap-3">
                     <input type="checkbox" name="whatsapp_enabled" value="1" id="whatsapp_enabled" {{ $whatsappEnabled == '1' ? 'checked' : '' }} class="w-4 h-4 rounded text-red-500 focus:ring-red-500 bg-[var(--theme-bg)] border-[var(--theme-border)]" />
