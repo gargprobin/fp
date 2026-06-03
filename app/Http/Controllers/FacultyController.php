@@ -10,7 +10,7 @@ class FacultyController extends Controller
     /**
      * Show Candidate Faculty Dashboard with secure application tracking and timeline stages.
      */
-    public function dashboard()
+    public function dashboard(Request $request)
     {
         // Enforce candidate role authorization
         if (!auth()->check() || !auth()->user()->isCandidate()) {
@@ -20,10 +20,41 @@ class FacultyController extends Controller
         $user = auth()->user();
 
         // Get candidate's applications with associations
-        $applications = Application::where('candidate_id', $user->id)
-            ->with(['vacancy.institution', 'recommendationLetters'])
-            ->latest()
-            ->get();
+        $query = Application::where('candidate_id', $user->id)
+            ->with(['vacancy.institution', 'recommendationLetters']);
+
+        // Handle GET input: search_app (filters title, subject, company_name)
+        if ($request->filled('search_app')) {
+            $search = $request->input('search_app');
+            $query->where(function ($q) use ($search) {
+                $q->whereHas('vacancy', function ($vq) use ($search) {
+                    $vq->where('title', 'like', '%' . $search . '%')
+                       ->orWhere('subject', 'like', '%' . $search . '%');
+                })->orWhereHas('vacancy.institution', function ($iq) use ($search) {
+                    $iq->where('company_name', 'like', '%' . $search . '%');
+                });
+            });
+        }
+
+        // Handle GET input: sort_app (latest, oldest, status_asc, status_desc)
+        $sort = $request->input('sort_app', 'latest');
+        switch ($sort) {
+            case 'oldest':
+                $query->oldest();
+                break;
+            case 'status_asc':
+                $query->orderBy('status', 'asc');
+                break;
+            case 'status_desc':
+                $query->orderBy('status', 'desc');
+                break;
+            case 'latest':
+            default:
+                $query->latest();
+                break;
+        }
+
+        $applications = $query->paginate(5, ['*'], 'apps_page')->withQueryString();
 
         return view('admin.faculty-dashboard', compact('applications'));
     }
