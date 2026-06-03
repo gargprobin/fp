@@ -3,7 +3,7 @@
 @section('title', 'Sign Up - ' . ($siteSettings->platform_name ?? 'Sourcing Portal'))
 
 @section('content')
-<div class="max-w-2xl mx-auto my-8 bg-[var(--theme-card)] rounded-2xl p-8 shadow-xl border border-[var(--theme-border)] transition-all duration-300" x-data="{ role: 'candidate' }">
+<div class="max-w-2xl mx-auto my-4 sm:my-8 bg-[var(--theme-card)] rounded-2xl p-4 sm:p-8 shadow-xl border border-[var(--theme-border)] transition-all duration-300" x-data="{ role: 'candidate' }">
     <div class="text-center mb-8">
         <h1 class="text-3xl font-extrabold bg-gradient-to-r from-theme-primary to-theme-accent bg-clip-text text-transparent mb-2">
             Create Your Account
@@ -29,7 +29,7 @@
         <!-- Role Selector Toggle -->
         <div>
             <label class="block text-xs font-bold text-theme-text/60 uppercase mb-2">Select Your Role</label>
-            <div class="grid grid-cols-2 gap-4">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <button type="button" @click="role = 'candidate'" :class="role === 'candidate' ? 'bg-theme-primary/10 border-theme-primary text-theme-primary' : 'bg-transparent border-[var(--theme-border)] text-theme-text/60'" class="py-3.5 rounded-xl border-2 font-bold text-sm transition duration-300 flex items-center justify-center gap-2">
                     🧑‍🏫 Faculty Candidate
                 </button>

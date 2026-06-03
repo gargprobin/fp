@@ -38,7 +38,7 @@
         <div class="lg:col-span-2 space-y-6">
             
             <!-- Job Header -->
-            <div class="p-8 rounded-2xl bg-[var(--theme-card)] border border-[var(--theme-border)] shadow-sm relative overflow-hidden">
+            <div class="p-4 sm:p-8 rounded-2xl bg-[var(--theme-card)] border border-[var(--theme-border)] shadow-sm relative overflow-hidden">
                 <div class="absolute left-0 top-0 bottom-0 w-2" style="background-color: {{ $vacancy->institution->primary_color }}"></div>
                 
                 <div class="flex flex-wrap gap-4 justify-between items-start pl-4">
@@ -87,7 +87,7 @@
             </div>
 
             <!-- Job Description -->
-            <div class="p-8 rounded-2xl bg-[var(--theme-card)] border border-[var(--theme-border)] shadow-sm space-y-4">
+            <div class="p-4 sm:p-8 rounded-2xl bg-[var(--theme-card)] border border-[var(--theme-border)] shadow-sm space-y-4">
                 <h3 class="text-xl font-bold border-b border-[var(--theme-border)] pb-3">Vacancy Description</h3>
                 <div class="text-sm text-theme-text/80 leading-relaxed space-y-4">
                     <p>{{ $vacancy->description }}</p>
@@ -102,7 +102,7 @@
             </div>
 
             <!-- About Hiring Organization -->
-            <div class="p-8 rounded-2xl bg-[var(--theme-card)] border border-[var(--theme-border)] shadow-sm space-y-4">
+            <div class="p-4 sm:p-8 rounded-2xl bg-[var(--theme-card)] border border-[var(--theme-border)] shadow-sm space-y-4">
                 <h3 class="text-xl font-bold border-b border-[var(--theme-border)] pb-3">About the Recruiter</h3>
                 @if($hasUnmaskedAccess)
                     <p class="text-sm text-theme-text/80">

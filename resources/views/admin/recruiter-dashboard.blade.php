@@ -87,14 +87,14 @@
     </div>
 
     <!-- Navigation Tabs -->
-    <div class="flex border-b border-[var(--theme-border)] gap-6 text-sm font-semibold">
-        <button @click="selectTab('pipeline')" :class="activeTab === 'pipeline' ? 'text-theme-primary border-b-2 border-theme-primary pb-3' : 'text-theme-text/60 pb-3 hover:text-theme-text transition cursor-pointer'">
+    <div class="flex border-b border-[var(--theme-border)] gap-4 text-xs md:text-sm font-semibold overflow-x-auto whitespace-nowrap scrollbar-none pb-2 -mb-px">
+        <button @click="selectTab('pipeline')" :class="activeTab === 'pipeline' ? 'text-theme-primary border-b-2 border-theme-primary pb-2' : 'text-theme-text/60 pb-2 hover:text-theme-text transition cursor-pointer'">
             🔎 Sourced Candidates Pipeline
         </button>
-        <button @click="selectTab('post-vacancy')" :class="activeTab === 'post-vacancy' ? 'text-theme-primary border-b-2 border-theme-primary pb-3' : 'text-theme-text/60 pb-3 hover:text-theme-text transition cursor-pointer'">
+        <button @click="selectTab('post-vacancy')" :class="activeTab === 'post-vacancy' ? 'text-theme-primary border-b-2 border-theme-primary pb-2' : 'text-theme-text/60 pb-2 hover:text-theme-text transition cursor-pointer'">
             ➕ Post New Vacancy
         </button>
-        <button @click="selectTab('my-vacancies')" :class="activeTab === 'my-vacancies' ? 'text-theme-primary border-b-2 border-theme-primary pb-3' : 'text-theme-text/60 pb-3 hover:text-theme-text transition cursor-pointer'">
+        <button @click="selectTab('my-vacancies')" :class="activeTab === 'my-vacancies' ? 'text-theme-primary border-b-2 border-theme-primary pb-2' : 'text-theme-text/60 pb-2 hover:text-theme-text transition cursor-pointer'">
             💼 My Posted Vacancies ({{ $vacancies->count() }})
         </button>
     </div>

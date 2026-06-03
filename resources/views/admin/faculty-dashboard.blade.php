@@ -109,8 +109,8 @@
                     </div>
                 </div>
 
-                <!-- 🚀 Pipeline Interactive Timeline Progression Tracker -->
-                <div class="pl-3 py-4 border-t border-b border-[var(--theme-border)]">
+                <!-- 🚀 Pipeline Interactive Timeline Progression Tracker (Desktop) -->
+                <div class="hidden md:block pl-3 py-4 border-t border-b border-[var(--theme-border)]">
                     <div class="relative flex items-center justify-between w-full max-w-3xl mx-auto text-center">
                         <!-- Progress Background Bar -->
                         <div class="absolute left-0 right-0 top-1/2 h-1 bg-[var(--theme-border)] -translate-y-1/2 z-0"></div>
@@ -175,6 +175,68 @@
                                 🎉
                             </div>
                             <span class="text-[10px] font-bold mt-2 text-theme-text uppercase tracking-wide">Hired!</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 🚀 Pipeline Interactive Timeline Progression Tracker (Mobile) -->
+                <div class="block md:hidden pl-3 py-4 border-t border-b border-[var(--theme-border)]">
+                    <div class="relative flex flex-col gap-6 pl-8">
+                        <!-- Progress Background Bar (Vertical) -->
+                        <div class="absolute left-4 top-2 bottom-2 w-1 bg-[var(--theme-border)] z-0 rounded-full"></div>
+                        
+                        <!-- Dynamic Progress Bar height indicator -->
+                        @php
+                            $vertPct = ($currentStageIdx / (count($stages) - 1)) * 100;
+                        @endphp
+                        <div class="absolute left-4 top-2 w-1 bg-theme-primary z-0 transition-all duration-500 rounded-full" style="height: {{ $vertPct }}%;"></div>
+
+                        <!-- Stage A: Applied -->
+                        <div class="relative z-10 flex items-center gap-4">
+                            <div class="w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs shadow-sm shrink-0 transition-all duration-300 {{ $currentStageIdx >= 0 ? 'bg-theme-primary text-white scale-110' : 'bg-[var(--theme-card)] text-theme-text/40 border border-[var(--theme-border)]' }}">
+                                📥
+                            </div>
+                            <span class="text-xs font-bold text-theme-text uppercase tracking-wide">Applied</span>
+                        </div>
+
+                        <!-- Stage B: Screened -->
+                        <div class="relative z-10 flex items-center gap-4">
+                            <div class="w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs shadow-sm shrink-0 transition-all duration-300 {{ $currentStageIdx >= 1 ? 'bg-theme-primary text-white scale-110' : 'bg-[var(--theme-card)] text-theme-text/40 border border-[var(--theme-border)]' }}">
+                                🔎
+                            </div>
+                            <span class="text-xs font-bold text-theme-text uppercase tracking-wide">Screened</span>
+                        </div>
+
+                        <!-- Stage C: Lined Up -->
+                        <div class="relative z-10 flex items-center gap-4">
+                            <div class="w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs shadow-sm shrink-0 transition-all duration-300 {{ $currentStageIdx >= 2 ? 'bg-theme-primary text-white scale-110' : 'bg-[var(--theme-card)] text-theme-text/40 border border-[var(--theme-border)]' }}">
+                                🤝
+                            </div>
+                            <span class="text-xs font-bold text-theme-text uppercase tracking-wide">Lined Up</span>
+                        </div>
+
+                        <!-- Stage D: Approved -->
+                        <div class="relative z-10 flex items-center gap-4">
+                            <div class="w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs shadow-sm shrink-0 transition-all duration-300 {{ $currentStageIdx >= 3 ? 'bg-theme-primary text-white scale-110' : 'bg-[var(--theme-card)] text-theme-text/40 border border-[var(--theme-border)]' }}">
+                                🔓
+                            </div>
+                            <span class="text-xs font-bold text-theme-text uppercase tracking-wide">Approved</span>
+                        </div>
+
+                        <!-- Stage E: Vetting -->
+                        <div class="relative z-10 flex items-center gap-4">
+                            <div class="w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs shadow-sm shrink-0 transition-all duration-300 {{ $currentStageIdx >= 4 ? 'bg-theme-primary text-white scale-110' : 'bg-[var(--theme-card)] text-theme-text/40 border border-[var(--theme-border)]' }}">
+                                📊
+                            </div>
+                            <span class="text-xs font-bold text-theme-text uppercase tracking-wide">Vetting</span>
+                        </div>
+
+                        <!-- Stage F: Appointed -->
+                        <div class="relative z-10 flex items-center gap-4">
+                            <div class="w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs shadow-sm shrink-0 transition-all duration-300 {{ $currentStageIdx >= 5 ? 'bg-emerald-500 text-white scale-110' : 'bg-[var(--theme-card)] text-theme-text/40 border border-[var(--theme-border)]' }}">
+                                🎉
+                            </div>
+                            <span class="text-xs font-bold text-theme-text uppercase tracking-wide">Hired!</span>
                         </div>
                     </div>
                 </div>

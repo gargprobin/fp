@@ -3,10 +3,10 @@
 @section('title', 'Submit Reference Letter - ' . ($siteSettings->platform_name ?? 'Sourcing Portal'))
 
 @section('content')
-<div class="max-w-2xl mx-auto my-8 bg-[var(--theme-card)] rounded-2xl p-8 shadow-xl border border-[var(--theme-border)] transition-colors">
+<div class="max-w-2xl mx-auto my-4 sm:my-8 bg-[var(--theme-card)] rounded-2xl p-4 sm:p-8 shadow-xl border border-[var(--theme-border)] transition-colors">
     
     <!-- Branding Accent -->
-    <div class="h-2 rounded-t-2xl -mt-8 -mx-8 mb-6" style="background-color: {{ $letter->application->vacancy->institution->primary_color }}"></div>
+    <div class="h-2 rounded-t-2xl -mt-4 sm:-mt-8 -mx-4 sm:-mx-8 mb-6" style="background-color: {{ $letter->application->vacancy->institution->primary_color }}"></div>
 
     <div class="mb-6">
         <h1 class="text-2xl font-extrabold text-theme-text mb-2">

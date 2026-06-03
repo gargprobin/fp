@@ -3,7 +3,7 @@
 @section('title', 'Reference Submitted Successfully')
 
 @section('content')
-<div class="max-w-md mx-auto my-12 text-center bg-[var(--theme-card)] rounded-2xl p-8 shadow-xl border border-[var(--theme-border)] transition-colors">
+<div class="max-w-md mx-auto my-6 sm:my-12 text-center bg-[var(--theme-card)] rounded-2xl p-4 sm:p-8 shadow-xl border border-[var(--theme-border)] transition-colors">
     
     <div class="inline-flex p-4 bg-green-500/10 text-green-600 rounded-full mb-6">
         <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>

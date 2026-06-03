@@ -3,7 +3,7 @@
 @section('title', 'Demo Login - ' . ($siteSettings->platform_name ?? 'Sourcing Portal'))
 
 @section('content')
-<div class="max-w-md mx-auto my-12 bg-[var(--theme-card)] rounded-2xl p-8 shadow-xl border border-[var(--theme-border)] transition-all duration-300">
+<div class="max-w-md mx-auto my-6 sm:my-12 bg-[var(--theme-card)] rounded-2xl p-4 sm:p-8 shadow-xl border border-[var(--theme-border)] transition-all duration-300">
     <div class="text-center mb-8">
         <h1 class="text-3xl font-extrabold bg-gradient-to-r from-theme-primary to-theme-accent bg-clip-text text-transparent mb-2">
             Welcome to {{ $siteSettings->platform_name ?? 'Sourcing Portal' }}

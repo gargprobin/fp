@@ -149,23 +149,23 @@
     </div>
 
     <!-- Interactive Navigation Tabs -->
-    <div class="flex flex-wrap border-b border-[var(--theme-border)] gap-6 text-sm font-semibold">
-        <button @click="selectTab('settings')" :class="activeTab === 'settings' ? 'text-red-500 border-b-2 border-red-500 pb-3' : 'text-theme-text/60 pb-3 hover:text-theme-text transition cursor-pointer'">
+    <div class="flex border-b border-[var(--theme-border)] gap-4 text-xs md:text-sm font-semibold overflow-x-auto whitespace-nowrap scrollbar-none pb-2 -mb-px">
+        <button @click="selectTab('settings')" :class="activeTab === 'settings' ? 'text-red-500 border-b-2 border-red-500 pb-2' : 'text-theme-text/60 pb-2 hover:text-theme-text transition cursor-pointer'">
             🔧 Portal Settings
         </button>
-        <button @click="selectTab('whatsapp')" :class="activeTab === 'whatsapp' ? 'text-red-500 border-b-2 border-red-500 pb-3' : 'text-theme-text/60 pb-3 hover:text-theme-text transition cursor-pointer'">
+        <button @click="selectTab('whatsapp')" :class="activeTab === 'whatsapp' ? 'text-red-500 border-b-2 border-red-500 pb-2' : 'text-theme-text/60 pb-2 hover:text-theme-text transition cursor-pointer'">
             💬 WhatsApp Settings
         </button>
-        <button @click="selectTab('users')" :class="activeTab === 'users' ? 'text-red-500 border-b-2 border-red-500 pb-3' : 'text-theme-text/60 pb-3 hover:text-theme-text transition cursor-pointer'">
+        <button @click="selectTab('users')" :class="activeTab === 'users' ? 'text-red-500 border-b-2 border-red-500 pb-2' : 'text-theme-text/60 pb-2 hover:text-theme-text transition cursor-pointer'">
             👥 User Moderation
         </button>
-        <button @click="selectTab('vacancies')" :class="activeTab === 'vacancies' ? 'text-red-500 border-b-2 border-red-500 pb-3' : 'text-theme-text/60 pb-3 hover:text-theme-text transition cursor-pointer'">
+        <button @click="selectTab('vacancies')" :class="activeTab === 'vacancies' ? 'text-red-500 border-b-2 border-red-500 pb-2' : 'text-theme-text/60 pb-2 hover:text-theme-text transition cursor-pointer'">
             💼 Vacancies
         </button>
-        <button @click="selectTab('applications')" :class="activeTab === 'applications' ? 'text-red-500 border-b-2 border-red-500 pb-3' : 'text-theme-text/60 pb-3 hover:text-theme-text transition cursor-pointer'">
+        <button @click="selectTab('applications')" :class="activeTab === 'applications' ? 'text-red-500 border-b-2 border-red-500 pb-2' : 'text-theme-text/60 pb-2 hover:text-theme-text transition cursor-pointer'">
             📝 Sourcing Pipeline
         </button>
-        <button @click="selectTab('trash')" :class="activeTab === 'trash' ? 'text-red-500 border-b-2 border-red-500 pb-3' : 'text-theme-text/60 pb-3 hover:text-theme-text transition cursor-pointer'">
+        <button @click="selectTab('trash')" :class="activeTab === 'trash' ? 'text-red-500 border-b-2 border-red-500 pb-2' : 'text-theme-text/60 pb-2 hover:text-theme-text transition cursor-pointer'">
             ♻️ System Trash
         </button>
     </div>

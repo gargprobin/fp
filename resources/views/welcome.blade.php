@@ -384,10 +384,10 @@
     </section>
 
     <!-- ----------------- DYNAMIC VIDEO POPUP MODAL (Same to Same c:\jobs) ----------------- -->
-    <div x-show="activeVideo" class="fixed inset-0 z-50 flex items-center justify-center p-6" x-cloak>
+    <div x-show="activeVideo" class="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6" x-cloak>
         <div @click="activeVideo = null" class="absolute inset-0 bg-black/60 backdrop-blur-xs"></div>
         
-        <div class="relative w-full max-w-2xl bg-slate-900 rounded-3xl overflow-hidden shadow-2xl p-6 z-10 text-center border border-slate-800">
+        <div class="relative w-full max-w-2xl bg-slate-900 rounded-3xl overflow-hidden shadow-2xl p-4 sm:p-6 z-10 text-center border border-slate-800">
             <div class="flex justify-between items-center border-b border-slate-800 pb-4 mb-4">
                 <div class="text-left">
                     <h4 class="font-bold text-white text-base" x-text="activeVideo ? activeVideo.name : ''"></h4>
@@ -439,10 +439,10 @@
     </div>
 
     <!-- ----------------- 1-CLICK QUICK APPLY MODAL (Blade Integrated) ----------------- -->
-    <div x-show="applyVacancy" class="fixed inset-0 z-50 flex items-center justify-center p-6" x-cloak>
+    <div x-show="applyVacancy" class="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6" x-cloak>
         <div @click="applyVacancy = null" class="absolute inset-0 bg-black/60 backdrop-blur-xs"></div>
         
-        <div class="relative w-full max-w-lg bg-[var(--theme-card)] text-theme-text rounded-3xl overflow-hidden shadow-2xl p-6 z-10 border border-[var(--theme-border)]">
+        <div class="relative w-full max-w-lg bg-[var(--theme-card)] text-theme-text rounded-3xl overflow-hidden shadow-2xl p-4 sm:p-6 z-10 border border-[var(--theme-border)]">
             <div class="flex justify-between items-center border-b border-[var(--theme-border)] pb-4 mb-4">
                 <div>
                     <h4 class="font-extrabold text-base">Quick Apply</h4>

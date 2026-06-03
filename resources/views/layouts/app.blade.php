@@ -732,6 +732,8 @@
                     <a href="{{ route('admin.settings') }}" class="block px-3 py-2 rounded-lg text-base font-bold text-red-500 hover:bg-red-500/10 transition">⚙️ Admin Panel</a>
                 @elseif(auth()->user()->isInstitution())
                     <a href="{{ route('recruiter.dashboard') }}" class="block px-3 py-2 rounded-lg text-base font-bold text-theme-primary hover:bg-theme-primary/10 transition">🏢 Recruiter Dashboard</a>
+                @elseif(auth()->user()->isCandidate())
+                    <a href="{{ route('faculty.dashboard') }}" class="block px-3 py-2 rounded-lg text-base font-bold text-theme-primary hover:bg-theme-primary/10 transition">🧑‍🏫 Faculty Dashboard</a>
                 @endif
                 <div class="border-t border-[var(--theme-border)] pt-3 flex items-center justify-between px-3">
                     <span class="text-sm font-semibold text-theme-text/70">{{ auth()->user()->name }}</span>
@@ -747,10 +749,6 @@
                     </a>
                 </div>
             @endauth
-        </div>
-    </header>
-
-            </div>
         </div>
     </header>
 
