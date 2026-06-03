@@ -303,22 +303,66 @@ class Notification extends Model
      */
     public static function send($userId, $title, $message, $url = null, $type = 'info')
     {
-        // ── 1. Save notification to DB ────────────────────────────────
-        $notification = self::create([
-            'user_id'    => $userId,
-            'title'      => $title,
-            'message'    => $message,
-            'action_url' => $url,
-            'type'       => $type,
-            'is_read'    => false,
-        ]);
+        $user = User::find($userId);
+        $inAppEnabled = true;
+        if ($user) {
+            $settings = $user->getNotificationSettings();
+            $inAppEnabled = $settings['in_app'] ?? true;
+        }
+
+        // ── 1. Save notification to DB (if in-app enabled) ────────────────
+        if ($inAppEnabled) {
+            $notification = self::create([
+                'user_id'    => $userId,
+                'title'      => $title,
+                'message'    => $message,
+                'action_url' => $url,
+                'type'       => $type,
+                'is_read'    => false,
+            ]);
+        } else {
+            $notification = new self([
+                'user_id'    => $userId,
+                'title'      => $title,
+                'message'    => $message,
+                'action_url' => $url,
+                'type'       => $type,
+                'is_read'    => true,
+            ]);
+        }
 
         // ── 2. WhatsApp dispatch (if enabled) ─────────────────────────
         $whatsappEnabled = SiteSetting::getVal('whatsapp_enabled', '1') === '1';
-        $user = User::find($userId);
 
         if (!$whatsappEnabled || !$user) {
             return $notification;
+        }
+
+        $settings = $user->getNotificationSettings();
+
+        // Verify User's WhatsApp Notification Preference
+        if (!($settings['whatsapp'] ?? true)) {
+            Log::info("WhatsApp: Skipped for user {$userId} due to WhatsApp notification preference disabled.");
+            return $notification;
+        }
+
+        // Verify DND (Do Not Disturb) Quiet Hours
+        if ($settings['dnd'] ?? false) {
+            $now = now()->format('H:i');
+            $start = $settings['dnd_start'] ?? '22:00';
+            $end = $settings['dnd_end'] ?? '08:00';
+
+            $inDnd = false;
+            if ($start <= $end) {
+                $inDnd = ($now >= $start && $now <= $end);
+            } else {
+                $inDnd = ($now >= $start || $now <= $end);
+            }
+
+            if ($inDnd) {
+                Log::info("WhatsApp: Skipped for user {$userId} due to active DND Quiet Hours ({$start} to {$end}).");
+                return $notification;
+            }
         }
 
         // Resolve phone — fallback to dummy if not set

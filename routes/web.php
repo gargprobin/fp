@@ -129,6 +129,24 @@ Route::post('/notifications/{notification}/toggle-read', function(\App\Models\No
     return back();
 })->name('notifications.toggle-read');
 
+Route::post('/notifications/settings', function() {
+    if (auth()->check()) {
+        $user = auth()->user();
+        $settings = request()->validate([
+            'in_app' => 'required|boolean',
+            'whatsapp' => 'required|boolean',
+            'email' => 'required|boolean',
+            'dnd' => 'required|boolean',
+            'dnd_start' => 'required|string|max:5',
+            'dnd_end' => 'required|string|max:5',
+        ]);
+        $user->notification_settings = $settings;
+        $user->save();
+        return response()->json(['success' => true, 'settings' => $user->getNotificationSettings()]);
+    }
+    return response()->json(['error' => 'Unauthorized'], 403);
+})->name('notifications.save-settings');
+
 Route::get('/notifications/{notification}/read', function(\App\Models\Notification $notification) {
     if (auth()->check() && $notification->user_id === auth()->id()) {
         $notification->is_read = true;

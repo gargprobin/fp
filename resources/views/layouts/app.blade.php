@@ -256,6 +256,8 @@
                         open: false, 
                         unreadCount: {{ $unreadNotificationsCount }},
                         currentFilter: 'unread',
+                        showSettingsModal: false,
+                        settings: {{ json_encode(auth()->user()->getNotificationSettings()) }},
                         notifications: [
                             @foreach($notificationsList as $notif)
                             {
@@ -299,6 +301,22 @@
                                     this.notifications.forEach(n => n.is_read = true);
                                     this.unreadCount = 0;
                                     $dispatch('mark-all-read');
+                                }
+                            });
+                        },
+                        saveSettings() {
+                            fetch('{{ route('notifications.save-settings') }}', {
+                                method: 'POST',
+                                headers: {
+                                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                                    'Accept': 'application/json',
+                                    'Content-Type': 'application/json'
+                                },
+                                body: JSON.stringify(this.settings)
+                            })
+                            .then(res => {
+                                if (res.ok) {
+                                    this.showSettingsModal = false;
                                 }
                             });
                         },
@@ -387,9 +405,9 @@
                                      <button x-show="unreadCount > 0" @click="markAllRead()" class="p-1.5 rounded-lg hover:bg-theme-text/10 text-theme-text/60 hover:text-theme-primary transition cursor-pointer font-bold text-xs" title="Mark all read" x-cloak>
                                          ✓✓ Mark all read
                                      </button>
-                                     <a href="{{ auth()->user()->isAdmin() ? route('admin.settings') : '#' }}" class="p-1.5 rounded-lg hover:bg-theme-text/10 text-theme-text/60 hover:text-theme-primary transition" title="Settings">
+                                     <button @click="showSettingsModal = true" class="p-1.5 rounded-lg hover:bg-theme-text/10 text-theme-text/60 hover:text-theme-primary transition cursor-pointer" title="Notification Settings">
                                          ⚙️
-                                     </a>
+                                     </button>
                                  </div>
                              </div>
                              
@@ -567,6 +585,93 @@
                                  
                              </div>
                         </div>
+                         </div>
+
+                         <!-- Settings Modal -->
+                         <div x-show="showSettingsModal" 
+                              class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs"
+                              x-cloak>
+                              
+                              <!-- Modal Container -->
+                              <div @click.away="showSettingsModal = false" 
+                                   class="w-full max-w-md bg-[var(--theme-card)] border border-[var(--theme-border)] rounded-3xl p-6 shadow-2xl space-y-6 text-sm text-theme-text relative">
+                                   
+                                   <!-- Close Button -->
+                                   <button @click="showSettingsModal = false" class="absolute top-4 right-4 w-8 h-8 rounded-full hover:bg-theme-text/10 flex items-center justify-center transition cursor-pointer border border-[var(--theme-border)] bg-[var(--theme-card)]" title="Close">
+                                       <span class="text-lg font-bold">&times;</span>
+                                   </button>
+
+                                   <!-- Header -->
+                                   <div class="space-y-1">
+                                       <h3 class="text-xl font-extrabold tracking-tight">Notification Settings</h3>
+                                       <p class="text-xs text-theme-text/50">Manage how you receive alerts and communications</p>
+                                   </div>
+
+                                   <!-- Body Options -->
+                                   <div class="space-y-4">
+                                       <!-- Option 1: In-App -->
+                                       <label class="flex items-center justify-between p-3 rounded-2xl border border-[var(--theme-border)] bg-[var(--theme-bg)] hover:bg-[var(--theme-bg)]/80 cursor-pointer select-none">
+                                           <div class="space-y-0.5">
+                                               <span class="font-bold block">In-App Notifications</span>
+                                               <span class="text-[10px] text-theme-text/50 block">Show real-time alerts inside the portal</span>
+                                           </div>
+                                           <input type="checkbox" x-model="settings.in_app" class="w-4 h-4 rounded text-theme-primary focus:ring-theme-primary cursor-pointer" />
+                                       </label>
+
+                                       <!-- Option 2: WhatsApp -->
+                                       <label class="flex items-center justify-between p-3 rounded-2xl border border-[var(--theme-border)] bg-[var(--theme-bg)] hover:bg-[var(--theme-bg)]/80 cursor-pointer select-none">
+                                           <div class="space-y-0.5">
+                                               <span class="font-bold block">WhatsApp Notifications</span>
+                                               <span class="text-[10px] text-theme-text/50 block">Send real-time alerts via WhatsApp templates</span>
+                                           </div>
+                                           <input type="checkbox" x-model="settings.whatsapp" class="w-4 h-4 rounded text-theme-primary focus:ring-theme-primary cursor-pointer" />
+                                       </label>
+
+                                       <!-- Option 3: Email -->
+                                       <label class="flex items-center justify-between p-3 rounded-2xl border border-[var(--theme-border)] bg-[var(--theme-bg)] hover:bg-[var(--theme-bg)]/80 cursor-pointer select-none">
+                                           <div class="space-y-0.5">
+                                               <span class="font-bold block">Email Notifications</span>
+                                               <span class="text-[10px] text-theme-text/50 block">Send digest summary emails to your inbox</span>
+                                           </div>
+                                           <input type="checkbox" x-model="settings.email" class="w-4 h-4 rounded text-theme-primary focus:ring-theme-primary cursor-pointer" />
+                                       </label>
+
+                                       <!-- DND Mode Section -->
+                                       <div class="p-3.5 rounded-2xl border border-[var(--theme-border)] bg-[var(--theme-bg)] space-y-3">
+                                           <label class="flex items-center justify-between cursor-pointer select-none">
+                                               <div class="space-y-0.5">
+                                                   <span class="font-bold block">Do Not Disturb (DND)</span>
+                                                   <span class="text-[10px] text-theme-text/50 block">Silence notifications during quiet hours</span>
+                                               </div>
+                                               <input type="checkbox" x-model="settings.dnd" class="w-4 h-4 rounded text-theme-primary focus:ring-theme-primary cursor-pointer" />
+                                           </label>
+
+                                           <!-- Quiet Hours Selector -->
+                                           <div x-show="settings.dnd" class="grid grid-cols-2 gap-3 pt-2.5 border-t border-[var(--theme-border)]" x-cloak>
+                                               <div class="space-y-1">
+                                                   <span class="text-[10px] font-bold text-theme-text/50 uppercase">Quiet Hours Start</span>
+                                                   <input type="time" x-model="settings.dnd_start" class="w-full p-2 bg-[var(--theme-bg)] border border-[var(--theme-border)] rounded-xl focus:outline-none focus:ring-1 focus:ring-theme-primary text-xs font-semibold" />
+                                               </div>
+                                               <div class="space-y-1">
+                                                   <span class="text-[10px] font-bold text-theme-text/50 uppercase">Quiet Hours End</span>
+                                                   <input type="time" x-model="settings.dnd_end" class="w-full p-2 bg-[var(--theme-bg)] border border-[var(--theme-border)] rounded-xl focus:outline-none focus:ring-1 focus:ring-theme-primary text-xs font-semibold" />
+                                               </div>
+                                           </div>
+                                       </div>
+                                   </div>
+
+                                   <!-- Actions Footer -->
+                                   <div class="flex gap-3 pt-2">
+                                       <button @click="showSettingsModal = false" class="flex-grow py-2.5 px-4 text-xs font-extrabold bg-[var(--theme-bg)] hover:bg-theme-text/5 border border-[var(--theme-border)] rounded-2xl transition cursor-pointer text-center">
+                                           Cancel
+                                       </button>
+                                       <button @click="saveSettings()" class="flex-grow py-2.5 px-4 text-xs font-extrabold bg-theme-primary hover:bg-theme-accent text-white rounded-2xl transition cursor-pointer shadow-md shadow-theme-primary/25 text-center active:scale-95 duration-150">
+                                           Save Preferences
+                                       </button>
+                                   </div>
+
+                              </div>
+                         </div>
                     </div>
                     @endauth
 

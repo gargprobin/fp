@@ -28,6 +28,7 @@ class User extends Authenticatable
         'theme_preference',
         'is_verified',
         'phone',
+        'notification_settings',
     ];
 
     /**
@@ -51,6 +52,22 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'is_verified' => 'boolean',
+            'notification_settings' => 'array',
+        ];
+    }
+
+    /**
+     * Get user notification preferences with fallback defaults.
+     */
+    public function getNotificationSettings(): array
+    {
+        return $this->notification_settings ?: [
+            'in_app' => true,
+            'whatsapp' => true,
+            'email' => true,
+            'dnd' => false,
+            'dnd_start' => '22:00',
+            'dnd_end' => '08:00',
         ];
     }
 
