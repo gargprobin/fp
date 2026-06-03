@@ -13,7 +13,7 @@
     // State management for local filter matching c:\jobs
     searchSubject: '{{ request('subject', '') }}',
     searchLocation: '{{ request('location', '') }}',
-    selectedCategory: 'all',
+    selectedCategory: '{{ request('category', 'all') }}',
     activeVideo: null,
     applyVacancy: null,
     
@@ -249,7 +249,7 @@
 
         <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
             <button 
-                @click="selectedCategory = 'Physics'; document.getElementById('jobs').scrollIntoView({ behavior: 'smooth' })"
+                @click="window.location.href = '{{ route('home') }}?category=Physics'"
                 :class="selectedCategory === 'Physics' ? 'border-theme-primary bg-theme-primary/5 ring-2 ring-theme-primary/20' : 'bg-[var(--theme-card)] border-[var(--theme-border)] hover:border-theme-primary/20'"
                 class="group p-8 rounded-2xl border text-left shadow-xs hover:shadow-xl hover:-translate-y-1 transition-all duration-300 cursor-pointer"
             >
@@ -260,7 +260,7 @@
             </button>
 
             <button 
-                @click="selectedCategory = 'Chemistry'; document.getElementById('jobs').scrollIntoView({ behavior: 'smooth' })"
+                @click="window.location.href = '{{ route('home') }}?category=Chemistry'"
                 :class="selectedCategory === 'Chemistry' ? 'border-theme-primary bg-theme-primary/5 ring-2 ring-theme-primary/20' : 'bg-[var(--theme-card)] border-[var(--theme-border)] hover:border-theme-primary/20'"
                 class="group p-8 rounded-2xl border text-left shadow-xs hover:shadow-xl hover:-translate-y-1 transition-all duration-300 cursor-pointer"
             >
@@ -271,7 +271,7 @@
             </button>
 
             <button 
-                @click="selectedCategory = 'Computer Science'; document.getElementById('jobs').scrollIntoView({ behavior: 'smooth' })"
+                @click="window.location.href = '{{ route('home') }}?category=Computer%20Science'"
                 :class="selectedCategory === 'Computer Science' ? 'border-theme-primary bg-theme-primary/5 ring-2 ring-theme-primary/20' : 'bg-[var(--theme-card)] border-[var(--theme-border)] hover:border-theme-primary/20'"
                 class="group p-8 rounded-2xl border text-left shadow-xs hover:shadow-xl hover:-translate-y-1 transition-all duration-300 cursor-pointer"
             >
@@ -282,7 +282,7 @@
             </button>
 
             <button 
-                @click="selectedCategory = 'all'"
+                @click="window.location.href = '{{ route('home') }}'"
                 :class="selectedCategory === 'all' ? 'border-theme-primary bg-theme-primary/5 ring-2 ring-theme-primary/20' : 'bg-[var(--theme-card)] border-[var(--theme-border)] hover:border-theme-primary/20'"
                 class="group p-8 rounded-2xl border text-left shadow-xs hover:shadow-xl hover:-translate-y-1 transition-all duration-300 cursor-pointer"
             >
