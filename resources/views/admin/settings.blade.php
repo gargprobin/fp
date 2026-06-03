@@ -6,7 +6,7 @@
 <div x-data="{ 
     activeTab: (window.location.hash.startsWith('#app-') || '{{ request('tab') }}' === 'applications') 
         ? 'applications' 
-        : ('{{ request('tab') }}' === 'users' ? 'users' : (localStorage.getItem('admin_active_tab') || 'settings')),
+        : ((window.location.hash.startsWith('#user-') || '{{ request('tab') }}' === 'users') ? 'users' : (localStorage.getItem('admin_active_tab') || 'settings')),
     selectTab(tab) {
         this.activeTab = tab;
         localStorage.setItem('admin_active_tab', tab);
@@ -242,7 +242,7 @@
                     </thead>
                     <tbody class="divide-y divide-[var(--theme-border)] bg-[var(--theme-bg)]">
                         @foreach($users as $user)
-                            <tr class="hover:bg-theme-primary/5 transition-colors"
+                            <tr id="user-{{ $user->id }}" class="hover:bg-theme-primary/5 transition-colors"
                                 x-show="(userSearch === '' || '{{ strtolower($user->name) }}'.includes(userSearch.toLowerCase()) || '{{ strtolower($user->email) }}'.includes(userSearch.toLowerCase())) && (userRoleFilter === 'all' || '{{ $user->role }}' === userRoleFilter)">
                                 <td class="px-6 py-4 font-bold">
                                     <div class="flex flex-col">

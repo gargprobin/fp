@@ -919,7 +919,7 @@
     <script>
         (function() {
             window.addEventListener('load', () => {
-                if (window.location.hash && window.location.hash.startsWith('#app-')) {
+                if (window.location.hash && (window.location.hash.startsWith('#app-') || window.location.hash.startsWith('#user-'))) {
                     // Wait slightly for Alpine tabs to toggle classes and show the elements in the DOM
                     setTimeout(() => {
                         const targetEl = document.querySelector(window.location.hash);
