@@ -116,9 +116,68 @@ class AdminController extends Controller
         $applications = $appsQuery->paginate(15, ['*'], 'apps_page')->withQueryString();
 
         // 4. Soft Deleted (Trash Lists)
-        $deletedUsers = User::onlyTrashed()->with('candidateProfile', 'institution')->latest()->paginate(15, ['*'], 'deleted_users_page')->withQueryString();
-        $deletedVacancies = Vacancy::onlyTrashed()->with('institution')->latest()->paginate(15, ['*'], 'deleted_vacancies_page')->withQueryString();
-        $deletedApplications = Application::onlyTrashed()->with('vacancy', 'candidate')->latest()->paginate(15, ['*'], 'deleted_apps_page')->withQueryString();
+        $searchDelUser = $request->input('search_del_user');
+        $sortDelUser = $request->input('sort_del_user', 'latest');
+
+        $deletedUsersQuery = User::onlyTrashed()->with('candidateProfile', 'institution');
+        if ($searchDelUser) {
+            $deletedUsersQuery->where(function($q) use ($searchDelUser) {
+                $q->where('name', 'like', "%{$searchDelUser}%")
+                  ->orWhere('email', 'like', "%{$searchDelUser}%");
+            });
+        }
+        if ($sortDelUser === 'oldest') {
+            $deletedUsersQuery->orderBy('deleted_at', 'asc');
+        } elseif ($sortDelUser === 'name') {
+            $deletedUsersQuery->orderBy('name', 'asc');
+        } else {
+            $deletedUsersQuery->orderBy('deleted_at', 'desc');
+        }
+        $deletedUsers = $deletedUsersQuery->paginate(15, ['*'], 'deleted_users_page')->withQueryString();
+
+        $searchDelVac = $request->input('search_del_vac');
+        $sortDelVac = $request->input('sort_del_vac', 'latest');
+
+        $deletedVacanciesQuery = Vacancy::onlyTrashed()->with('institution');
+        if ($searchDelVac) {
+            $deletedVacanciesQuery->where(function($q) use ($searchDelVac) {
+                $q->where('title', 'like', "%{$searchDelVac}%")
+                  ->orWhere('subject', 'like', "%{$searchDelVac}%")
+                  ->orWhereHas('institution', function($instQ) use ($searchDelVac) {
+                      $instQ->where('company_name', 'like', "%{$searchDelVac}%");
+                  });
+            });
+        }
+        if ($sortDelVac === 'oldest') {
+            $deletedVacanciesQuery->orderBy('deleted_at', 'asc');
+        } elseif ($sortDelVac === 'title') {
+            $deletedVacanciesQuery->orderBy('title', 'asc');
+        } else {
+            $deletedVacanciesQuery->orderBy('deleted_at', 'desc');
+        }
+        $deletedVacancies = $deletedVacanciesQuery->paginate(15, ['*'], 'deleted_vacancies_page')->withQueryString();
+
+        $searchDelApp = $request->input('search_del_app');
+        $sortDelApp = $request->input('sort_del_app', 'latest');
+
+        $deletedApplicationsQuery = Application::onlyTrashed()->with('vacancy.institution', 'candidate');
+        if ($searchDelApp) {
+            $deletedApplicationsQuery->where(function($q) use ($searchDelApp) {
+                $q->whereHas('candidate', function($candQ) use ($searchDelApp) {
+                    $candQ->where('name', 'like', "%{$searchDelApp}%");
+                })->orWhereHas('vacancy', function($vacQ) use ($searchDelApp) {
+                    $vacQ->where('title', 'like', "%{$searchDelApp}%");
+                });
+            });
+        }
+        if ($sortDelApp === 'oldest') {
+            $deletedApplicationsQuery->orderBy('deleted_at', 'asc');
+        } elseif ($sortDelApp === 'status') {
+            $deletedApplicationsQuery->orderBy('status', 'asc');
+        } else {
+            $deletedApplicationsQuery->orderBy('deleted_at', 'desc');
+        }
+        $deletedApplications = $deletedApplicationsQuery->paginate(15, ['*'], 'deleted_apps_page')->withQueryString();
 
         return view('admin.settings', compact(
             'platformName', 'platformTagline', 'supportEmail',
