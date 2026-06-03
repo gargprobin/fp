@@ -1075,5 +1075,80 @@
         })();
     </script>
 
+    <!-- Real-time Polling & Toast Notifications System -->
+    <div x-data="realtimePollingSystem()" x-init="initPolling()" class="fixed top-6 right-6 z-50 space-y-3 max-w-sm pointer-events-none">
+        <template x-for="toast in toasts" :key="toast.id">
+            <div 
+                x-show="toast.show" 
+                x-transition:enter="transition ease-out duration-300 transform"
+                x-transition:enter-start="translate-y-2 opacity-0 sm:translate-y-0 sm:translate-x-2"
+                x-transition:enter-end="translate-y-0 opacity-100 sm:translate-x-0"
+                x-transition:leave="transition ease-in duration-200"
+                x-transition:leave-start="opacity-100"
+                x-transition:leave-end="opacity-0"
+                class="p-4 rounded-2xl text-white border shadow-2xl backdrop-blur-md flex items-center gap-3 pointer-events-auto transition-all bg-slate-900/90 border-white/10"
+            >
+                <span x-text="toast.icon" class="text-xl shrink-0"></span>
+                <div>
+                    <p x-text="toast.message" class="text-xs font-bold leading-relaxed"></p>
+                </div>
+            </div>
+        </template>
+    </div>
+
+    <script>
+        function realtimePollingSystem() {
+            return {
+                toasts: [],
+                lastHash: sessionStorage.getItem('realtime_hash') || null,
+                pollInterval: 15000, // 15 seconds polling interval
+                initPolling() {
+                    // Start polling
+                    this.checkUpdates();
+                    setInterval(() => this.checkUpdates(), this.pollInterval);
+                },
+                checkUpdates() {
+                    fetch("{{ url('/realtime/check') }}")
+                        .then(res => res.json())
+                        .then(data => {
+                            if (data.hash) {
+                                if (this.lastHash && this.lastHash !== data.hash) {
+                                    // Hash has changed! Show Toast and refresh
+                                    this.showNotification('⚡ Live Sync: Updating dashboard data...', '🔄');
+                                    sessionStorage.setItem('realtime_hash', data.hash);
+                                    this.lastHash = data.hash;
+                                    setTimeout(() => {
+                                        window.location.reload();
+                                    }, 2000);
+                                } else {
+                                    // Save hash on first page load
+                                    sessionStorage.setItem('realtime_hash', data.hash);
+                                    this.lastHash = data.hash;
+                                }
+                            }
+                        })
+                        .catch(err => {
+                            console.warn('Realtime sync check failed', err);
+                        });
+                },
+                showNotification(message, icon = '💡') {
+                    const id = Date.now();
+                    this.toasts.push({
+                        id: id,
+                        message: message,
+                        icon: icon,
+                        show: true
+                    });
+                    setTimeout(() => {
+                        const index = this.toasts.findIndex(t => t.id === id);
+                        if (index !== -1) {
+                            this.toasts[index].show = false;
+                        }
+                    }, 3000);
+                }
+            }
+        }
+    </script>
+
 </body>
 </html>

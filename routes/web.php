@@ -82,6 +82,41 @@ Route::get('/refresh-csrf', function() {
     return response()->json(['token' => csrf_token()]);
 });
 
+Route::get('/realtime/check', function() {
+    $hash = '';
+    
+    if (auth()->check()) {
+        $user = auth()->user();
+        if ($user->isAdmin()) {
+            // Admin Hash
+            $hash = md5(\App\Models\User::count() . '-' . \App\Models\Vacancy::count() . '-' . \App\Models\Application::count());
+        } elseif ($user->isInstitution()) {
+            // Recruiter Hash
+            $inst = $user->institution;
+            if ($inst) {
+                $vacs = \App\Models\Vacancy::where('institution_id', $inst->id)->pluck('id');
+                $hash = md5(
+                    \App\Models\Vacancy::where('institution_id', $inst->id)->count() . '-' .
+                    \App\Models\Application::whereIn('vacancy_id', $vacs)->count() . '-' .
+                    implode('-', \App\Models\Application::whereIn('vacancy_id', $vacs)->pluck('status')->toArray())
+                );
+            }
+        } elseif ($user->isCandidate()) {
+            // Candidate Hash
+            $hash = md5(
+                \App\Models\Application::where('candidate_id', $user->id)->count() . '-' .
+                implode('-', \App\Models\Application::where('candidate_id', $user->id)->pluck('status')->toArray())
+            );
+        }
+    } else {
+        // Guest Hash (Welcome page openings count)
+        $hash = md5(\App\Models\Vacancy::open()->count());
+    }
+
+    return response()->json(['hash' => $hash]);
+})->name('realtime.check');
+
+
 // 6. Admin Panel settings (SaaS customization)
 
 Route::middleware(['auth', 'role:admin'])->group(function () {
