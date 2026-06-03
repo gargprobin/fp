@@ -76,11 +76,12 @@
             </p>
 
             <!-- Fully Interactive Search Bar (Submits to route for SSR + matches locally via Alpine) -->
-            <form action="{{ route('home') }}" method="GET" @submit.prevent="" class="w-full max-w-2xl bg-[var(--theme-card)] p-3 rounded-2xl md:rounded-full shadow-xl border border-[var(--theme-border)] flex flex-col md:flex-row gap-2 items-center mb-12">
+            <form action="{{ route('home') }}" method="GET" class="w-full max-w-2xl bg-[var(--theme-card)] p-3 rounded-2xl md:rounded-full shadow-xl border border-[var(--theme-border)] flex flex-col md:flex-row gap-2 items-center mb-12">
                 <div class="w-full flex items-center px-4 gap-2">
                     <svg class="w-5 h-5 text-theme-text/40 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                     <input 
                         type="text" 
+                        name="subject"
                         x-model="searchSubject"
                         placeholder="Search Subject (e.g. Physics, Chemistry, CS)" 
                         class="w-full py-2 bg-transparent text-theme-text focus:outline-none text-sm font-semibold"
@@ -90,14 +91,14 @@
                     <svg class="w-5 h-5 text-theme-text/40 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
                     <input 
                         type="text" 
+                        name="location"
                         x-model="searchLocation"
                         placeholder="Location (e.g. Kota, Bangalore)" 
                         class="w-full py-2 bg-transparent text-theme-text focus:outline-none text-sm font-semibold"
                     />
                 </div>
                 <button 
-                    type="button"
-                    @click="$el.closest('form').submit()"
+                    type="submit"
                     class="w-full md:w-auto px-8 py-3 text-sm font-bold text-white bg-theme-primary hover:bg-theme-accent rounded-xl md:rounded-full transition-all shadow-md shadow-theme-primary/10 cursor-pointer shrink-0"
                 >
                     Search
