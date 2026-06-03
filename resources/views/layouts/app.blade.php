@@ -585,7 +585,6 @@
                                  
                              </div>
                         </div>
-                         </div>
 
                          <!-- Settings Modal -->
                          <div x-show="showSettingsModal" 
