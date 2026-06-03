@@ -25,9 +25,6 @@ class LoginDemoController extends Controller
      */
     public function login(Request $request)
     {
-        if (!app()->environment('local')) {
-            abort(403, 'Quick Login is only available in local development mode.');
-        }
 
         $role = $request->query('role', 'candidate');
 
