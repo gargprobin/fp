@@ -42,10 +42,42 @@
     <!-- Candidate Applications and Vetting Pipeline Section -->
     <div class="space-y-6">
         <div class="flex justify-between items-center border-b border-[var(--theme-border)] pb-3">
-            <h3 class="text-xl font-bold">My Active Applications ({{ $applications->count() }})</h3>
+            <h3 class="text-xl font-bold">My Active Applications ({{ $applications->total() }})</h3>
             <span class="px-2.5 py-1 bg-blue-500/10 text-blue-500 text-xs font-bold rounded-full">
                 Symmetrical Privacy Enabled
             </span>
+        </div>
+
+                <!-- Search and Sort Form -->
+        <div class="bg-[var(--theme-card)] rounded-2xl p-6 border border-[var(--theme-border)] shadow-sm mb-6">
+            <form action="{{ route('faculty.dashboard') }}" method="GET" class="flex flex-col md:flex-row gap-4 items-end">
+                <div class="flex-1 w-full">
+                    <label for="search_app" class="block text-xs font-bold text-theme-text/75 uppercase tracking-wider mb-2">Search Applications</label>
+                    <div class="relative">
+                        <input type="text" id="search_app" name="search_app" value="{{ request('search_app') }}" placeholder="Search by position, subject, or company..." class="w-full p-3 pl-10 text-sm bg-[var(--theme-bg)] border border-[var(--theme-border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-theme-primary text-theme-text" />
+                        <span class="absolute left-3.5 top-1/2 -translate-y-1/2 text-theme-text/50">🔍</span>
+                    </div>
+                </div>
+                <div class="w-full md:w-64">
+                    <label for="sort_app" class="block text-xs font-bold text-theme-text/75 uppercase tracking-wider mb-2">Sort By</label>
+                    <select id="sort_app" name="sort_app" class="w-full p-3 text-sm bg-[var(--theme-bg)] border border-[var(--theme-border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-theme-primary text-theme-text">
+                        <option value="latest" {{ request('sort_app') === 'latest' ? 'selected' : '' }}>Latest</option>
+                        <option value="oldest" {{ request('sort_app') === 'oldest' ? 'selected' : '' }}>Oldest</option>
+                        <option value="status_asc" {{ request('sort_app') === 'status_asc' ? 'selected' : '' }}>Status (A-Z)</option>
+                        <option value="status_desc" {{ request('sort_app') === 'status_desc' ? 'selected' : '' }}>Status (Z-A)</option>
+                    </select>
+                </div>
+                <div class="flex gap-2 w-full md:w-auto shrink-0">
+                    <button type="submit" class="flex-1 md:flex-none px-6 py-3 text-sm font-bold text-white bg-theme-primary hover:bg-theme-accent rounded-xl shadow transition cursor-pointer">
+                        Filter
+                    </button>
+                    @if(request()->has('search_app') || request()->has('sort_app'))
+                        <a href="{{ route('faculty.dashboard') }}" class="flex-1 md:flex-none px-4 py-3 text-sm font-semibold bg-theme-primary/10 text-theme-primary border border-theme-primary/20 rounded-xl hover:bg-theme-primary/20 transition text-center cursor-pointer">
+                            Clear
+                        </a>
+                    @endif
+                </div>
+            </form>
         </div>
 
         @forelse($applications as $app)
@@ -374,6 +406,18 @@
                 </div>
             </div>
         @endforelse
+
+        <!-- Pagination & Entry Count -->
+        @if($applications->total() > 0)
+            <div class="flex flex-col md:flex-row justify-between items-center gap-4 pt-4 border-t border-[var(--theme-border)] text-xs text-theme-text/60">
+                <div>
+                    Showing {{ $applications->firstItem() }} to {{ $applications->lastItem() }} of {{ $applications->total() }} entries
+                </div>
+                <div class="faculty-pagination">
+                    {{ $applications->links() }}
+                </div>
+            </div>
+        @endif
     </div>
 
 </div>

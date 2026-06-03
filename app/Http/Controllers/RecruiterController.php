@@ -13,7 +13,7 @@ class RecruiterController extends Controller
     /**
      * Show Recruiter Dashboard with Vacancy Posting and masked recruitment pipelines.
      */
-    public function dashboard()
+    public function dashboard(Request $request)
     {
         // Enforce Institution role authorization
         if (!auth()->check() || !auth()->user()->isInstitution()) {
@@ -27,11 +27,36 @@ class RecruiterController extends Controller
             return redirect()->route('home')->with('error', 'Institution profile not found.');
         }
 
-        // Get recruiter vacancies
-        $vacancies = Vacancy::where('institution_id', $institution->id)->latest()->get();
+        // Get all vacancy IDs for this institution to query applications
+        $allVacancyIds = Vacancy::where('institution_id', $institution->id)->pluck('id');
 
-        // Get recruiter applications (only those pre-shortlisted by Admin or progressed further)
-        $applications = Application::whereIn('vacancy_id', $vacancies->pluck('id'))
+        // Handle GET inputs for Vacancies: search_vac and sort_vac
+        $vacanciesQuery = Vacancy::where('institution_id', $institution->id);
+        if ($request->filled('search_vac')) {
+            $searchVac = $request->input('search_vac');
+            $vacanciesQuery->where(function ($q) use ($searchVac) {
+                $q->where('title', 'like', '%' . $searchVac . '%')
+                  ->orWhere('subject', 'like', '%' . $searchVac . '%')
+                  ->orWhere('target_class', 'like', '%' . $searchVac . '%');
+            });
+        }
+        $sortVac = $request->input('sort_vac', 'latest');
+        switch ($sortVac) {
+            case 'oldest':
+                $vacanciesQuery->oldest();
+                break;
+            case 'title':
+                $vacanciesQuery->orderBy('title', 'asc');
+                break;
+            case 'latest':
+            default:
+                $vacanciesQuery->latest();
+                break;
+        }
+        $vacancies = $vacanciesQuery->paginate(10, ['*'], 'vacs_page')->withQueryString();
+
+        // Handle GET inputs for Applications pipeline: search_app and sort_app
+        $applicationsQuery = Application::whereIn('vacancy_id', $allVacancyIds)
             ->whereIn('status', [
                 'shortlisted_by_admin', 
                 'shortlisted_by_institution', 
@@ -42,12 +67,40 @@ class RecruiterController extends Controller
                 'appointed', 
                 'rejected'
             ])
-            ->with(['vacancy', 'candidate.candidateProfile', 'recommendationLetters'])
-            ->latest()
-            ->get();
+            ->with(['vacancy', 'candidate.candidateProfile', 'recommendationLetters']);
+
+        if ($request->filled('search_app')) {
+            $searchApp = $request->input('search_app');
+            $applicationsQuery->where(function ($q) use ($searchApp) {
+                $q->whereHas('candidate', function ($cq) use ($searchApp) {
+                    $cq->where('name', 'like', '%' . $searchApp . '%');
+                })->orWhereHas('vacancy', function ($vq) use ($searchApp) {
+                    $vq->where('title', 'like', '%' . $searchApp . '%')
+                       ->orWhere('subject', 'like', '%' . $searchApp . '%');
+                });
+            });
+        }
+
+        $sortApp = $request->input('sort_app', 'latest');
+        switch ($sortApp) {
+            case 'oldest':
+                $applicationsQuery->oldest();
+                break;
+            case 'status':
+                $applicationsQuery->orderBy('status', 'asc');
+                break;
+            case 'rating':
+                $applicationsQuery->orderByRaw('demo_rating is null asc, demo_rating desc');
+                break;
+            case 'latest':
+            default:
+                $applicationsQuery->latest();
+                break;
+        }
+        $applications = $applicationsQuery->paginate(10, ['*'], 'apps_page')->withQueryString();
 
         // Count pending raw applicants that are under Admin screening
-        $pendingAdminScreeningCount = Application::whereIn('vacancy_id', $vacancies->pluck('id'))
+        $pendingAdminScreeningCount = Application::whereIn('vacancy_id', $allVacancyIds)
             ->where('status', 'applied')
             ->count();
 

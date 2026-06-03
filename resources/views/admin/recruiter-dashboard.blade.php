@@ -4,7 +4,7 @@
 
 @section('content')
 <div x-data="{ 
-    activeTab: window.location.hash.startsWith('#app-') ? 'pipeline' : (localStorage.getItem('recruiter_active_tab') || 'pipeline'),
+    activeTab: '{{ request()->has('search_vac') || request()->has('sort_vac') || request()->has('vacs_page') ? 'my-vacancies' : (request()->has('search_app') || request()->has('sort_app') || request()->has('apps_page') ? 'pipeline' : '') }}' || (window.location.hash.startsWith('#app-') ? 'pipeline' : (localStorage.getItem('recruiter_active_tab') || 'pipeline')),
     selectTab(tab) {
         this.activeTab = tab;
         localStorage.setItem('recruiter_active_tab', tab);
@@ -52,7 +52,7 @@
         <div class="p-5 rounded-2xl bg-[var(--theme-card)] border border-[var(--theme-border)] shadow-sm">
             <span class="block text-[10px] font-bold text-theme-text/50 uppercase">Active Faculty Sourced</span>
             <div class="mt-2 flex items-baseline gap-2">
-                <span class="text-3xl font-black text-theme-primary">{{ $applications->count() }}</span>
+                <span class="text-3xl font-black text-theme-primary">{{ $applications->total() }}</span>
                 <span class="text-xs text-theme-text/50">Masked & Unlocked</span>
             </div>
         </div>
@@ -95,7 +95,7 @@
             ➕ Post New Vacancy
         </button>
         <button @click="selectTab('my-vacancies')" :class="activeTab === 'my-vacancies' ? 'text-theme-primary border-b-2 border-theme-primary pb-2' : 'text-theme-text/60 pb-2 hover:text-theme-text transition cursor-pointer'">
-            💼 My Posted Vacancies ({{ $vacancies->count() }})
+            💼 My Posted Vacancies ({{ $vacancies->total() }})
         </button>
     </div>
 
@@ -109,6 +109,38 @@
                 <span class="px-2.5 py-1 bg-amber-500/10 text-amber-500 text-xs font-bold rounded-full">
                     Candidate Privacy Masking Active
                 </span>
+            </div>
+
+            <!-- Search & Sort Form for Pipeline -->
+            <div class="bg-[var(--theme-bg)] rounded-xl p-4 border border-[var(--theme-border)] shadow-sm">
+                <form action="{{ route('recruiter.dashboard') }}" method="GET" class="flex flex-col md:flex-row gap-4 items-end">
+                    <div class="flex-1 w-full">
+                        <label for="search_app" class="block text-xs font-bold text-theme-text/75 uppercase tracking-wider mb-2">Search Pipeline</label>
+                        <div class="relative">
+                            <input type="text" id="search_app" name="search_app" value="{{ request('search_app') }}" placeholder="Search candidate name, vacancy title, or subject..." class="w-full p-2.5 pl-9 text-xs bg-[var(--theme-card)] border border-[var(--theme-border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-theme-primary text-theme-text" />
+                            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-theme-text/50 text-xs">🔍</span>
+                        </div>
+                    </div>
+                    <div class="w-full md:w-48">
+                        <label for="sort_app" class="block text-xs font-bold text-theme-text/75 uppercase tracking-wider mb-2">Sort Pipeline</label>
+                        <select id="sort_app" name="sort_app" class="w-full p-2.5 text-xs bg-[var(--theme-card)] border border-[var(--theme-border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-theme-primary text-theme-text">
+                            <option value="latest" {{ request('sort_app') === 'latest' ? 'selected' : '' }}>Latest</option>
+                            <option value="oldest" {{ request('sort_app') === 'oldest' ? 'selected' : '' }}>Oldest</option>
+                            <option value="status" {{ request('sort_app') === 'status' ? 'selected' : '' }}>Status</option>
+                            <option value="rating" {{ request('sort_app') === 'rating' ? 'selected' : '' }}>Rating (High-Low)</option>
+                        </select>
+                    </div>
+                    <div class="flex gap-2 w-full md:w-auto shrink-0">
+                        <button type="submit" class="flex-1 md:flex-none px-5 py-2.5 text-xs font-bold text-white bg-theme-primary hover:bg-theme-accent rounded-xl shadow transition cursor-pointer">
+                            Filter
+                        </button>
+                        @if(request()->has('search_app') || request()->has('sort_app'))
+                            <a href="{{ route('recruiter.dashboard') }}" class="flex-1 md:flex-none px-4 py-2.5 text-xs font-semibold bg-theme-primary/10 text-theme-primary border border-theme-primary/20 rounded-xl hover:bg-theme-primary/20 transition text-center cursor-pointer">
+                                Clear
+                            </a>
+                        @endif
+                    </div>
+                </form>
             </div>
 
             <div class="overflow-x-auto">
@@ -289,6 +321,18 @@
                     </tbody>
                 </table>
             </div>
+
+            <!-- Pagination & Entry Count for Pipeline -->
+            @if($applications->total() > 0)
+                <div class="flex flex-col md:flex-row justify-between items-center gap-4 pt-4 border-t border-[var(--theme-border)] text-xs text-theme-text/60">
+                    <div>
+                        Showing {{ $applications->firstItem() }} to {{ $applications->lastItem() }} of {{ $applications->total() }} entries
+                    </div>
+                    <div>
+                        {{ $applications->appends(request()->query())->links() }}
+                    </div>
+                </div>
+            @endif
         </div>
 
         <!-- Tab 2: Post New Faculty Vacancy -->
@@ -359,6 +403,37 @@
         <!-- Tab 3: My Posted Vacancies -->
         <div x-show="activeTab === 'my-vacancies'" class="space-y-4">
             <h3 class="text-lg font-bold border-b border-[var(--theme-border)] pb-3">My Posted Faculty Sourcing Requirements</h3>
+
+            <!-- Search & Sort Form for Vacancies -->
+            <div class="bg-[var(--theme-bg)] rounded-xl p-4 border border-[var(--theme-border)] shadow-sm mb-4">
+                <form action="{{ route('recruiter.dashboard') }}" method="GET" class="flex flex-col md:flex-row gap-4 items-end">
+                    <div class="flex-1 w-full">
+                        <label for="search_vac" class="block text-xs font-bold text-theme-text/75 uppercase tracking-wider mb-2">Search Vacancies</label>
+                        <div class="relative">
+                            <input type="text" id="search_vac" name="search_vac" value="{{ request('search_vac') }}" placeholder="Search title, subject, target class..." class="w-full p-2.5 pl-9 text-xs bg-[var(--theme-card)] border border-[var(--theme-border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-theme-primary text-theme-text" />
+                            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-theme-text/50 text-xs">🔍</span>
+                        </div>
+                    </div>
+                    <div class="w-full md:w-48">
+                        <label for="sort_vac" class="block text-xs font-bold text-theme-text/75 uppercase tracking-wider mb-2">Sort Vacancies</label>
+                        <select id="sort_vac" name="sort_vac" class="w-full p-2.5 text-xs bg-[var(--theme-card)] border border-[var(--theme-border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-theme-primary text-theme-text">
+                            <option value="latest" {{ request('sort_vac') === 'latest' ? 'selected' : '' }}>Latest</option>
+                            <option value="oldest" {{ request('sort_vac') === 'oldest' ? 'selected' : '' }}>Oldest</option>
+                            <option value="title" {{ request('sort_vac') === 'title' ? 'selected' : '' }}>Title (A-Z)</option>
+                        </select>
+                    </div>
+                    <div class="flex gap-2 w-full md:w-auto shrink-0">
+                        <button type="submit" class="flex-1 md:flex-none px-5 py-2.5 text-xs font-bold text-white bg-theme-primary hover:bg-theme-accent rounded-xl shadow transition cursor-pointer">
+                            Filter
+                        </button>
+                        @if(request()->has('search_vac') || request()->has('sort_vac'))
+                            <a href="{{ route('recruiter.dashboard') }}" class="flex-1 md:flex-none px-4 py-2.5 text-xs font-semibold bg-theme-primary/10 text-theme-primary border border-theme-primary/20 rounded-xl hover:bg-theme-primary/20 transition text-center cursor-pointer">
+                                Clear
+                            </a>
+                        @endif
+                    </div>
+                </form>
+            </div>
             <div class="overflow-x-auto">
                 <table class="w-full text-sm text-left text-theme-text">
                     <thead class="text-xs uppercase bg-[var(--theme-bg)] border border-[var(--theme-border)] text-theme-text/60">
@@ -395,6 +470,18 @@
                     </tbody>
                 </table>
             </div>
+
+            <!-- Pagination & Entry Count for Vacancies -->
+            @if($vacancies->total() > 0)
+                <div class="flex flex-col md:flex-row justify-between items-center gap-4 pt-4 border-t border-[var(--theme-border)] text-xs text-theme-text/60">
+                    <div>
+                        Showing {{ $vacancies->firstItem() }} to {{ $vacancies->lastItem() }} of {{ $vacancies->total() }} entries
+                    </div>
+                    <div>
+                        {{ $vacancies->appends(request()->query())->links() }}
+                    </div>
+                </div>
+            @endif
         </div>
 
     </div>
