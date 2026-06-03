@@ -248,49 +248,49 @@
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
-            <button 
-                @click="window.location.href = '{{ route('home') }}?category=Physics'"
+            <a 
+                href="{{ route('home') }}?category=Physics"
                 :class="selectedCategory === 'Physics' ? 'border-theme-primary bg-theme-primary/5 ring-2 ring-theme-primary/20' : 'bg-[var(--theme-card)] border-[var(--theme-border)] hover:border-theme-primary/20'"
-                class="group p-8 rounded-2xl border text-left shadow-xs hover:shadow-xl hover:-translate-y-1 transition-all duration-300 cursor-pointer"
+                class="group p-8 rounded-2xl border text-left shadow-xs hover:shadow-xl hover:-translate-y-1 transition-all duration-300 cursor-pointer block"
             >
                 <span class="text-4xl block mb-6 filter drop-shadow">📐</span>
                 <h3 class="text-xl font-bold text-theme-text mb-2 group-hover:text-theme-primary transition-colors">IIT-JEE Physics</h3>
                 <span class="inline-block px-3 py-1 rounded-full bg-theme-primary/10 text-theme-primary text-xs font-bold mb-4">4,500+ Teachers</span>
                 <p class="text-sm text-theme-text/60 leading-relaxed">Classical mechanics, Electromagnetism, & thermodynamics Advanced level faculty.</p>
-            </button>
+            </a>
 
-            <button 
-                @click="window.location.href = '{{ route('home') }}?category=Chemistry'"
+            <a 
+                href="{{ route('home') }}?category=Chemistry"
                 :class="selectedCategory === 'Chemistry' ? 'border-theme-primary bg-theme-primary/5 ring-2 ring-theme-primary/20' : 'bg-[var(--theme-card)] border-[var(--theme-border)] hover:border-theme-primary/20'"
-                class="group p-8 rounded-2xl border text-left shadow-xs hover:shadow-xl hover:-translate-y-1 transition-all duration-300 cursor-pointer"
+                class="group p-8 rounded-2xl border text-left shadow-xs hover:shadow-xl hover:-translate-y-1 transition-all duration-300 cursor-pointer block"
             >
                 <span class="text-4xl block mb-6 filter drop-shadow">🧬</span>
                 <h3 class="text-xl font-bold text-theme-text mb-2 group-hover:text-theme-primary transition-colors">NEET Chemistry</h3>
                 <span class="inline-block px-3 py-1 rounded-full bg-theme-primary/10 text-theme-primary text-xs font-bold mb-4">3,800+ Teachers</span>
                 <p class="text-sm text-theme-text/60 leading-relaxed">Organic, Inorganic, Physical Chemistry experts for medical exams.</p>
-            </button>
+            </a>
 
-            <button 
-                @click="window.location.href = '{{ route('home') }}?category=Computer%20Science'"
+            <a 
+                href="{{ route('home') }}?category=Computer%20Science"
                 :class="selectedCategory === 'Computer Science' ? 'border-theme-primary bg-theme-primary/5 ring-2 ring-theme-primary/20' : 'bg-[var(--theme-card)] border-[var(--theme-border)] hover:border-theme-primary/20'"
-                class="group p-8 rounded-2xl border text-left shadow-xs hover:shadow-xl hover:-translate-y-1 transition-all duration-300 cursor-pointer"
+                class="group p-8 rounded-2xl border text-left shadow-xs hover:shadow-xl hover:-translate-y-1 transition-all duration-300 cursor-pointer block"
             >
                 <span class="text-4xl block mb-6 filter drop-shadow">🏫</span>
                 <h3 class="text-xl font-bold text-theme-text mb-2 group-hover:text-theme-primary transition-colors">Computer Science</h3>
                 <span class="inline-block px-3 py-1 rounded-full bg-theme-primary/10 text-theme-primary text-xs font-bold mb-4">2,200+ Teachers</span>
                 <p class="text-sm text-theme-text/60 leading-relaxed">Distributed systems, Artificial Intelligence, algorithms, & coding instructors.</p>
-            </button>
+            </a>
 
-            <button 
-                @click="window.location.href = '{{ route('home') }}'"
+            <a 
+                href="{{ route('home') }}"
                 :class="selectedCategory === 'all' ? 'border-theme-primary bg-theme-primary/5 ring-2 ring-theme-primary/20' : 'bg-[var(--theme-card)] border-[var(--theme-border)] hover:border-theme-primary/20'"
-                class="group p-8 rounded-2xl border text-left shadow-xs hover:shadow-xl hover:-translate-y-1 transition-all duration-300 cursor-pointer"
+                class="group p-8 rounded-2xl border text-left shadow-xs hover:shadow-xl hover:-translate-y-1 transition-all duration-300 cursor-pointer block"
             >
                 <span class="text-4xl block mb-6 filter drop-shadow">🎓</span>
                 <h3 class="text-xl font-bold text-theme-text mb-2 group-hover:text-theme-primary transition-colors">All Categories</h3>
                 <span class="inline-block px-3 py-1 rounded-full bg-theme-primary/10 text-theme-primary text-xs font-bold mb-4">10,000+ Total</span>
                 <p class="text-sm text-theme-text/60 leading-relaxed">Browse complete list of active faculty requirements across multiple disciplines.</p>
-            </button>
+            </a>
         </div>
     </section>
 
