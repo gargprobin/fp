@@ -104,23 +104,6 @@
                     Search
                 </button>
             </form>
-
-            <!-- Dynamic Success Metrics -->
-            <div class="grid grid-cols-3 gap-6 md:gap-16 border-t border-[var(--theme-border)] pt-10 w-full max-w-3xl">
-                <div class="flex flex-col items-center">
-                    <span class="text-3xl md:text-4xl font-extrabold text-theme-text">10,000+</span>
-                    <span class="text-xs md:text-sm font-bold text-theme-text/60 mt-1">Verified Profiles</span>
-                </div>
-                <div class="flex flex-col items-center border-x border-[var(--theme-border)] px-6">
-                    <span class="text-3xl md:text-4xl font-extrabold text-theme-text">500+</span>
-                    <span class="text-xs md:text-sm font-bold text-theme-text/60 mt-1">Partner Institutes</span>
-                </div>
-                <div class="flex flex-col items-center">
-                    <span class="text-3xl md:text-4xl font-extrabold text-theme-text">48-Hour</span>
-                    <span class="text-xs md:text-sm font-bold text-theme-text/60 mt-1">Hiring Turnaround</span>
-                </div>
-            </div>
-
         </div>
     </section>
 
@@ -140,65 +123,7 @@
         </div>
     @endif
 
-    <!-- ----------------- INTERACTIVE CATEGORIES SECTION (Same to Same c:\jobs) ----------------- -->
-    <section id="categories" class="py-16 px-4 max-w-7xl mx-auto w-full">
-        <div class="text-center mb-12">
-            <h2 class="text-3xl md:text-4xl font-black text-theme-text tracking-tight mb-4">
-                Specialized Faculty Categories
-            </h2>
-            <p class="text-theme-text/70 font-medium max-w-xl mx-auto">
-                Click any category below to instantly filter open jobs in the Jobs Board!
-            </p>
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
-            <button 
-                @click="selectedCategory = 'Physics'; document.getElementById('jobs').scrollIntoView({ behavior: 'smooth' })"
-                :class="selectedCategory === 'Physics' ? 'border-theme-primary bg-theme-primary/5 ring-2 ring-theme-primary/20' : 'bg-[var(--theme-card)] border-[var(--theme-border)] hover:border-theme-primary/20'"
-                class="group p-8 rounded-2xl border text-left shadow-xs hover:shadow-xl hover:-translate-y-1 transition-all duration-300 cursor-pointer"
-            >
-                <span class="text-4xl block mb-6 filter drop-shadow">📐</span>
-                <h3 class="text-xl font-bold text-theme-text mb-2 group-hover:text-theme-primary transition-colors">IIT-JEE Physics</h3>
-                <span class="inline-block px-3 py-1 rounded-full bg-theme-primary/10 text-theme-primary text-xs font-bold mb-4">4,500+ Teachers</span>
-                <p class="text-sm text-theme-text/60 leading-relaxed">Classical mechanics, Electromagnetism, & thermodynamics Advanced level faculty.</p>
-            </button>
-
-            <button 
-                @click="selectedCategory = 'Chemistry'; document.getElementById('jobs').scrollIntoView({ behavior: 'smooth' })"
-                :class="selectedCategory === 'Chemistry' ? 'border-theme-primary bg-theme-primary/5 ring-2 ring-theme-primary/20' : 'bg-[var(--theme-card)] border-[var(--theme-border)] hover:border-theme-primary/20'"
-                class="group p-8 rounded-2xl border text-left shadow-xs hover:shadow-xl hover:-translate-y-1 transition-all duration-300 cursor-pointer"
-            >
-                <span class="text-4xl block mb-6 filter drop-shadow">🧬</span>
-                <h3 class="text-xl font-bold text-theme-text mb-2 group-hover:text-theme-primary transition-colors">NEET Chemistry</h3>
-                <span class="inline-block px-3 py-1 rounded-full bg-theme-primary/10 text-theme-primary text-xs font-bold mb-4">3,800+ Teachers</span>
-                <p class="text-sm text-theme-text/60 leading-relaxed">Organic, Inorganic, Physical Chemistry experts for medical exams.</p>
-            </button>
-
-            <button 
-                @click="selectedCategory = 'Computer Science'; document.getElementById('jobs').scrollIntoView({ behavior: 'smooth' })"
-                :class="selectedCategory === 'Computer Science' ? 'border-theme-primary bg-theme-primary/5 ring-2 ring-theme-primary/20' : 'bg-[var(--theme-card)] border-[var(--theme-border)] hover:border-theme-primary/20'"
-                class="group p-8 rounded-2xl border text-left shadow-xs hover:shadow-xl hover:-translate-y-1 transition-all duration-300 cursor-pointer"
-            >
-                <span class="text-4xl block mb-6 filter drop-shadow">🏫</span>
-                <h3 class="text-xl font-bold text-theme-text mb-2 group-hover:text-theme-primary transition-colors">Computer Science</h3>
-                <span class="inline-block px-3 py-1 rounded-full bg-theme-primary/10 text-theme-primary text-xs font-bold mb-4">2,200+ Teachers</span>
-                <p class="text-sm text-theme-text/60 leading-relaxed">Distributed systems, Artificial Intelligence, algorithms, & coding instructors.</p>
-            </button>
-
-            <button 
-                @click="selectedCategory = 'all'"
-                :class="selectedCategory === 'all' ? 'border-theme-primary bg-theme-primary/5 ring-2 ring-theme-primary/20' : 'bg-[var(--theme-card)] border-[var(--theme-border)] hover:border-theme-primary/20'"
-                class="group p-8 rounded-2xl border text-left shadow-xs hover:shadow-xl hover:-translate-y-1 transition-all duration-300 cursor-pointer"
-            >
-                <span class="text-4xl block mb-6 filter drop-shadow">🎓</span>
-                <h3 class="text-xl font-bold text-theme-text mb-2 group-hover:text-theme-primary transition-colors">All Categories</h3>
-                <span class="inline-block px-3 py-1 rounded-full bg-theme-primary/10 text-theme-primary text-xs font-bold mb-4">10,000+ Total</span>
-                <p class="text-sm text-theme-text/60 leading-relaxed">Browse complete list of active faculty requirements across multiple disciplines.</p>
-            </button>
-        </div>
-    </section>
-
-    <!-- ----------------- INTERACTIVE JOBS BOARD SECTION (Same to Same c:\jobs) ----------------- -->
+    <!-- ----------------- INTERACTIVE JOBS BOARD SECTION ----------------- -->
     <section id="jobs" class="py-16 px-4 bg-theme-primary/5 border-y border-[var(--theme-border)] transition-colors">
         <div class="max-w-7xl mx-auto w-full">
             <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 gap-4">
@@ -286,20 +211,90 @@
                         <p class="text-sm text-theme-text/60 mt-1">Try clearing filters or search another subject.</p>
                     </div>
                 @endif
+            </div>
+        </div>
+    </section>
 
-                <!-- Alpine Fallback No Matches Alert -->
-                <div 
-                    x-cloak
-                    x-show="false" {{-- Checked dynamically by checking DOM state if needed, or simply let users filter --}}
-                    class="text-center py-16 bg-[var(--theme-card)] rounded-3xl border border-[var(--theme-border)]"
-                >
-                    <span class="text-4xl block mb-2">🔍</span>
-                    <h4 class="font-bold text-theme-text text-lg">No Matching Jobs Found</h4>
-                    <p class="text-sm text-theme-text/50 mt-1">Try resetting search keywords or category selection.</p>
+    <!-- Dynamic Success Metrics Section -->
+    <section class="py-12 border-b border-[var(--theme-border)] bg-[var(--theme-card)] text-center">
+        <div class="max-w-3xl mx-auto px-4">
+            <div class="grid grid-cols-3 gap-6 md:gap-16">
+                <div class="flex flex-col items-center">
+                    <span class="text-3xl md:text-4xl font-extrabold text-theme-text">10,000+</span>
+                    <span class="text-xs md:text-sm font-bold text-theme-text/60 mt-1">Verified Profiles</span>
+                </div>
+                <div class="flex flex-col items-center border-x border-[var(--theme-border)] px-6">
+                    <span class="text-3xl md:text-4xl font-extrabold text-theme-text">500+</span>
+                    <span class="text-xs md:text-sm font-bold text-theme-text/60 mt-1">Partner Institutes</span>
+                </div>
+                <div class="flex flex-col items-center">
+                    <span class="text-3xl md:text-4xl font-extrabold text-theme-text">48-Hour</span>
+                    <span class="text-xs md:text-sm font-bold text-theme-text/60 mt-1">Hiring Turnaround</span>
                 </div>
             </div>
         </div>
     </section>
+
+
+    <!-- ----------------- INTERACTIVE CATEGORIES SECTION (Same to Same c:\jobs) ----------------- -->
+    <section id="categories" class="py-16 px-4 max-w-7xl mx-auto w-full">
+        <div class="text-center mb-12">
+            <h2 class="text-3xl md:text-4xl font-black text-theme-text tracking-tight mb-4">
+                Specialized Faculty Categories
+            </h2>
+            <p class="text-theme-text/70 font-medium max-w-xl mx-auto">
+                Click any category below to instantly filter open jobs in the Jobs Board!
+            </p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+            <button 
+                @click="selectedCategory = 'Physics'; document.getElementById('jobs').scrollIntoView({ behavior: 'smooth' })"
+                :class="selectedCategory === 'Physics' ? 'border-theme-primary bg-theme-primary/5 ring-2 ring-theme-primary/20' : 'bg-[var(--theme-card)] border-[var(--theme-border)] hover:border-theme-primary/20'"
+                class="group p-8 rounded-2xl border text-left shadow-xs hover:shadow-xl hover:-translate-y-1 transition-all duration-300 cursor-pointer"
+            >
+                <span class="text-4xl block mb-6 filter drop-shadow">📐</span>
+                <h3 class="text-xl font-bold text-theme-text mb-2 group-hover:text-theme-primary transition-colors">IIT-JEE Physics</h3>
+                <span class="inline-block px-3 py-1 rounded-full bg-theme-primary/10 text-theme-primary text-xs font-bold mb-4">4,500+ Teachers</span>
+                <p class="text-sm text-theme-text/60 leading-relaxed">Classical mechanics, Electromagnetism, & thermodynamics Advanced level faculty.</p>
+            </button>
+
+            <button 
+                @click="selectedCategory = 'Chemistry'; document.getElementById('jobs').scrollIntoView({ behavior: 'smooth' })"
+                :class="selectedCategory === 'Chemistry' ? 'border-theme-primary bg-theme-primary/5 ring-2 ring-theme-primary/20' : 'bg-[var(--theme-card)] border-[var(--theme-border)] hover:border-theme-primary/20'"
+                class="group p-8 rounded-2xl border text-left shadow-xs hover:shadow-xl hover:-translate-y-1 transition-all duration-300 cursor-pointer"
+            >
+                <span class="text-4xl block mb-6 filter drop-shadow">🧬</span>
+                <h3 class="text-xl font-bold text-theme-text mb-2 group-hover:text-theme-primary transition-colors">NEET Chemistry</h3>
+                <span class="inline-block px-3 py-1 rounded-full bg-theme-primary/10 text-theme-primary text-xs font-bold mb-4">3,800+ Teachers</span>
+                <p class="text-sm text-theme-text/60 leading-relaxed">Organic, Inorganic, Physical Chemistry experts for medical exams.</p>
+            </button>
+
+            <button 
+                @click="selectedCategory = 'Computer Science'; document.getElementById('jobs').scrollIntoView({ behavior: 'smooth' })"
+                :class="selectedCategory === 'Computer Science' ? 'border-theme-primary bg-theme-primary/5 ring-2 ring-theme-primary/20' : 'bg-[var(--theme-card)] border-[var(--theme-border)] hover:border-theme-primary/20'"
+                class="group p-8 rounded-2xl border text-left shadow-xs hover:shadow-xl hover:-translate-y-1 transition-all duration-300 cursor-pointer"
+            >
+                <span class="text-4xl block mb-6 filter drop-shadow">🏫</span>
+                <h3 class="text-xl font-bold text-theme-text mb-2 group-hover:text-theme-primary transition-colors">Computer Science</h3>
+                <span class="inline-block px-3 py-1 rounded-full bg-theme-primary/10 text-theme-primary text-xs font-bold mb-4">2,200+ Teachers</span>
+                <p class="text-sm text-theme-text/60 leading-relaxed">Distributed systems, Artificial Intelligence, algorithms, & coding instructors.</p>
+            </button>
+
+            <button 
+                @click="selectedCategory = 'all'"
+                :class="selectedCategory === 'all' ? 'border-theme-primary bg-theme-primary/5 ring-2 ring-theme-primary/20' : 'bg-[var(--theme-card)] border-[var(--theme-border)] hover:border-theme-primary/20'"
+                class="group p-8 rounded-2xl border text-left shadow-xs hover:shadow-xl hover:-translate-y-1 transition-all duration-300 cursor-pointer"
+            >
+                <span class="text-4xl block mb-6 filter drop-shadow">🎓</span>
+                <h3 class="text-xl font-bold text-theme-text mb-2 group-hover:text-theme-primary transition-colors">All Categories</h3>
+                <span class="inline-block px-3 py-1 rounded-full bg-theme-primary/10 text-theme-primary text-xs font-bold mb-4">10,000+ Total</span>
+                <p class="text-sm text-theme-text/60 leading-relaxed">Browse complete list of active faculty requirements across multiple disciplines.</p>
+            </button>
+        </div>
+    </section>
+
+    <!-- Jobs section moved above -->
 
     <!-- ----------------- WHY CHOOSE US (Same to Same c:\jobs) ----------------- -->
     <section id="why-us" class="bg-slate-950 text-white py-20 px-4">
