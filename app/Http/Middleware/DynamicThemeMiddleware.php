@@ -24,11 +24,7 @@ class DynamicThemeMiddleware
             \App\Models\SiteSetting::setVal('support_email', 'support@sourcing.com');
         }
 
-        if (!\App\Models\SiteSetting::where('key', 'whatsapp_api_url')->exists()) {
-            \App\Models\SiteSetting::setVal('whatsapp_api_provider', 'wa.rj19web.com Official Gateway');
-            \App\Models\SiteSetting::setVal('whatsapp_api_url', 'https://wa.rj19web.com/api/6e2f51c7-21b0-450b-9329-14955a8c79a/contact/send-message');
-            \App\Models\SiteSetting::setVal('whatsapp_enabled', '1');
-        }
+
 
         $siteSettings = [
             'platform_name' => \App\Models\SiteSetting::getVal('platform_name', 'Sourcing Portal'),
