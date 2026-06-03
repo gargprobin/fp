@@ -6,6 +6,7 @@ use App\Models\SiteSetting;
 use App\Models\User;
 use App\Models\Vacancy;
 use App\Models\Application;
+use App\Models\CandidateProfile;
 use Illuminate\Http\Request;
 
 class AdminController extends Controller
@@ -37,7 +38,73 @@ class AdminController extends Controller
         }
         $whatsappEnabled = SiteSetting::getVal('whatsapp_enabled', '1');
 
-        $whatsappSentLogs = json_decode(SiteSetting::getVal('whatsapp_sent_logs', '[]'), true);
+        // Auto-port legacy logs if the new database table is empty and migrated
+        if (\Schema::hasTable('whatsapp_logs') && \App\Models\WhatsappLog::count() === 0) {
+            $legacyLogs = json_decode(SiteSetting::getVal('whatsapp_sent_logs', '[]'), true) ?: [];
+            foreach ($legacyLogs as $log) {
+                $wLog = new \App\Models\WhatsappLog([
+                    'recipient_name'  => $log['recipient_name'] ?? 'N/A',
+                    'recipient_phone' => $log['recipient_phone'] ?? 'N/A',
+                    'recipient_role'  => $log['recipient_role'] ?? 'candidate',
+                    'title'           => $log['title'] ?? 'Notification',
+                    'message'         => $log['message'] ?? '',
+                    'status'          => $log['status'] ?? '✅ Sent',
+                ]);
+                if (isset($log['timestamp'])) {
+                    $wLog->created_at = \Carbon\Carbon::parse($log['timestamp']);
+                }
+                $wLog->save();
+            }
+        }
+
+        $searchWap = $request->input('search_wap');
+        $sortWap = $request->input('sort_wap', 'latest');
+
+        $wapQuery = \App\Models\WhatsappLog::query();
+        if ($searchWap) {
+            $wapQuery->where(function($q) use ($searchWap) {
+                $q->where('recipient_name', 'like', "%{$searchWap}%")
+                  ->orWhere('recipient_phone', 'like', "%{$searchWap}%")
+                  ->orWhere('title', 'like', "%{$searchWap}%")
+                  ->orWhere('message', 'like', "%{$searchWap}%");
+            });
+        }
+
+        if ($sortWap === 'oldest') {
+            $wapQuery->oldest();
+        } elseif ($sortWap === 'status') {
+            $wapQuery->orderBy('status', 'asc');
+        } else {
+            $wapQuery->latest();
+        }
+
+        $whatsappSentLogs = \Schema::hasTable('whatsapp_logs')
+            ? $wapQuery->paginate(10, ['*'], 'wap_page')->appends(['tab' => 'whatsapp'])->withQueryString()
+            : collect([]);
+
+        // Smart Admin Breakdown stats
+        $phdCount = CandidateProfile::where('highest_degree', 'PhD')->count();
+        $masterCount = CandidateProfile::where(function($q) {
+            $q->where('highest_degree', 'Postgraduate')
+              ->orWhere('highest_degree', 'Master\'s')
+              ->orWhere('highest_degree', 'M.Tech')
+              ->orWhere('highest_degree', 'M.Sc');
+        })->count();
+        $bachelorCount = CandidateProfile::where(function($q) {
+            $q->where('highest_degree', 'Undergraduate')
+              ->orWhere('highest_degree', 'Bachelor\'s')
+              ->orWhere('highest_degree', 'B.Tech')
+              ->orWhere('highest_degree', 'B.Sc');
+        })->count();
+        $otherDegreeCount = CandidateProfile::whereNotIn('highest_degree', ['PhD', 'Postgraduate', 'Master\'s', 'Undergraduate', 'Bachelor\'s', 'M.Tech', 'M.Sc', 'B.Tech', 'B.Sc'])->count();
+
+        $appliedCount = Application::where('status', 'applied')->count();
+        $shortlistedCount = Application::whereIn('status', ['shortlisted_by_admin', 'unlocked'])->count();
+        $interviewCount = Application::whereIn('status', ['written_test', 'interview', 'demo'])->count();
+        $appointedCount = Application::where('status', 'appointed')->count();
+
+        $recentApplications = Application::with('candidate', 'vacancy')->latest()->take(5)->get();
+        $recentVacancies = Vacancy::with('institution')->latest()->take(5)->get();
 
         // 2. Platform Statistics
         $totalCandidates = User::where('role', 'candidate')->count();
@@ -184,7 +251,10 @@ class AdminController extends Controller
             'whatsappProvider', 'whatsappApiKey', 'whatsappApiUrl', 'whatsappEnabled', 'whatsappSentLogs',
             'totalCandidates', 'totalInstitutions', 'totalVacancies', 'totalApplications',
             'users', 'vacancies', 'applications',
-            'deletedUsers', 'deletedVacancies', 'deletedApplications'
+            'deletedUsers', 'deletedVacancies', 'deletedApplications',
+            'phdCount', 'masterCount', 'bachelorCount', 'otherDegreeCount',
+            'appliedCount', 'shortlistedCount', 'interviewCount', 'appointedCount',
+            'recentApplications', 'recentVacancies', 'searchWap', 'sortWap'
         ));
     }
 

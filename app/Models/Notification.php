@@ -409,19 +409,15 @@ class Notification extends Model
             }
         }
 
-        // ── 4. Update sent-messages log in site settings ──────────────
-        $logs   = json_decode(SiteSetting::getVal('whatsapp_sent_logs', '[]'), true) ?: [];
-        $logs[] = [
+        // ── 4. Update sent-messages log in database ──────────────────
+        \App\Models\WhatsappLog::create([
             'recipient_name'  => $user->name,
             'recipient_phone' => $rawPhone,
             'recipient_role'  => $user->role,
             'title'           => $title,
             'message'         => $message,
-            'timestamp'       => now()->toDateTimeString(),
             'status'          => $sent ? '✅ Sent' : '⚠️ No Template Match / Skipped',
-        ];
-        $logs = array_slice($logs, -15);   // Keep last 15 only
-        SiteSetting::setVal('whatsapp_sent_logs', json_encode($logs));
+        ]);
 
         return $notification;
     }

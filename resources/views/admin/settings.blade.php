@@ -111,7 +111,17 @@
                     Manage global dynamic settings, configure WhatsApp API integrations, moderate active vacancies, track applications, and verify candidate/partner credentials.
                 </p>
             </div>
-            <div class="flex items-center gap-3">
+            <div class="flex flex-wrap items-center gap-3">
+                <div x-data="{ time: '' }" x-init="
+                    const updateTime = () => {
+                        const options = { timeZone: 'Asia/Kolkata', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true };
+                        time = new Intl.DateTimeFormat('en-US', options).format(new Date());
+                    };
+                    updateTime();
+                    setInterval(updateTime, 1000);
+                }" class="px-4 py-2.5 bg-blue-500/10 text-blue-500 border border-blue-500/20 text-xs font-extrabold rounded-xl flex items-center gap-1.5 shadow-sm">
+                    ⏰ IST Time: <span x-text="time" class="font-black"></span>
+                </div>
                 <form action="{{ route('admin.clear-cache') }}" method="POST" onsubmit="return confirm('Are you sure you want to clear the entire system cache? This will reset all cached views and route settings.')">
                     @csrf
                     <button type="submit" class="px-4 py-2.5 bg-amber-500 hover:bg-amber-600 active:scale-95 text-white font-bold text-xs rounded-xl shadow-sm transition-all duration-200 flex items-center gap-1.5 border border-amber-600/20 cursor-pointer">
@@ -172,6 +182,186 @@
             </div>
         </div>
 
+    </div>
+
+    <!-- 🧠 Smart Admin Dashboard Center -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        
+        <!-- Breakdown Charts Card -->
+        <div class="p-6 rounded-2xl bg-[var(--theme-card)] border border-[var(--theme-border)] shadow-sm space-y-5">
+            <h3 class="text-sm font-black uppercase tracking-wider text-theme-text/80 flex items-center gap-1.5 border-b border-[var(--theme-border)] pb-2.5">
+                📊 Analytics & Breakdowns
+            </h3>
+            
+            <!-- Degree Distribution -->
+            <div class="space-y-2">
+                <span class="text-xs font-bold text-theme-text/60">Candidate Highest Degree</span>
+                @php
+                    $totalCP = $phdCount + $masterCount + $bachelorCount + $otherDegreeCount;
+                    $phdPct = $totalCP > 0 ? round(($phdCount / $totalCP) * 100) : 0;
+                    $masterPct = $totalCP > 0 ? round(($masterCount / $totalCP) * 100) : 0;
+                    $bachelorPct = $totalCP > 0 ? round(($bachelorCount / $totalCP) * 100) : 0;
+                    $otherPct = $totalCP > 0 ? round(($otherDegreeCount / $totalCP) * 100) : 0;
+                @endphp
+                <div class="space-y-1.5">
+                    <div class="flex justify-between text-[11px] font-semibold">
+                        <span>PhD ({{ $phdCount }})</span>
+                        <span>{{ $phdPct }}%</span>
+                    </div>
+                    <div class="w-full bg-[var(--theme-bg)] rounded-full h-2">
+                        <div class="bg-red-500 h-2 rounded-full transition-all duration-500" style="width: {{ $phdPct }}%"></div>
+                    </div>
+                    
+                    <div class="flex justify-between text-[11px] font-semibold">
+                        <span>Postgraduate/Master ({{ $masterCount }})</span>
+                        <span>{{ $masterPct }}%</span>
+                    </div>
+                    <div class="w-full bg-[var(--theme-bg)] rounded-full h-2">
+                        <div class="bg-theme-primary h-2 rounded-full transition-all duration-500" style="width: {{ $masterPct }}%"></div>
+                    </div>
+                    
+                    <div class="flex justify-between text-[11px] font-semibold">
+                        <span>Undergraduate/Bachelor ({{ $bachelorCount }})</span>
+                        <span>{{ $bachelorPct }}%</span>
+                    </div>
+                    <div class="w-full bg-[var(--theme-bg)] rounded-full h-2">
+                        <div class="bg-theme-accent h-2 rounded-full transition-all duration-500" style="width: {{ $bachelorPct }}%"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Application Stages -->
+            <div class="space-y-2 pt-1.5">
+                <span class="text-xs font-bold text-theme-text/60">Hiring Pipeline Funnel</span>
+                @php
+                    $totalAppCount = $appliedCount + $shortlistedCount + $interviewCount + $appointedCount;
+                    $appliedPct = $totalAppCount > 0 ? round(($appliedCount / $totalAppCount) * 100) : 0;
+                    $shortlistedPct = $totalAppCount > 0 ? round(($shortlistedCount / $totalAppCount) * 100) : 0;
+                    $interviewPct = $totalAppCount > 0 ? round(($interviewCount / $totalAppCount) * 100) : 0;
+                    $appointedPct = $totalAppCount > 0 ? round(($appointedCount / $totalAppCount) * 100) : 0;
+                @endphp
+                <div class="space-y-1.5">
+                    <div class="flex justify-between text-[11px] font-semibold">
+                        <span>Applied ({{ $appliedCount }})</span>
+                        <span>{{ $appliedPct }}%</span>
+                    </div>
+                    <div class="w-full bg-[var(--theme-bg)] rounded-full h-2">
+                        <div class="bg-blue-500 h-2 rounded-full transition-all duration-500" style="width: {{ $appliedPct }}%"></div>
+                    </div>
+                    
+                    <div class="flex justify-between text-[11px] font-semibold">
+                        <span>Vetting/Shortlisted ({{ $shortlistedCount }})</span>
+                        <span>{{ $shortlistedPct }}%</span>
+                    </div>
+                    <div class="w-full bg-[var(--theme-bg)] rounded-full h-2">
+                        <div class="bg-amber-500 h-2 rounded-full transition-all duration-500" style="width: {{ $shortlistedPct }}%"></div>
+                    </div>
+                    
+                    <div class="flex justify-between text-[11px] font-semibold">
+                        <span>Demo/Interview ({{ $interviewCount }})</span>
+                        <span>{{ $interviewPct }}%</span>
+                    </div>
+                    <div class="w-full bg-[var(--theme-bg)] rounded-full h-2">
+                        <div class="bg-purple-500 h-2 rounded-full transition-all duration-500" style="width: {{ $interviewPct }}%"></div>
+                    </div>
+                    
+                    <div class="flex justify-between text-[11px] font-semibold">
+                        <span>Appointed ({{ $appointedCount }})</span>
+                        <span>{{ $appointedPct }}%</span>
+                    </div>
+                    <div class="w-full bg-[var(--theme-bg)] rounded-full h-2">
+                        <div class="bg-emerald-500 h-2 rounded-full transition-all duration-500" style="width: {{ $appointedPct }}%"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions Panel -->
+        <div class="p-6 rounded-2xl bg-[var(--theme-card)] border border-[var(--theme-border)] shadow-sm space-y-4">
+            <h3 class="text-sm font-black uppercase tracking-wider text-theme-text/80 flex items-center gap-1.5 border-b border-[var(--theme-border)] pb-2.5">
+                ⚡ Command Shortcuts
+            </h3>
+            <div class="grid grid-cols-1 gap-3 pt-1">
+                <button @click="showAddUserModal = true" class="w-full p-3.5 bg-red-500/10 hover:bg-red-500 text-red-500 hover:text-white rounded-xl border border-red-500/20 text-xs font-bold transition flex items-center gap-2 cursor-pointer group">
+                    <span class="text-base group-hover:scale-110 transition-transform">👤</span>
+                    <div class="text-left">
+                        <p class="font-extrabold text-[11px]">Register New User</p>
+                        <p class="text-[9px] opacity-75">Quick register candidate or recruiter profile</p>
+                    </div>
+                </button>
+
+                <button @click="showAddVacancyModal = true" class="w-full p-3.5 bg-theme-primary/10 hover:bg-theme-primary text-theme-primary hover:text-white rounded-xl border border-theme-primary/20 text-xs font-bold transition flex items-center gap-2 cursor-pointer group">
+                    <span class="text-base group-hover:scale-110 transition-transform">💼</span>
+                    <div class="text-left">
+                        <p class="font-extrabold text-[11px]">Post A New Vacancy</p>
+                        <p class="text-[9px] opacity-75">Create active job listings instantly</p>
+                    </div>
+                </button>
+
+                <button @click="selectTab('whatsapp')" class="w-full p-3.5 bg-emerald-500/10 hover:bg-emerald-500 text-emerald-500 hover:text-white rounded-xl border border-emerald-500/20 text-xs font-bold transition flex items-center gap-2 cursor-pointer group">
+                    <span class="text-base group-hover:scale-110 transition-transform">💬</span>
+                    <div class="text-left">
+                        <p class="font-extrabold text-[11px]">WhatsApp Gateway Settings</p>
+                        <p class="text-[9px] opacity-75">Modify APIs, keys and trigger test alerts</p>
+                    </div>
+                </button>
+
+                <button @click="selectTab('trash')" class="w-full p-3.5 bg-amber-500/10 hover:bg-amber-500 text-amber-500 hover:text-white rounded-xl border border-amber-500/20 text-xs font-bold transition flex items-center gap-2 cursor-pointer group">
+                    <span class="text-base group-hover:scale-110 transition-transform">♻️</span>
+                    <div class="text-left">
+                        <p class="font-extrabold text-[11px]">System Recycle Bin</p>
+                        <p class="text-[9px] opacity-75">Review and restore soft-deleted data models</p>
+                    </div>
+                </button>
+            </div>
+        </div>
+
+        <!-- Recent Activities Feed -->
+        <div class="p-6 rounded-2xl bg-[var(--theme-card)] border border-[var(--theme-border)] shadow-sm space-y-4">
+            <h3 class="text-sm font-black uppercase tracking-wider text-theme-text/80 flex items-center gap-1.5 border-b border-[var(--theme-border)] pb-2.5">
+                🔔 Live Sourcing Feed
+            </h3>
+            
+            <div x-data="{ feedTab: 'applications' }" class="space-y-4">
+                <div class="flex gap-2 p-0.5 bg-[var(--theme-bg)] border border-[var(--theme-border)] rounded-lg text-[10px] font-bold">
+                    <button @click="feedTab = 'applications'" :class="feedTab === 'applications' ? 'flex-1 py-1 bg-[var(--theme-card)] shadow text-theme-primary rounded' : 'flex-1 py-1 text-theme-text/60 hover:text-theme-text transition'" type="button">Recent Apps</button>
+                    <button @click="feedTab = 'vacancies'" :class="feedTab === 'vacancies' ? 'flex-1 py-1 bg-[var(--theme-card)] shadow text-theme-primary rounded' : 'flex-1 py-1 text-theme-text/60 hover:text-theme-text transition'" type="button">New Vacancies</button>
+                </div>
+                
+                <!-- Recent Applications -->
+                <div x-show="feedTab === 'applications'" class="space-y-3 max-h-[220px] overflow-y-auto pr-1">
+                    @forelse($recentApplications as $rapp)
+                        <div class="flex items-start gap-2.5 text-[11px] leading-relaxed">
+                            <span class="mt-0.5">📥</span>
+                            <div class="flex-1 text-theme-text/70">
+                                <span class="font-black text-theme-text">{{ $rapp->candidate->name }}</span> applied for 
+                                <span class="font-bold text-theme-primary">{{ $rapp->vacancy->title }}</span>
+                                <p class="text-[9px] text-theme-text/45 mt-0.5">{{ $rapp->created_at->diffForHumans() }}</p>
+                            </div>
+                        </div>
+                    @empty
+                        <p class="text-xs text-theme-text/45 italic text-center py-8">No recent job applications.</p>
+                    @endforelse
+                </div>
+                
+                <!-- Recent Vacancies -->
+                <div x-show="feedTab === 'vacancies'" class="space-y-3 max-h-[220px] overflow-y-auto pr-1" x-cloak>
+                    @forelse($recentVacancies as $rvac)
+                        <div class="flex items-start gap-2.5 text-[11px] leading-relaxed">
+                            <span class="mt-0.5">💼</span>
+                            <div class="flex-1 text-theme-text/70">
+                                <span class="font-black text-theme-text">{{ $rvac->title }}</span> was posted by 
+                                <span class="font-semibold text-theme-accent">{{ $rvac->institution->company_name }}</span>
+                                <p class="text-[9px] text-theme-text/45 mt-0.5">{{ $rvac->created_at->diffForHumans() }}</p>
+                            </div>
+                        </div>
+                    @empty
+                        <p class="text-xs text-theme-text/45 italic text-center py-8">No recent job vacancy posts.</p>
+                    @endforelse
+                </div>
+            </div>
+        </div>
+        
     </div>
 
     <!-- Interactive Navigation Tabs -->
@@ -724,8 +914,48 @@
 
             <!-- Live Simulated WhatsApp Sent Messages Log Table -->
             <div class="space-y-4">
-                <div class="flex justify-between items-center">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
                     <h4 class="text-sm font-black uppercase tracking-wider text-theme-text/70">📲 Live Sent Messages Log (Recent Gateway Broadcasts)</h4>
+                    
+                    <!-- Search & Sort Filter for WhatsApp Logs -->
+                    <form action="{{ route('admin.settings') }}" method="GET" class="flex flex-wrap items-center gap-2 text-xs">
+                        <input type="hidden" name="tab" value="whatsapp" />
+                        @if(request('users_page')) <input type="hidden" name="users_page" value="{{ request('users_page') }}" /> @endif
+                        @if(request('vacancies_page')) <input type="hidden" name="vacancies_page" value="{{ request('vacancies_page') }}" /> @endif
+                        @if(request('apps_page')) <input type="hidden" name="apps_page" value="{{ request('apps_page') }}" /> @endif
+
+                        <div class="relative">
+                            <input 
+                                type="text" 
+                                name="search_wap" 
+                                value="{{ request('search_wap') }}" 
+                                placeholder="Search logs..." 
+                                class="pl-8 pr-2.5 py-1.5 w-44 bg-[var(--theme-bg)] border border-[var(--theme-border)] rounded-lg text-theme-text text-xs focus:outline-none focus:ring-1 focus:ring-red-500"
+                            />
+                            <span class="absolute left-2.5 top-2 text-theme-text/40 text-[10px]">🔍</span>
+                        </div>
+
+                        <select name="sort_wap" onchange="this.form.submit()" class="px-2 py-1.5 bg-[var(--theme-bg)] border border-[var(--theme-border)] rounded-lg text-theme-text focus:outline-none focus:ring-1 focus:ring-red-500 text-xs">
+                            <option value="latest" {{ request('sort_wap') === 'latest' ? 'selected' : '' }}>Latest First</option>
+                            <option value="oldest" {{ request('sort_wap') === 'oldest' ? 'selected' : '' }}>Oldest First</option>
+                            <option value="status" {{ request('sort_wap') === 'status' ? 'selected' : '' }}>By Status</option>
+                        </select>
+
+                        <button type="submit" class="px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white font-bold rounded-lg transition text-xs">Filter</button>
+                        @if(request('search_wap') || request('sort_wap'))
+                            <a href="{{ route('admin.settings', ['tab' => 'whatsapp']) }}" class="px-3 py-1.5 bg-theme-primary/10 text-theme-primary hover:bg-theme-primary hover:text-white font-bold rounded-lg text-center flex items-center justify-center transition text-xs">Clear</a>
+                        @endif
+                    </form>
+                </div>
+
+                <div class="flex justify-between items-center text-xs text-theme-text/60">
+                    <div>
+                        @if($whatsappSentLogs instanceof \Illuminate\Pagination\LengthAwarePaginator)
+                            Showing <strong>{{ $whatsappSentLogs->firstItem() ?? 0 }}</strong> to <strong>{{ $whatsappSentLogs->lastItem() ?? 0 }}</strong> of <strong>{{ $whatsappSentLogs->total() ?? 0 }}</strong> logs
+                        @else
+                            Showing <strong>0</strong> to <strong>0</strong> of <strong>0</strong> logs
+                        @endif
+                    </div>
                     <span class="px-2 py-0.5 bg-green-500/10 text-green-500 text-[10px] font-extrabold rounded-full">SIMULATED ACTIVE</span>
                 </div>
 
@@ -744,38 +974,46 @@
                         <tbody class="divide-y divide-[var(--theme-border)] bg-[var(--theme-bg)]">
                             @forelse($whatsappSentLogs as $log)
                                 <tr class="hover:bg-theme-primary/5 transition-colors">
-                                    <td class="px-4 py-3 font-bold">{{ $log['recipient_name'] }}</td>
-                                    <td class="px-4 py-3 text-theme-text/70 font-semibold">{{ $log['recipient_phone'] }}</td>
+                                    <td class="px-4 py-3 font-bold">{{ $log->recipient_name }}</td>
+                                    <td class="px-4 py-3 text-theme-text/70 font-semibold">{{ $log->recipient_phone }}</td>
                                     <td class="px-4 py-3">
-                                        <span class="px-1.5 py-0.5 text-[9px] font-black rounded-full uppercase {{ $log['recipient_role'] === 'candidate' ? 'bg-blue-500/10 text-blue-500' : 'bg-emerald-500/10 text-emerald-500' }}">
-                                            {{ $log['recipient_role'] }}
+                                        <span class="px-1.5 py-0.5 text-[9px] font-black rounded-full uppercase {{ $log->recipient_role === 'candidate' ? 'bg-blue-500/10 text-blue-500' : 'bg-emerald-500/10 text-emerald-500' }}">
+                                            {{ $log->recipient_role }}
                                         </span>
                                     </td>
                                     <td class="px-4 py-3 max-w-xs space-y-1">
-                                        <div class="font-extrabold text-theme-primary">{{ $log['title'] }}</div>
-                                        <div class="text-theme-text/80 leading-relaxed">{{ $log['message'] }}</div>
+                                        <div class="font-extrabold text-theme-primary">{{ $log->title }}</div>
+                                        <div class="text-theme-text/80 leading-relaxed">{{ $log->message }}</div>
                                     </td>
                                     <td class="px-4 py-3">
                                         @php
-                                            $statusVal = $log['status'] ?? ($log['provider'] ?? '⚠️ Sent (Legacy)');
+                                            $statusVal = $log->status;
                                             $isSuccess = str_contains($statusVal, '✅') || str_contains($statusVal, 'Sent') || str_contains($statusVal, 'Success');
                                         @endphp
                                         <span class="px-2 py-0.5 text-[10px] font-bold rounded-full {{ $isSuccess ? 'bg-green-500/10 text-green-500' : 'bg-amber-500/10 text-amber-500' }}">
                                             {{ $statusVal }}
                                         </span>
                                     </td>
-                                    <td class="px-4 py-3 text-theme-text/50 font-medium">{{ $log['timestamp'] }}</td>
+                                    <td class="px-4 py-3 text-theme-text/50 font-medium">
+                                        {{ $log->created_at ? $log->created_at->format('M d, Y h:i A') : 'N/A' }}
+                                    </td>
                                 </tr>
                             @empty
                                 <tr>
                                     <td colspan="6" class="px-4 py-6 text-center text-theme-text/40 italic">
-                                        No automated messages dispatched yet. Trigger placement pipeline events to broadcast WhatsApp logs.
+                                        No automated messages matches found. Trigger placement pipeline events to broadcast WhatsApp logs.
                                     </td>
                                 </tr>
                             @endforelse
                         </tbody>
                     </table>
                 </div>
+
+                @if($whatsappSentLogs instanceof \Illuminate\Pagination\LengthAwarePaginator)
+                    <div class="mt-4">
+                        {{ $whatsappSentLogs->appends(['tab' => 'whatsapp'])->links() }}
+                    </div>
+                @endif
             </div>
         </div>
 
