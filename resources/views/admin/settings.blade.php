@@ -264,6 +264,10 @@
                 </button>
             </form>
 
+            <div class="flex justify-between items-center text-xs text-theme-text/60 mb-2 px-1">
+                <span>Showing {{ $users->firstItem() ?? 0 }} to {{ $users->lastItem() ?? 0 }} of {{ $users->total() }} active users</span>
+            </div>
+
             <div class="overflow-x-auto border border-[var(--theme-border)] rounded-xl">
                 <table class="w-full text-sm text-left text-theme-text">
                     <thead class="text-xs uppercase bg-[var(--theme-bg)] border-b border-[var(--theme-border)] text-theme-text/60">
@@ -397,6 +401,10 @@
                 </button>
             </form>
 
+            <div class="flex justify-between items-center text-xs text-theme-text/60 mb-2 px-1">
+                <span>Showing {{ $vacancies->firstItem() ?? 0 }} to {{ $vacancies->lastItem() ?? 0 }} of {{ $vacancies->total() }} active vacancies</span>
+            </div>
+
             <div class="overflow-x-auto border border-[var(--theme-border)] rounded-xl">
                 <table class="w-full text-sm text-left text-theme-text">
                     <thead class="text-xs uppercase bg-[var(--theme-bg)] border-b border-[var(--theme-border)] text-theme-text/60">
@@ -506,6 +514,10 @@
                     <a href="{{ route('admin.settings', ['tab' => 'applications']) }}" class="text-xs text-red-500 font-bold hover:underline">Clear</a>
                 @endif
             </form>
+
+            <div class="flex justify-between items-center text-xs text-theme-text/60 mb-2 px-1">
+                <span>Showing {{ $applications->firstItem() ?? 0 }} to {{ $applications->lastItem() ?? 0 }} of {{ $applications->total() }} active applications</span>
+            </div>
 
             <div class="overflow-x-auto border border-[var(--theme-border)] rounded-xl">
                 <table class="w-full text-sm text-left text-theme-text">
@@ -784,6 +796,25 @@
                 <h4 class="text-sm font-bold text-theme-text flex items-center gap-1.5">
                     👥 Deleted Users (Candidates / Recruiter Brand Accounts)
                 </h4>
+                
+                <form action="{{ route('admin.settings') }}" method="GET" class="flex flex-wrap items-center gap-3 w-full mb-2">
+                    <input type="hidden" name="tab" value="trash" />
+                    <input type="text" name="search_del_user" value="{{ request('search_del_user') }}" placeholder="🔍 Search deleted users by name or email..." class="p-2.5 text-xs bg-[var(--theme-bg)] border border-[var(--theme-border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 text-theme-text w-full sm:w-60 font-medium" />
+                    <select name="sort_del_user" onchange="this.form.submit()" class="p-2.5 text-xs bg-[var(--theme-bg)] border border-[var(--theme-border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 text-theme-text font-semibold">
+                        <option value="latest" {{ request('sort_del_user') === 'latest' ? 'selected' : '' }}>📅 Latest Deleted</option>
+                        <option value="oldest" {{ request('sort_del_user') === 'oldest' ? 'selected' : '' }}>📅 Oldest Deleted</option>
+                        <option value="name" {{ request('sort_del_user') === 'name' ? 'selected' : '' }}>🔤 Name A-Z</option>
+                    </select>
+                    <button type="submit" class="px-4 py-2.5 bg-red-600 text-white text-xs font-bold rounded-xl shadow-sm hover:bg-red-700 transition cursor-pointer">Filter</button>
+                    @if(request()->anyFilled(['search_del_user', 'sort_del_user']))
+                        <a href="{{ route('admin.settings', ['tab' => 'trash']) }}" class="text-xs text-red-500 font-bold hover:underline">Clear</a>
+                    @endif
+                </form>
+
+                <div class="flex justify-between items-center text-xs text-theme-text/60 mb-2 px-1">
+                    <span>Showing {{ $deletedUsers->firstItem() ?? 0 }} to {{ $deletedUsers->lastItem() ?? 0 }} of {{ $deletedUsers->total() }} deleted users</span>
+                </div>
+
                 <div class="overflow-x-auto border border-[var(--theme-border)] rounded-xl">
                     <table class="w-full text-xs text-left text-theme-text">
                         <thead class="uppercase bg-[var(--theme-bg)] border-b border-[var(--theme-border)] text-theme-text/60 font-black">
@@ -823,6 +854,9 @@
                         </tbody>
                     </table>
                 </div>
+                <div class="mt-4">
+                    {{ $deletedUsers->appends(request()->query())->links() }}
+                </div>
             </div>
 
             <!-- Deleted Vacancies Sub-Card -->
@@ -830,6 +864,25 @@
                 <h4 class="text-sm font-bold text-theme-text flex items-center gap-1.5">
                     💼 Deleted Vacancies
                 </h4>
+
+                <form action="{{ route('admin.settings') }}" method="GET" class="flex flex-wrap items-center gap-3 w-full mb-2">
+                    <input type="hidden" name="tab" value="trash" />
+                    <input type="text" name="search_del_vac" value="{{ request('search_del_vac') }}" placeholder="🔍 Search deleted vacancies by title, subject or brand..." class="p-2.5 text-xs bg-[var(--theme-bg)] border border-[var(--theme-border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 text-theme-text w-full sm:w-60 font-medium" />
+                    <select name="sort_del_vac" onchange="this.form.submit()" class="p-2.5 text-xs bg-[var(--theme-bg)] border border-[var(--theme-border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 text-theme-text font-semibold">
+                        <option value="latest" {{ request('sort_del_vac') === 'latest' ? 'selected' : '' }}>📅 Latest Deleted</option>
+                        <option value="oldest" {{ request('sort_del_vac') === 'oldest' ? 'selected' : '' }}>📅 Oldest Deleted</option>
+                        <option value="title" {{ request('sort_del_vac') === 'title' ? 'selected' : '' }}>🔤 Title A-Z</option>
+                    </select>
+                    <button type="submit" class="px-4 py-2.5 bg-red-600 text-white text-xs font-bold rounded-xl shadow-sm hover:bg-red-700 transition cursor-pointer">Filter</button>
+                    @if(request()->anyFilled(['search_del_vac', 'sort_del_vac']))
+                        <a href="{{ route('admin.settings', ['tab' => 'trash']) }}" class="text-xs text-red-500 font-bold hover:underline">Clear</a>
+                    @endif
+                </form>
+
+                <div class="flex justify-between items-center text-xs text-theme-text/60 mb-2 px-1">
+                    <span>Showing {{ $deletedVacancies->firstItem() ?? 0 }} to {{ $deletedVacancies->lastItem() ?? 0 }} of {{ $deletedVacancies->total() }} deleted vacancies</span>
+                </div>
+
                 <div class="overflow-x-auto border border-[var(--theme-border)] rounded-xl">
                     <table class="w-full text-xs text-left text-theme-text">
                         <thead class="uppercase bg-[var(--theme-bg)] border-b border-[var(--theme-border)] text-theme-text/60 font-black">
@@ -865,6 +918,9 @@
                         </tbody>
                     </table>
                 </div>
+                <div class="mt-4">
+                    {{ $deletedVacancies->appends(request()->query())->links() }}
+                </div>
             </div>
 
             <!-- Deleted Applications Sub-Card -->
@@ -872,6 +928,25 @@
                 <h4 class="text-sm font-bold text-theme-text flex items-center gap-1.5">
                     📝 Deleted Pipeline Applications
                 </h4>
+
+                <form action="{{ route('admin.settings') }}" method="GET" class="flex flex-wrap items-center gap-3 w-full mb-2">
+                    <input type="hidden" name="tab" value="trash" />
+                    <input type="text" name="search_del_app" value="{{ request('search_del_app') }}" placeholder="🔍 Search deleted apps by candidate or vacancy..." class="p-2.5 text-xs bg-[var(--theme-bg)] border border-[var(--theme-border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 text-theme-text w-full sm:w-60 font-medium" />
+                    <select name="sort_del_app" onchange="this.form.submit()" class="p-2.5 text-xs bg-[var(--theme-bg)] border border-[var(--theme-border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 text-theme-text font-semibold">
+                        <option value="latest" {{ request('sort_del_app') === 'latest' ? 'selected' : '' }}>📅 Latest Deleted</option>
+                        <option value="oldest" {{ request('sort_del_app') === 'oldest' ? 'selected' : '' }}>📅 Oldest Deleted</option>
+                        <option value="status" {{ request('sort_del_app') === 'status' ? 'selected' : '' }}>📌 Status</option>
+                    </select>
+                    <button type="submit" class="px-4 py-2.5 bg-red-600 text-white text-xs font-bold rounded-xl shadow-sm hover:bg-red-700 transition cursor-pointer">Filter</button>
+                    @if(request()->anyFilled(['search_del_app', 'sort_del_app']))
+                        <a href="{{ route('admin.settings', ['tab' => 'trash']) }}" class="text-xs text-red-500 font-bold hover:underline">Clear</a>
+                    @endif
+                </form>
+
+                <div class="flex justify-between items-center text-xs text-theme-text/60 mb-2 px-1">
+                    <span>Showing {{ $deletedApplications->firstItem() ?? 0 }} to {{ $deletedApplications->lastItem() ?? 0 }} of {{ $deletedApplications->total() }} deleted applications</span>
+                </div>
+
                 <div class="overflow-x-auto border border-[var(--theme-border)] rounded-xl">
                     <table class="w-full text-xs text-left text-theme-text">
                         <thead class="uppercase bg-[var(--theme-bg)] border-b border-[var(--theme-border)] text-theme-text/60 font-black">
@@ -906,6 +981,9 @@
                             @endforelse
                         </tbody>
                     </table>
+                </div>
+                <div class="mt-4">
+                    {{ $deletedApplications->appends(request()->query())->links() }}
                 </div>
             </div>
         </div>
