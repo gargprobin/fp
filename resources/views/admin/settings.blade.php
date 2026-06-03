@@ -627,9 +627,14 @@
                             <option value="Twilio WhatsApp Gateway" {{ $whatsappProvider === 'Twilio WhatsApp Gateway' ? 'selected' : '' }}>Twilio WhatsApp Business Gateway</option>
                         </select>
                     </div>
-                    <div>
+                    <div x-data="{ showUrl: false }">
                         <label class="block text-xs font-bold text-theme-text/75 uppercase tracking-wider mb-2">WhatsApp API Send Message Endpoint URL *</label>
-                        <input type="text" name="whatsapp_api_url" value="{{ old('whatsapp_api_url', $whatsappApiUrl) }}" placeholder="e.g. https://wa.rj19web.com/api/your-vendor-id/contact/send-message" class="w-full p-3 text-sm bg-[var(--theme-bg)] border border-[var(--theme-border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 text-theme-text" required />
+                        <div class="relative">
+                            <input :type="showUrl ? 'text' : 'password'" name="whatsapp_api_url" value="{{ old('whatsapp_api_url', $whatsappApiUrl) }}" placeholder="e.g. https://wa.rj19web.com/api/your-vendor-id/contact/send-message" class="w-full p-3 pr-12 text-sm bg-[var(--theme-bg)] border border-[var(--theme-border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 text-theme-text font-mono" required />
+                            <button type="button" @click="showUrl = !showUrl" class="absolute right-3 top-1/2 -translate-y-1/2 text-theme-text/50 hover:text-theme-text cursor-pointer focus:outline-none text-xs font-bold select-none">
+                                <span x-text="showUrl ? '🔒 Hide' : '👁️ Show'"></span>
+                            </button>
+                        </div>
                     </div>
                 </div>
                 <div class="space-y-2">

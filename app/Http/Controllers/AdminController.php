@@ -28,7 +28,13 @@ class AdminController extends Controller
         // WhatsApp settings
         $whatsappProvider = SiteSetting::getVal('whatsapp_api_provider', 'wa.rj19web.com Official Gateway');
         $whatsappApiKey = SiteSetting::getVal('whatsapp_api_key');
+        if (!empty($whatsappApiKey)) {
+            $whatsappApiKey = '********************';
+        }
         $whatsappApiUrl = SiteSetting::getVal('whatsapp_api_url');
+        if (!empty($whatsappApiUrl)) {
+            $whatsappApiUrl = '********************';
+        }
         $whatsappEnabled = SiteSetting::getVal('whatsapp_enabled', '1');
 
         $whatsappSentLogs = json_decode(SiteSetting::getVal('whatsapp_sent_logs', '[]'), true);
@@ -148,8 +154,18 @@ class AdminController extends Controller
 
         if ($request->has('whatsapp_api_provider')) {
             SiteSetting::setVal('whatsapp_api_provider', $request->whatsapp_api_provider);
-            SiteSetting::setVal('whatsapp_api_key', $request->whatsapp_api_key);
-            SiteSetting::setVal('whatsapp_api_url', $request->whatsapp_api_url);
+            
+            // Avoid overwriting database values if the input contains mask patterns
+            $apiKey = $request->whatsapp_api_key;
+            if (!preg_match('/^[\*•]{3,}$/', (string)$apiKey)) {
+                SiteSetting::setVal('whatsapp_api_key', $apiKey);
+            }
+
+            $apiUrl = $request->whatsapp_api_url;
+            if (!preg_match('/^[\*•]{3,}$/', (string)$apiUrl)) {
+                SiteSetting::setVal('whatsapp_api_url', $apiUrl);
+            }
+
             SiteSetting::setVal('whatsapp_enabled', $request->has('whatsapp_enabled') ? '1' : '0');
 
             return back()->with('success', 'WhatsApp API Gateway configurations and messaging triggers updated successfully!');
