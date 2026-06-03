@@ -181,15 +181,15 @@
 
                 <!-- 🚀 Pipeline Interactive Timeline Progression Tracker (Mobile) -->
                 <div class="block md:hidden pl-3 py-4 border-t border-b border-[var(--theme-border)]">
-                    <div class="relative flex flex-col gap-6 pl-8">
-                        <!-- Progress Background Bar (Vertical) -->
-                        <div class="absolute left-4 top-2 bottom-2 w-1 bg-[var(--theme-border)] z-0 rounded-full"></div>
+                    <div class="relative flex flex-col gap-6 pl-0">
                         
-                        <!-- Dynamic Progress Bar height indicator -->
-                        @php
-                            $vertPct = ($currentStageIdx / (count($stages) - 1)) * 100;
-                        @endphp
-                        <div class="absolute left-4 top-2 w-1 bg-theme-primary z-0 transition-all duration-500 rounded-full" style="height: {{ $vertPct }}%;"></div>
+                        <!-- Progress Wrapper (Vertical) -->
+                        <div class="absolute left-[14px] top-4 bottom-4 w-1 z-0">
+                            <!-- Background Line -->
+                            <div class="w-full h-full bg-[var(--theme-border)] rounded-full"></div>
+                            <!-- Dynamic Progress Bar height indicator -->
+                            <div class="absolute top-0 left-0 w-full bg-theme-primary z-0 transition-all duration-500 rounded-full" style="height: {{ $pct }}%;"></div>
+                        </div>
 
                         <!-- Stage A: Applied -->
                         <div class="relative z-10 flex items-center gap-4">
