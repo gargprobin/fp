@@ -201,7 +201,15 @@
                         </div>
 
                         <!-- 1-Click Apply Trigger or Applied Badge -->
-                        @if(in_array($job->id, $appliedVacancyIds))
+                        @if(auth()->check() && (auth()->user()->isAdmin() || auth()->user()->isInstitution() || auth()->user()->isRecruiter()))
+                            <button 
+                                disabled
+                                class="px-6 py-2.5 text-xs font-bold text-theme-text/40 bg-[var(--theme-border)] border border-[var(--theme-border)] rounded-xl shrink-0 text-center w-full md:w-auto cursor-not-allowed"
+                                title="Admins and Recruiters cannot apply for vacancies"
+                            >
+                                Apply with 1-Click
+                            </button>
+                        @elseif(in_array($job->id, $appliedVacancyIds))
                             <span class="px-6 py-2.5 text-xs font-black text-green-500 bg-green-500/10 border border-green-500/20 rounded-xl shrink-0 text-center w-full md:w-auto">
                                 ✓ Applied
                             </span>
@@ -482,16 +490,12 @@
                         <textarea name="cover_letter" rows="3" required class="w-full p-3 text-sm bg-[var(--theme-bg)] border border-[var(--theme-border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-theme-primary text-theme-text" placeholder="Explain why you are qualified for this faculty role..."></textarea>
                     </div>
 
-                    <!-- Peer Reference Collector Setup (Highly dynamic) -->
-                    <div class="p-4 rounded-2xl bg-theme-primary/5 border border-theme-primary/10 space-y-3">
-                        <span class="block text-xs font-black text-theme-primary uppercase tracking-widest">📜 Confidential Referee Request (Automated)</span>
-                        <p class="text-[11px] text-theme-text/65 leading-relaxed">
-                            To ensure high-quality placement credibility, {{ $siteSettings->platform_name ?? 'Sourcing Portal' }} sends a secure signed URL instantly to your referee to collect academic recommendation letters.
-                        </p>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-2.5">
-                            <input type="text" name="referee_name" placeholder="Referee Name (e.g. Dean, HOD)" class="w-full p-2.5 text-xs bg-[var(--theme-bg)] border border-[var(--theme-border)] rounded-lg text-theme-text" />
-                            <input type="email" name="referee_email" placeholder="Referee Email ID" class="w-full p-2.5 text-xs bg-[var(--theme-bg)] border border-[var(--theme-border)] rounded-lg text-theme-text" />
-                        </div>
+                    <!-- Application Submission Confirmation -->
+                    <div class="p-4 rounded-2xl bg-theme-primary/5 border border-theme-primary/10 space-y-2 flex items-start gap-3">
+                        <input type="checkbox" id="confirm_apply_modal" required class="w-4 h-4 mt-0.5 rounded text-theme-primary focus:ring-theme-primary bg-[var(--theme-bg)] border-[var(--theme-border)] cursor-pointer" />
+                        <label for="confirm_apply_modal" class="text-xs text-theme-text/80 cursor-pointer select-none leading-relaxed">
+                            <strong>Click here to confirm:</strong> I verify that my profile details are accurate and I wish to submit my verified faculty profile for this vacancy.
+                        </label>
                     </div>
 
                     <div class="flex gap-3 justify-end pt-2">

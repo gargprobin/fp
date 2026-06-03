@@ -162,4 +162,57 @@ class RealtimeSyncTest extends TestCase
         $hash3 = $response->json('hash');
         $this->assertNotEquals($hash2, $hash3);
     }
+
+    /**
+     * Test that realtime check endpoint returns detailed notification title and message if new notifications exist.
+     */
+    public function test_realtime_check_returns_notification_details()
+    {
+        $candidate = new User([
+            'name' => 'Candidate User 2',
+            'email' => 'candidate_t2@example.com',
+            'password' => bcrypt('password'),
+        ]);
+        $candidate->role = 'candidate';
+        $candidate->save();
+
+        $this->actingAs($candidate);
+
+        // Get initial hash and last notification ID
+        $response = $this->get(route('realtime.check'));
+        $response->assertStatus(200);
+        $this->assertNull($response->json('notification'));
+
+        // Seed a dummy notification first to make sure the target notification has ID > 1
+        \App\Models\Notification::send(
+            $candidate->id,
+            'Initial Notification',
+            'This is the first notification.',
+            '/'
+        );
+
+        // Trigger a notification
+        $notification = \App\Models\Notification::send(
+            $candidate->id,
+            '🤝 Shortlisted by Admin',
+            'Your profile has been forwarded to the recruiter.',
+            '/'
+        );
+
+        // Request with last_notification_id = 0 (should not return notification to avoid old history toasts)
+        $response = $this->get(route('realtime.check') . '?last_notification_id=0');
+        $response->assertStatus(200);
+        $this->assertNull($response->json('notification'));
+
+        // Request with last_notification_id = $notification->id - 1 (should return notification details)
+        $response = $this->get(route('realtime.check') . '?last_notification_id=' . ($notification->id - 1));
+        $response->assertStatus(200);
+        $response->assertJson([
+            'notification' => [
+                'id' => $notification->id,
+                'title' => '🤝 Shortlisted by Admin',
+                'message' => 'Your profile has been forwarded to the recruiter.'
+            ]
+        ]);
+    }
 }

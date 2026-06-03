@@ -4,6 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
+    @auth
+        <meta name="last-notification-id" content="{{ \App\Models\Notification::where('user_id', auth()->id())->latest()->value('id') ?? 0 }}">
+    @else
+        <meta name="last-vacancy-id" content="{{ \App\Models\Vacancy::open()->latest()->value('id') ?? 0 }}">
+    @endauth
     <title>@yield('title', $siteSettings->platform_name ?? 'Sourcing Portal')</title>
     
     <!-- Google Fonts for Premium Typography -->
@@ -1101,29 +1106,63 @@
             return {
                 toasts: [],
                 lastHash: sessionStorage.getItem('realtime_hash') || null,
-                pollInterval: 15000, // 15 seconds polling interval
+                lastNotificationId: parseInt(sessionStorage.getItem('last_notification_id') || document.querySelector('meta[name="last-notification-id"]')?.getAttribute('content') || 0),
+                lastVacancyId: parseInt(sessionStorage.getItem('last_vacancy_id') || document.querySelector('meta[name="last-vacancy-id"]')?.getAttribute('content') || 0),
+                pollInterval: 10000, // 10 seconds polling interval
                 initPolling() {
+                    // Save initial values to session storage
+                    sessionStorage.setItem('last_notification_id', this.lastNotificationId);
+                    sessionStorage.setItem('last_vacancy_id', this.lastVacancyId);
+
                     // Start polling
-                    this.checkUpdates();
                     setInterval(() => this.checkUpdates(), this.pollInterval);
                 },
                 checkUpdates() {
-                    fetch("{{ url('/realtime/check') }}")
+                    const url = `{{ url('/realtime/check') }}?last_notification_id=${this.lastNotificationId}&last_vacancy_id=${this.lastVacancyId}`;
+                    fetch(url)
                         .then(res => res.json())
                         .then(data => {
+                            let changeDetected = false;
+                            let showToast = false;
+                            let toastMessage = '';
+                            let toastIcon = '';
+
+                            if (data.notification) {
+                                changeDetected = true;
+                                showToast = true;
+                                toastMessage = `${data.notification.title}: ${data.notification.message}`;
+                                toastIcon = '🔔';
+                                
+                                // Update session storage ID
+                                this.lastNotificationId = data.notification.id;
+                                sessionStorage.setItem('last_notification_id', this.lastNotificationId);
+                            } else if (data.vacancy) {
+                                changeDetected = true;
+                                showToast = true;
+                                toastMessage = `🆕 New Job: "${data.vacancy.title}" has been posted by "${data.vacancy.company}"!`;
+                                toastIcon = '💼';
+
+                                // Update session storage ID
+                                this.lastVacancyId = data.vacancy.id;
+                                sessionStorage.setItem('last_vacancy_id', this.lastVacancyId);
+                            } else if (this.lastHash && this.lastHash !== data.hash) {
+                                changeDetected = true;
+                            }
+
+                            // Keep the hash updated
                             if (data.hash) {
-                                if (this.lastHash && this.lastHash !== data.hash) {
-                                    // Hash has changed! Show Toast and refresh
-                                    this.showNotification('⚡ Live Sync: Updating dashboard data...', '🔄');
-                                    sessionStorage.setItem('realtime_hash', data.hash);
-                                    this.lastHash = data.hash;
+                                sessionStorage.setItem('realtime_hash', data.hash);
+                                this.lastHash = data.hash;
+                            }
+
+                            if (changeDetected) {
+                                if (showToast) {
+                                    this.showNotification(toastMessage, toastIcon);
                                     setTimeout(() => {
                                         window.location.reload();
-                                    }, 2000);
+                                    }, 3000);
                                 } else {
-                                    // Save hash on first page load
-                                    sessionStorage.setItem('realtime_hash', data.hash);
-                                    this.lastHash = data.hash;
+                                    window.location.reload();
                                 }
                             }
                         })
@@ -1144,7 +1183,7 @@
                         if (index !== -1) {
                             this.toasts[index].show = false;
                         }
-                    }, 3000);
+                    }, 4000);
                 }
             }
         }

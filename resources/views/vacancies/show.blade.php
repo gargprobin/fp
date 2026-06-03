@@ -174,18 +174,12 @@
                                     <textarea name="cover_letter" rows="3" class="w-full p-3 text-sm bg-[var(--theme-bg)] border border-[var(--theme-border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-theme-primary text-theme-text" placeholder="Explain why you are the perfect fit for this faculty position..."></textarea>
                                 </div>
 
-                                <!-- Referee Request (Confidential Reference Letters Pipeline) -->
-                                <div class="p-4 rounded-lg bg-theme-primary/5 border border-theme-primary/10 space-y-3">
-                                    <span class="block text-xs font-bold text-theme-primary uppercase">Confidential Recommendation Pipeline</span>
-                                    <p class="text-[10px] text-theme-text/60">
-                                        Specify a referee (Dean, HOD, or Mentor). The system will automatically request a confidential letter via secure signed URLs.
-                                    </p>
-                                    <div>
-                                        <input type="text" name="referee_name" placeholder="Referee Name" class="w-full px-3 py-2 text-xs bg-[var(--theme-bg)] border border-[var(--theme-border)] rounded focus:outline-none focus:ring-1 focus:ring-theme-primary text-theme-text" />
-                                    </div>
-                                    <div>
-                                        <input type="email" name="referee_email" placeholder="Referee Email" class="w-full px-3 py-2 text-xs bg-[var(--theme-bg)] border border-[var(--theme-border)] rounded focus:outline-none focus:ring-1 focus:ring-theme-primary text-theme-text" />
-                                    </div>
+                                <!-- Application Submission Confirmation -->
+                                <div class="p-4 rounded-xl bg-theme-primary/5 border border-theme-primary/10 space-y-2 flex items-start gap-3">
+                                    <input type="checkbox" id="confirm_apply_show" required class="w-4 h-4 mt-0.5 rounded text-theme-primary focus:ring-theme-primary bg-[var(--theme-bg)] border-[var(--theme-border)] cursor-pointer" />
+                                    <label for="confirm_apply_show" class="text-xs text-theme-text/80 cursor-pointer select-none leading-relaxed">
+                                        <strong>Click here to confirm:</strong> I verify that my profile details are accurate and I wish to submit my verified faculty profile for this vacancy.
+                                    </label>
                                 </div>
 
                                 <button type="submit" class="w-full py-3 text-white font-bold rounded-xl shadow-md transition transform active:scale-95 text-sm" style="background-color: {{ $vacancy->institution->primary_color }}">
