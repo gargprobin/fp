@@ -141,7 +141,7 @@
             <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 gap-4">
                 <div>
                     <h2 class="text-3xl font-black text-theme-text tracking-tight">Active Faculty Openings</h2>
-                    <p class="text-xs text-theme-text/50 font-bold uppercase tracking-wider mt-1">Real-time Sandbox Database</p>
+                    <p class="text-xs text-theme-text/50 font-bold uppercase tracking-wider mt-1">Real-time Sandbox Database &bull; Showing {{ $vacancies->firstItem() ?? 0 }}-{{ $vacancies->lastItem() ?? 0 }} of {{ $vacancies->total() }} openings</p>
                 </div>
                 
                 <!-- Reset Filters Button -->
