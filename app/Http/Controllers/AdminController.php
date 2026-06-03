@@ -27,8 +27,14 @@ class AdminController extends Controller
 
         // WhatsApp settings
         $whatsappProvider = SiteSetting::getVal('whatsapp_api_provider', 'Meta Cloud API');
-        $whatsappApiKey = SiteSetting::getVal('whatsapp_api_key', config('services.whatsapp.key'));
-        $whatsappApiUrl = SiteSetting::getVal('whatsapp_api_url', config('services.whatsapp.url'));
+        $whatsappApiKey = SiteSetting::getVal('whatsapp_api_key');
+        if (empty($whatsappApiKey)) {
+            $whatsappApiKey = config('services.whatsapp.key');
+        }
+        $whatsappApiUrl = SiteSetting::getVal('whatsapp_api_url');
+        if (empty($whatsappApiUrl)) {
+            $whatsappApiUrl = config('services.whatsapp.url');
+        }
         $whatsappEnabled = SiteSetting::getVal('whatsapp_enabled', '1');
 
         $whatsappSentLogs = json_decode(SiteSetting::getVal('whatsapp_sent_logs', '[]'), true);
