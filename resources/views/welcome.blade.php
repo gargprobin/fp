@@ -76,7 +76,7 @@
             </p>
 
             <!-- Fully Interactive Search Bar (Submits to route for SSR + matches locally via Alpine) -->
-            <form action="{{ route('home') }}" method="GET" class="w-full max-w-2xl bg-[var(--theme-card)] p-3 rounded-2xl md:rounded-full shadow-xl border border-[var(--theme-border)] flex flex-col md:flex-row gap-2 items-center mb-12">
+            <form action="./" method="GET" class="w-full max-w-2xl bg-[var(--theme-card)] p-3 rounded-2xl md:rounded-full shadow-xl border border-[var(--theme-border)] flex flex-col md:flex-row gap-2 items-center mb-12">
                 <div class="w-full flex items-center px-4 gap-2">
                     <svg class="w-5 h-5 text-theme-text/40 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                     <input 
@@ -249,7 +249,7 @@
 
         <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
             <a 
-                href="{{ route('home') }}?category=Physics"
+                href="?category=Physics"
                 :class="selectedCategory === 'Physics' ? 'border-theme-primary bg-theme-primary/5 ring-2 ring-theme-primary/20' : 'bg-[var(--theme-card)] border-[var(--theme-border)] hover:border-theme-primary/20'"
                 class="group p-8 rounded-2xl border text-left shadow-xs hover:shadow-xl hover:-translate-y-1 transition-all duration-300 cursor-pointer block"
             >
@@ -260,7 +260,7 @@
             </a>
 
             <a 
-                href="{{ route('home') }}?category=Chemistry"
+                href="?category=Chemistry"
                 :class="selectedCategory === 'Chemistry' ? 'border-theme-primary bg-theme-primary/5 ring-2 ring-theme-primary/20' : 'bg-[var(--theme-card)] border-[var(--theme-border)] hover:border-theme-primary/20'"
                 class="group p-8 rounded-2xl border text-left shadow-xs hover:shadow-xl hover:-translate-y-1 transition-all duration-300 cursor-pointer block"
             >
@@ -271,7 +271,7 @@
             </a>
 
             <a 
-                href="{{ route('home') }}?category=Computer%20Science"
+                href="?category=Computer%20Science"
                 :class="selectedCategory === 'Computer Science' ? 'border-theme-primary bg-theme-primary/5 ring-2 ring-theme-primary/20' : 'bg-[var(--theme-card)] border-[var(--theme-border)] hover:border-theme-primary/20'"
                 class="group p-8 rounded-2xl border text-left shadow-xs hover:shadow-xl hover:-translate-y-1 transition-all duration-300 cursor-pointer block"
             >
@@ -282,7 +282,7 @@
             </a>
 
             <a 
-                href="{{ route('home') }}"
+                href="./"
                 :class="selectedCategory === 'all' ? 'border-theme-primary bg-theme-primary/5 ring-2 ring-theme-primary/20' : 'bg-[var(--theme-card)] border-[var(--theme-border)] hover:border-theme-primary/20'"
                 class="group p-8 rounded-2xl border text-left shadow-xs hover:shadow-xl hover:-translate-y-1 transition-all duration-300 cursor-pointer block"
             >
