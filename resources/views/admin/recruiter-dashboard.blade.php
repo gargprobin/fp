@@ -368,6 +368,7 @@
                             <th class="px-6 py-4">Target Class</th>
                             <th class="px-6 py-4">Salary Package</th>
                             <th class="px-6 py-4">Status</th>
+                            <th class="px-6 py-4 text-right">Actions</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-[var(--theme-border)]">
@@ -383,6 +384,11 @@
                                     <span class="px-2 py-0.5 text-xs font-bold rounded-full {{ $vac->status === 'open' ? 'bg-green-500/10 text-green-500' : 'bg-red-500/10 text-red-500' }}">
                                         {{ ucfirst($vac->status) }}
                                     </span>
+                                </td>
+                                <td class="px-6 py-4 text-right">
+                                    <a href="{{ route('recruiter.vacancy.edit', $vac->id) }}" class="px-3 py-1.5 text-xs font-bold rounded-lg border border-theme-primary/20 text-theme-primary bg-theme-primary/5 hover:bg-theme-primary hover:text-white transition cursor-pointer">
+                                        Edit
+                                    </a>
                                 </td>
                             </tr>
                         @endforeach

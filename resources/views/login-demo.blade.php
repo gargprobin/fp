@@ -19,6 +19,44 @@
         </div>
     @endif
 
+    <!-- Manual Login Form -->
+    <form action="{{ route('login.submit') }}" method="POST" class="mb-8 space-y-4 pb-6 border-b border-[var(--theme-border)]">
+        @csrf
+        <div>
+            <label class="block text-xs font-bold text-theme-text/60 uppercase mb-1.5">Email Address</label>
+            <input type="email" name="email" required class="w-full p-3 text-sm bg-[var(--theme-bg)] border border-[var(--theme-border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-theme-primary text-theme-text" placeholder="e.g. faculty@gmail.com" value="{{ old('email') }}" />
+            @error('email')
+                <span class="text-xs text-red-500 mt-1 block">{{ $message }}</span>
+            @enderror
+        </div>
+        <div>
+            <label class="block text-xs font-bold text-theme-text/60 uppercase mb-1.5">Password</label>
+            <input type="password" name="password" required class="w-full p-3 text-sm bg-[var(--theme-bg)] border border-[var(--theme-border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-theme-primary text-theme-text" placeholder="••••••••" />
+            @error('password')
+                <span class="text-xs text-red-500 mt-1 block">{{ $message }}</span>
+            @enderror
+        </div>
+        <div class="flex items-center justify-between text-xs font-semibold">
+            <label class="flex items-center gap-1.5 text-theme-text/70 cursor-pointer">
+                <input type="checkbox" name="remember" class="rounded text-theme-primary focus:ring-theme-primary bg-[var(--theme-bg)] border-[var(--theme-border)]" />
+                Remember Me
+            </label>
+            <a href="{{ route('signup') }}" class="text-theme-primary hover:underline">Create Account</a>
+        </div>
+        <button type="submit" class="w-full py-3.5 text-white font-extrabold rounded-xl shadow-lg transition transform active:scale-[0.98] text-sm bg-theme-primary hover:bg-theme-accent cursor-pointer">
+            Sign In &rarr;
+        </button>
+    </form>
+
+    <div class="text-center mb-6 relative">
+        <div class="absolute inset-0 flex items-center" aria-hidden="true">
+            <div class="w-full border-t border-[var(--theme-border)]"></div>
+        </div>
+        <div class="relative flex justify-center text-xs uppercase">
+            <span class="bg-[var(--theme-card)] px-3 text-theme-text/50 font-extrabold tracking-wider">Or Quick Demo Login</span>
+        </div>
+    </div>
+
     <div class="space-y-4">
         
         <!-- Login as Candidate -->

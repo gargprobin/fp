@@ -54,11 +54,17 @@ class Notification extends Model
     public static function dispatchWhatsApp(string $phone, string $templateName, array $variables, User $user): bool
     {
         // ── 1. Retrieve Settings ──────────────────────────────────────
-        $apiUrl = SiteSetting::getVal('whatsapp_api_url', '');
-        $token  = SiteSetting::getVal('whatsapp_api_key', '');
+        $apiUrl = SiteSetting::getVal('whatsapp_api_url');
+        if (empty($apiUrl)) {
+            $apiUrl = config('services.whatsapp.url') ?? '';
+        }
+        $token = SiteSetting::getVal('whatsapp_api_key');
+        if (empty($token)) {
+            $token = config('services.whatsapp.key') ?? '';
+        }
 
         if (empty($apiUrl)) {
-            Log::warning('WhatsApp: API URL not configured in Site Settings.');
+            Log::warning('WhatsApp: API URL not configured.');
             return false;
         }
 
@@ -93,41 +99,38 @@ class Notification extends Model
                    || str_contains($apiUrl, 'flowhora')
                    || str_contains($apiUrl, 'contact/send-template-message');
 
-        // ── 6. Build Target URL ───────────────────────────────────────
-        $basePath = strtok($apiUrl, '?');   // Strip existing query string
-
+        // ── 6. Build Target URL & Payload ─────────────────────────────
         if ($isFlowHora) {
-            // FlowHora uses /contact/send-template-message endpoint
-            $targetUrl = str_replace('/contact/send-message', '/contact/send-template-message', $basePath);
-            if (!str_contains($targetUrl, '/contact/send-template-message')) {
-                $targetUrl = rtrim($basePath, '/') . '/contact/send-template-message';
+            // Auto-correct endpoint from send-message to send-template-message for FlowHora
+            if (str_contains($apiUrl, 'contact/send-message') && !str_contains($apiUrl, 'contact/send-template-message')) {
+                $apiUrl = str_replace('contact/send-message', 'contact/send-template-message', $apiUrl);
             }
-        } else {
-            // Standard Meta Cloud API — URL stays as-is (token goes in Bearer header)
-            $targetUrl = $basePath;
-        }
 
-        // Append token as query param for FlowHora
-        if ($isFlowHora && !empty($token)) {
-            $targetUrl .= '?token=' . $token;
-        }
-
-        // ── 7. Build Payload ──────────────────────────────────────────
-        if ($isFlowHora) {
-            // FlowHora flat payload: field_1, field_2, field_3...
+            // FlowHora custom flat payload
             $payload = [
                 'phone_number'      => $cleanPhone,
                 'template_name'     => $templateName,
                 'template_language' => 'en',
-                'contact'           => [
-                    'first_name' => $user->name ?? 'User',
-                    'email'      => $user->email ?? '',
-                ],
             ];
-            // Auto-map variables array → field_1, field_2, field_3...
-            foreach ($cleanVars as $index => $val) {
-                $payload['field_' . ($index + 1)] = $val;
+
+            // Map variables to field_1, field_2, field_3, etc.
+            if (!empty($cleanVars)) {
+                foreach ($cleanVars as $index => $val) {
+                    $payload['field_' . ($index + 1)] = (string)$val;
+                }
             }
+
+            // Auto-append token to URL if not already present
+            $apiUrlWithToken = $apiUrl;
+            if (!empty($token) && !str_contains($apiUrl, 'token=')) {
+                $connector = (str_contains($apiUrl, '?') === false) ? '?' : '&';
+                $apiUrlWithToken = $apiUrl . $connector . 'token=' . $token;
+            }
+
+            $headers = [
+                'Content-Type' => 'application/json',
+                'Accept'       => 'application/json'
+            ];
         } else {
             // Official Meta Cloud API nested payload format
             $payload = [
@@ -143,12 +146,18 @@ class Notification extends Model
                 $parameters = array_map(fn($v) => ['type' => 'text', 'text' => $v], $cleanVars);
                 $payload['template']['components'] = [['type' => 'body', 'parameters' => $parameters]];
             }
+
+            $apiUrlWithToken = $apiUrl;
+            $headers = [
+                'Content-Type' => 'application/json'
+            ];
         }
 
-        // ── 8. HTTP Request ───────────────────────────────────────────
-        $debugLog = ['target_url' => $targetUrl, 'payload' => $payload];
+        // ── 7. HTTP Request ───────────────────────────────────────────
+        $debugLog = ['target_url' => $apiUrlWithToken, 'payload' => $payload];
         try {
-            $client = Http::withHeaders(['Accept' => 'application/json', 'Content-Type' => 'application/json']);
+            // withoutVerifying() resolves SSL certificate issues on local XAMPP environments
+            $client = Http::withoutVerifying()->withHeaders($headers);
 
             // Bearer token for Meta Cloud API
             if (!$isFlowHora && !empty($token)) {
@@ -156,7 +165,7 @@ class Notification extends Model
             }
 
             $startTime   = microtime(true);
-            $response    = $client->post($targetUrl, $payload);
+            $response    = $client->post($apiUrlWithToken, $payload);
             $duration    = round((microtime(true) - $startTime) * 1000, 2);
 
             $debugLog['http_status']   = $response->status();
@@ -301,7 +310,7 @@ class Notification extends Model
     /**
      * Create a notification record and dispatch a WhatsApp message.
      */
-    public static function send($userId, $title, $message, $url = null, $type = 'info')
+    public static function send($userId, $title, $message, $url = null, $type = 'info', $candidateId = null)
     {
         $user = User::find($userId);
         $inAppEnabled = true;
@@ -398,8 +407,11 @@ class Notification extends Model
             }
 
         } elseif ($title === '🟢 Line Up Approved!' && $user->role === 'institution') {
+            $candidateUser = $candidateId ? User::find($candidateId) : null;
             if (preg_match('/Admin approved Line Up for (.+?) for (.+?)\. Contact/', $message, $m)) {
-                $candidateUser = User::where('name', $m[1])->first();
+                if (!$candidateUser) {
+                    $candidateUser = User::where('name', $m[1])->first();
+                }
                 if ($candidateUser) {
                     $sent = self::notifyLineUpApprovedRecruiter($user, $candidateUser, $m[2]);
                 }

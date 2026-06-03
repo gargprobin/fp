@@ -20,19 +20,21 @@ class FacultyPlacementPipelineTest extends TestCase
     public function test_complete_faculty_placement_vetting_pipeline_flow()
     {
         // 1. Create our mock roles (Admin, Recruiter, Faculty Candidate)
-        $admin = User::create([
+        $admin = new User([
             'name' => 'Platform Admin',
             'email' => 'admin@sourcing.com',
             'password' => bcrypt('password'),
-            'role' => 'admin'
         ]);
+        $admin->role = 'admin';
+        $admin->save();
 
-        $recruiterUser = User::create([
+        $recruiterUser = new User([
             'name' => 'Dr. Vidyarthi',
             'email' => 'recruiter@sourcing.com',
             'password' => bcrypt('password'),
-            'role' => 'institution'
         ]);
+        $recruiterUser->role = 'institution';
+        $recruiterUser->save();
 
         $institution = Institution::create([
             'user_id' => $recruiterUser->id,
@@ -44,12 +46,13 @@ class FacultyPlacementPipelineTest extends TestCase
             'branding_settings' => ['primary_color' => '#16a34a', 'accent_color' => '#22c55e']
         ]);
 
-        $candidateUser = User::create([
+        $candidateUser = new User([
             'name' => 'Prof. Amit Verma',
             'email' => 'faculty@gmail.com',
             'password' => bcrypt('password'),
-            'role' => 'candidate'
         ]);
+        $candidateUser->role = 'candidate';
+        $candidateUser->save();
 
         $candidateProfile = CandidateProfile::create([
             'user_id' => $candidateUser->id,

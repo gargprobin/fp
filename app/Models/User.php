@@ -24,9 +24,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
-        'role',
         'theme_preference',
-        'is_verified',
         'phone',
         'notification_settings',
     ];
@@ -61,14 +59,14 @@ class User extends Authenticatable
      */
     public function getNotificationSettings(): array
     {
-        return $this->notification_settings ?: [
+        return is_null($this->notification_settings) ? [
             'in_app' => true,
             'whatsapp' => true,
             'email' => true,
             'dnd' => false,
             'dnd_start' => '22:00',
             'dnd_end' => '08:00',
-        ];
+        ] : $this->notification_settings;
     }
 
     /* Relationships */

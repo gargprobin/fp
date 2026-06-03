@@ -21,7 +21,10 @@
                 </p>
             </div>
             
-            <div class="flex gap-2">
+            <div class="flex flex-wrap gap-2">
+                <a href="{{ route('faculty.profile') }}" class="px-4 py-2 bg-theme-primary text-white text-xs font-black rounded-full hover:bg-theme-accent transition flex items-center gap-1.5 shadow-sm cursor-pointer">
+                    ⚙️ Edit My Profile
+                </a>
                 <span class="px-4 py-2 bg-theme-primary/10 text-theme-primary border border-theme-primary/20 text-xs font-black rounded-full uppercase tracking-wider">
                     Verified Candidate: {{ ucfirst(auth()->user()->candidateProfile?->type ?? 'Academic') }}
                 </span>

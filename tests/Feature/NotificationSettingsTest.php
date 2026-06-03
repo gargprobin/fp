@@ -18,12 +18,13 @@ class NotificationSettingsTest extends TestCase
      */
     public function test_default_notification_settings()
     {
-        $user = User::create([
+        $user = new User([
             'name' => 'John Doe',
             'email' => 'john@example.com',
             'password' => bcrypt('password'),
-            'role' => 'candidate',
         ]);
+        $user->role = 'candidate';
+        $user->save();
 
         $settings = $user->getNotificationSettings();
 
@@ -40,12 +41,13 @@ class NotificationSettingsTest extends TestCase
      */
     public function test_save_notification_settings_via_route()
     {
-        $user = User::create([
+        $user = new User([
             'name' => 'John Doe',
             'email' => 'john@example.com',
             'password' => bcrypt('password'),
-            'role' => 'candidate',
         ]);
+        $user->role = 'candidate';
+        $user->save();
 
         $this->actingAs($user);
 
@@ -85,12 +87,13 @@ class NotificationSettingsTest extends TestCase
      */
     public function test_in_app_notification_bypass_when_disabled()
     {
-        $user = User::create([
+        $user = new User([
             'name' => 'John Doe',
             'email' => 'john@example.com',
             'password' => bcrypt('password'),
-            'role' => 'candidate',
         ]);
+        $user->role = 'candidate';
+        $user->save();
 
         // Disable in-app notifications
         $user->notification_settings = array_merge($user->getNotificationSettings(), ['in_app' => false]);
@@ -108,12 +111,13 @@ class NotificationSettingsTest extends TestCase
      */
     public function test_in_app_notification_saved_when_enabled()
     {
-        $user = User::create([
+        $user = new User([
             'name' => 'John Doe',
             'email' => 'john@example.com',
             'password' => bcrypt('password'),
-            'role' => 'candidate',
         ]);
+        $user->role = 'candidate';
+        $user->save();
 
         $notification = Notification::send($user->id, 'Test Title', 'Test Message', null, 'info');
 
@@ -135,13 +139,14 @@ class NotificationSettingsTest extends TestCase
         Log::shouldReceive('warning')->byDefault();
         Log::shouldReceive('error')->byDefault();
 
-        $user = User::create([
+        $user = new User([
             'name' => 'John Doe',
             'email' => 'john@example.com',
             'password' => bcrypt('password'),
-            'role' => 'candidate',
             'phone' => '9876543210',
         ]);
+        $user->role = 'candidate';
+        $user->save();
 
         // Set DND active
         $user->notification_settings = [

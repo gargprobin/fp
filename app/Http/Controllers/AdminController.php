@@ -13,7 +13,7 @@ class AdminController extends Controller
     /**
      * Display SaaS platform global settings and administrative dashboard.
      */
-    public function index()
+    public function index(Request $request)
     {
         // Enforce strict Admin authorization
         if (!auth()->check() || !auth()->user()->isAdmin()) {
@@ -27,8 +27,8 @@ class AdminController extends Controller
 
         // WhatsApp settings
         $whatsappProvider = SiteSetting::getVal('whatsapp_api_provider', 'Meta Cloud API');
-        $whatsappApiKey = SiteSetting::getVal('whatsapp_api_key', 'jUDMUIGKNETSvQ4CaAjYbyRJS9YNAMXsVTQvJjxUPlpc5LvQIluo36YrMNAcGB5O');
-        $whatsappApiUrl = SiteSetting::getVal('whatsapp_api_url', 'https://wa.rj19web.com/api/6e2f51c7-21b0-450b-9329-14955a8c79a/contact/send-message');
+        $whatsappApiKey = SiteSetting::getVal('whatsapp_api_key', config('services.whatsapp.key'));
+        $whatsappApiUrl = SiteSetting::getVal('whatsapp_api_url', config('services.whatsapp.url'));
         $whatsappEnabled = SiteSetting::getVal('whatsapp_enabled', '1');
 
         $whatsappSentLogs = json_decode(SiteSetting::getVal('whatsapp_sent_logs', '[]'), true);
@@ -39,15 +39,80 @@ class AdminController extends Controller
         $totalVacancies = Vacancy::count();
         $totalApplications = Application::count();
 
-        // 3. Moderation Lists
-        $users = User::with('candidateProfile', 'institution')->latest()->get();
-        $vacancies = Vacancy::with('institution')->latest()->get();
-        $applications = Application::with('vacancy', 'candidate')->latest()->get();
+        // 3. Moderation Lists with Page-independent pagination, search & sort
+        $searchUser = $request->input('search_user');
+        $userRole = $request->input('user_role');
+        $sortUser = $request->input('sort_user', 'latest');
+
+        $usersQuery = User::with('candidateProfile', 'institution');
+        if ($searchUser) {
+            $usersQuery->where(function($q) use ($searchUser) {
+                $q->where('name', 'like', "%{$searchUser}%")
+                  ->orWhere('email', 'like', "%{$searchUser}%")
+                  ->orWhere('phone', 'like', "%{$searchUser}%");
+            });
+        }
+        if ($userRole && $userRole !== 'all') {
+            $usersQuery->where('role', $userRole);
+        }
+        if ($sortUser === 'name_asc') {
+            $usersQuery->orderBy('name', 'asc');
+        } elseif ($sortUser === 'name_desc') {
+            $usersQuery->orderBy('name', 'desc');
+        } else {
+            $usersQuery->latest();
+        }
+        $users = $usersQuery->paginate(15, ['*'], 'users_page')->withQueryString();
+
+        $searchVacancy = $request->input('search_vacancy');
+        $sortVacancy = $request->input('sort_vacancy', 'latest');
+
+        $vacanciesQuery = Vacancy::with('institution');
+        if ($searchVacancy) {
+            $vacanciesQuery->where(function($q) use ($searchVacancy) {
+                $q->where('title', 'like', "%{$searchVacancy}%")
+                  ->orWhere('subject', 'like', "%{$searchVacancy}%")
+                  ->orWhere('location', 'like', "%{$searchVacancy}%");
+            });
+        }
+        if ($sortVacancy === 'title_asc') {
+            $vacanciesQuery->orderBy('title', 'asc');
+        } elseif ($sortVacancy === 'salary_high') {
+            $vacanciesQuery->orderBy('salary_max', 'desc');
+        } else {
+            $vacanciesQuery->latest();
+        }
+        $vacancies = $vacanciesQuery->paginate(15, ['*'], 'vacancies_page')->withQueryString();
+
+        $searchApp = $request->input('search_app');
+        $statusApp = $request->input('status_app');
+        $sortApp = $request->input('sort_app', 'latest');
+
+        $appsQuery = Application::with('vacancy.institution', 'candidate');
+        if ($searchApp) {
+            $appsQuery->where(function($q) use ($searchApp) {
+                $q->whereHas('candidate', function($query) use ($searchApp) {
+                    $query->where('name', 'like', "%{$searchApp}%");
+                })->orWhereHas('vacancy', function($query) use ($searchApp) {
+                    $query->where('title', 'like', "%{$searchApp}%")
+                          ->orWhere('subject', 'like', "%{$searchApp}%");
+                });
+            });
+        }
+        if ($statusApp && $statusApp !== 'all') {
+            $appsQuery->where('status', $statusApp);
+        }
+        if ($sortApp === 'oldest') {
+            $appsQuery->oldest();
+        } else {
+            $appsQuery->latest();
+        }
+        $applications = $appsQuery->paginate(15, ['*'], 'apps_page')->withQueryString();
 
         // 4. Soft Deleted (Trash Lists)
-        $deletedUsers = User::onlyTrashed()->with('candidateProfile', 'institution')->latest()->get();
-        $deletedVacancies = Vacancy::onlyTrashed()->with('institution')->latest()->get();
-        $deletedApplications = Application::onlyTrashed()->with('vacancy', 'candidate')->latest()->get();
+        $deletedUsers = User::onlyTrashed()->with('candidateProfile', 'institution')->latest()->paginate(15, ['*'], 'deleted_users_page')->withQueryString();
+        $deletedVacancies = Vacancy::onlyTrashed()->with('institution')->latest()->paginate(15, ['*'], 'deleted_vacancies_page')->withQueryString();
+        $deletedApplications = Application::onlyTrashed()->with('vacancy', 'candidate')->latest()->paginate(15, ['*'], 'deleted_apps_page')->withQueryString();
 
         return view('admin.settings', compact(
             'platformName', 'platformTagline', 'supportEmail',
@@ -233,7 +298,8 @@ class AdminController extends Controller
             '🟢 Line Up Approved!',
             "Admin approved Line Up for {$application->candidate->name} for {$application->vacancy->title}. Contact details unlocked!",
             route('recruiter.dashboard') . '#app-' . $application->id,
-            'success'
+            'success',
+            $application->candidate_id
         );
 
         $admins = \App\Models\User::where('role', 'admin')->get();
@@ -333,14 +399,15 @@ class AdminController extends Controller
             'company_name' => 'required_if:role,institution|nullable|string|max:100',
         ]);
 
-        $user = User::create([
+        $user = new User([
             'name'        => $request->name,
             'email'       => $request->email,
             'phone'       => $request->phone,
-            'role'        => $request->role,
             'password'    => bcrypt($request->password),
-            'is_verified' => true,
         ]);
+        $user->role = $request->role;
+        $user->is_verified = true;
+        $user->save();
 
         if ($request->role === 'candidate') {
             \App\Models\CandidateProfile::create([
@@ -383,13 +450,38 @@ class AdminController extends Controller
 
         $user = User::findOrFail($id);
 
-        $request->validate([
+        $rules = [
             'name'  => 'required|string|max:100',
             'email' => 'required|email|unique:users,email,' . $id,
-            'phone' => 'required|string|max:15',
-            // Recruiter specific
-            'company_name' => 'nullable|string|max:100',
-        ]);
+            'phone' => 'required|string|max:20',
+        ];
+
+        if ($user->isCandidate()) {
+            $rules = array_merge($rules, [
+                'highest_degree' => 'nullable|string|max:100',
+                'subjects_taught' => 'nullable|string',
+                'experience_years' => 'nullable|numeric|min:0',
+                'current_designation' => 'nullable|string|max:100',
+                'experience_summary' => 'nullable|string',
+                'current_ctc' => 'nullable|numeric|min:0',
+                'expected_ctc' => 'nullable|numeric|min:0',
+                'preferred_location' => 'nullable|string|max:100',
+                'demo_video_url' => 'nullable|url|max:150',
+                'google_scholar_url' => 'nullable|url|max:150',
+                'h_index' => 'nullable|integer|min:0',
+                'candidate_type' => 'nullable|in:academic,coaching',
+            ]);
+        } elseif ($user->isInstitution()) {
+            $rules = array_merge($rules, [
+                'company_name' => 'nullable|string|max:150',
+                'institution_type' => 'nullable|string|in:coaching_center,school,university,other',
+                'location' => 'nullable|string|max:150',
+                'website' => 'nullable|url|max:150',
+                'description' => 'nullable|string',
+            ]);
+        }
+
+        $request->validate($rules);
 
         $user->name = $request->name;
         $user->email = $request->email;
@@ -397,9 +489,44 @@ class AdminController extends Controller
         $user->is_verified = $request->has('is_verified');
         $user->save();
 
-        if ($user->isInstitution() && $user->institution) {
-            $user->institution->company_name = $request->company_name ?? $user->institution->company_name;
-            $user->institution->save();
+        if ($user->isCandidate()) {
+            $profile = $user->candidateProfile;
+            if (!$profile) {
+                $profile = new \App\Models\CandidateProfile();
+                $profile->user_id = $user->id;
+            }
+            $subjectsInput = trim($request->subjects_taught ?? '');
+            $subjects = $subjectsInput !== '' ? array_map('trim', explode(',', $subjectsInput)) : ['General'];
+
+            $profile->fill([
+                'type' => $request->candidate_type ?? 'academic',
+                'highest_degree' => $request->highest_degree ?? 'Not Specified',
+                'subjects_taught' => $subjects,
+                'experience_years' => $request->experience_years ?? 0.0,
+                'current_designation' => $request->current_designation,
+                'experience_summary' => $request->experience_summary,
+                'current_ctc' => $request->current_ctc,
+                'expected_ctc' => $request->expected_ctc,
+                'preferred_location' => $request->preferred_location,
+                'demo_video_url' => $request->demo_video_url,
+                'google_scholar_url' => $request->google_scholar_url,
+                'h_index' => $request->h_index ?? 0,
+            ]);
+            $profile->save();
+        } elseif ($user->isInstitution()) {
+            $inst = $user->institution;
+            if (!$inst) {
+                $inst = new \App\Models\Institution();
+                $inst->user_id = $user->id;
+            }
+            $inst->fill([
+                'company_name' => $request->company_name ?? ($user->name . "'s Institute"),
+                'type' => $request->institution_type ?? 'coaching_center',
+                'location' => $request->location ?? 'Not Specified',
+                'website' => $request->website,
+                'description' => $request->description,
+            ]);
+            $inst->save();
         }
 
         return back()->with('success', "👥 User '{$user->name}' updated successfully!");

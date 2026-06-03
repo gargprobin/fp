@@ -24,12 +24,12 @@ class Application extends Model
 
     public function vacancy()
     {
-        return $this->belongsTo(Vacancy::class);
+        return $this->belongsTo(Vacancy::class)->withTrashed();
     }
 
     public function candidate()
     {
-        return $this->belongsTo(User::class, 'candidate_id');
+        return $this->belongsTo(User::class, 'candidate_id')->withTrashed();
     }
 
     public function recommendationLetters()

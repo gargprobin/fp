@@ -25,31 +25,39 @@ class LoginDemoController extends Controller
      */
     public function login(Request $request)
     {
+        if (!app()->environment('local')) {
+            abort(403, 'Quick Login is only available in local development mode.');
+        }
+
         $role = $request->query('role', 'candidate');
 
         // 1. Create or Find mock user
         if ($role === 'admin') {
-            $user = User::firstOrCreate(
-                ['email' => 'admin@sourcing.com'],
-                [
+            $user = User::where('email', 'admin@sourcing.com')->first();
+            if (!$user) {
+                $user = new User([
+                    'email' => 'admin@sourcing.com',
                     'name' => 'Platform Super-Admin',
                     'password' => Hash::make('password'),
-                    'role' => 'admin',
                     'theme_preference' => 'dark',
-                    'is_verified' => true
-                ]
-            );
+                ]);
+                $user->role = 'admin';
+                $user->is_verified = true;
+                $user->save();
+            }
         } elseif ($role === 'institution') {
-            $user = User::firstOrCreate(
-                ['email' => 'recruiter@sourcing.com'],
-                [
+            $user = User::where('email', 'recruiter@sourcing.com')->first();
+            if (!$user) {
+                $user = new User([
+                    'email' => 'recruiter@sourcing.com',
                     'name' => 'Dr. Sharma (Director)',
                     'password' => Hash::make('password'),
-                    'role' => 'institution',
                     'theme_preference' => 'light',
-                    'is_verified' => true
-                ]
-            );
+                ]);
+                $user->role = 'institution';
+                $user->is_verified = true;
+                $user->save();
+            }
 
             // Create Institution Profile if missing
             if (!$user->institution) {
@@ -68,16 +76,18 @@ class LoginDemoController extends Controller
                 ]);
             }
         } else {
-            $user = User::firstOrCreate(
-                ['email' => 'faculty@gmail.com'],
-                [
+            $user = User::where('email', 'faculty@gmail.com')->first();
+            if (!$user) {
+                $user = new User([
+                    'email' => 'faculty@gmail.com',
                     'name' => 'Prof. Amit Verma',
                     'password' => Hash::make('password'),
-                    'role' => 'candidate',
                     'theme_preference' => 'academic_blue', // Starts with elegant Academic Blue
-                    'is_verified' => true
-                ]
-            );
+                ]);
+                $user->role = 'candidate';
+                $user->is_verified = true;
+                $user->save();
+            }
 
             // Create Candidate Profile if missing
             if (!$user->candidateProfile) {
@@ -108,6 +118,34 @@ class LoginDemoController extends Controller
         }
 
         return redirect()->route('faculty.dashboard')->with('success', 'Logged in as Candidate ' . $user->name . '!');
+    }
+
+    /**
+     * Submit login form manually.
+     */
+    public function submitLogin(Request $request)
+    {
+        $credentials = $request->validate([
+            'email' => 'required|email',
+            'password' => 'required|string',
+        ]);
+
+        if (Auth::attempt($credentials, $request->boolean('remember'))) {
+            $request->session()->regenerate();
+            $user = Auth::user();
+
+            if ($user->isAdmin()) {
+                return redirect()->route('admin.settings')->with('success', 'Logged in successfully!');
+            } elseif ($user->isInstitution()) {
+                return redirect()->route('recruiter.dashboard')->with('success', 'Logged in successfully!');
+            }
+
+            return redirect()->route('faculty.dashboard')->with('success', 'Logged in successfully!');
+        }
+
+        return back()->withErrors([
+            'email' => 'The provided credentials do not match our records.',
+        ])->onlyInput('email');
     }
 
     /**
@@ -145,62 +183,64 @@ class LoginDemoController extends Controller
 
         if ($role === 'candidate') {
             $rules = array_merge($rules, [
-                'current_designation' => 'required|string|max:100',
-                'highest_degree' => 'required|string|max:100',
-                'subjects_taught' => 'required|string',
-                'experience_years' => 'required|numeric|min:0',
-                'current_ctc' => 'required|numeric|min:0',
-                'expected_ctc' => 'required|numeric|min:0',
-                'preferred_location' => 'required|string|max:100',
-                'experience_summary' => 'required|string',
+                'current_designation' => 'nullable|string|max:100',
+                'highest_degree' => 'nullable|string|max:100',
+                'subjects_taught' => 'nullable|string',
+                'experience_years' => 'nullable|numeric|min:0',
+                'current_ctc' => 'nullable|numeric|min:0',
+                'expected_ctc' => 'nullable|numeric|min:0',
+                'preferred_location' => 'nullable|string|max:100',
+                'experience_summary' => 'nullable|string',
             ]);
         } else {
             $rules = array_merge($rules, [
-                'company_name' => 'required|string|max:150',
-                'type' => 'required|string|in:coaching_center,school,university,other',
-                'website' => 'required|url|max:150',
-                'location' => 'required|string|max:150',
-                'description' => 'required|string',
+                'company_name' => 'nullable|string|max:150',
+                'type' => 'nullable|string|in:coaching_center,school,university,other',
+                'website' => 'nullable|url|max:150',
+                'location' => 'nullable|string|max:150',
+                'description' => 'nullable|string',
             ]);
         }
 
         $validated = $request->validate($rules);
 
-        // 2. Create User
-        $user = User::create([
+        // 2. Create User explicitly assigning non-fillable fields
+        $user = new User([
             'name' => $validated['name'],
             'email' => $validated['email'],
             'password' => Hash::make($validated['password']),
-            'role' => $validated['role'],
             'phone' => $validated['phone'],
             'theme_preference' => $validated['role'] === 'candidate' ? 'academic_blue' : 'light',
-            'is_verified' => false, // New registrations require admin approval to unlock details!
         ]);
+        $user->role = $validated['role'];
+        $user->is_verified = false; // New registrations require admin approval to unlock details!
+        $user->save();
 
         // 3. Create Corresponding Profile
         if ($user->role === 'candidate') {
-            // Parse subjects taught as array
-            $subjects = array_map('trim', explode(',', $validated['subjects_taught']));
+            $subjectsInput = trim($validated['subjects_taught'] ?? '');
+            $subjects = $subjectsInput !== '' ? array_map('trim', explode(',', $subjectsInput)) : ['General'];
+            
             CandidateProfile::create([
                 'user_id' => $user->id,
                 'type' => 'coaching',
-                'current_designation' => $validated['current_designation'],
-                'highest_degree' => $validated['highest_degree'],
+                'current_designation' => $validated['current_designation'] ?? 'Candidate',
+                'highest_degree' => $validated['highest_degree'] ?? 'Not Specified',
                 'subjects_taught' => $subjects,
-                'experience_summary' => $validated['experience_summary'],
-                'experience_years' => $validated['experience_years'],
-                'current_ctc' => $validated['current_ctc'],
-                'expected_ctc' => $validated['expected_ctc'],
-                'preferred_location' => $validated['preferred_location'],
+                'experience_summary' => $validated['experience_summary'] ?? 'Teaching enthusiast.',
+                'experience_years' => $validated['experience_years'] ?? 0.0,
+                'current_ctc' => $validated['current_ctc'] ?? 0.0,
+                'expected_ctc' => $validated['expected_ctc'] ?? 0.0,
+                'preferred_location' => $validated['preferred_location'] ?? 'Not Specified',
             ]);
         } else {
             Institution::create([
                 'user_id' => $user->id,
-                'company_name' => $validated['company_name'],
-                'type' => $validated['type'],
-                'website' => $validated['website'],
-                'location' => $validated['location'],
-                'description' => $validated['description'],
+                'company_name' => $validated['company_name'] ?? ($validated['name'] . "'s Institute"),
+                'type' => $validated['type'] ?? 'coaching_center',
+                'website' => $validated['website'] ?? null,
+                'location' => $validated['location'] ?? 'Not Specified',
+                'description' => $validated['description'] ?? 'An educational organization.',
                 'branding_settings' => [
                     'primary_color' => '#2563eb', // Default elegant blue
                     'accent_color' => '#3b82f6',

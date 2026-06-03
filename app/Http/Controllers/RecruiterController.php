@@ -202,4 +202,64 @@ class RecruiterController extends Controller
 
         return back()->with('success', 'Candidate recruitment funnel state updated to: ' . $stageName);
     }
+
+    /**
+     * Show edit vacancy form for recruiter.
+     */
+    public function editVacancy(Vacancy $vacancy)
+    {
+        if (!auth()->check() || !auth()->user()->isInstitution()) {
+            abort(403, 'Unauthorized.');
+        }
+
+        $institution = auth()->user()->institution;
+        if ($vacancy->institution_id !== $institution->id) {
+            abort(403, 'Access denied.');
+        }
+
+        return view('recruiter.edit-vacancy', compact('vacancy'));
+    }
+
+    /**
+     * Update vacancy details by recruiter.
+     */
+    public function updateVacancy(Request $request, Vacancy $vacancy)
+    {
+        if (!auth()->check() || !auth()->user()->isInstitution()) {
+            abort(403, 'Unauthorized.');
+        }
+
+        $institution = auth()->user()->institution;
+        if ($vacancy->institution_id !== $institution->id) {
+            abort(403, 'Access denied.');
+        }
+
+        $request->validate([
+            'title' => 'required|string|max:100',
+            'subject' => 'required|string|max:50',
+            'target_class' => 'required|string|max:50',
+            'experience_required' => 'required|string|max:50',
+            'location' => 'required|string|max:100',
+            'salary_min' => 'required|numeric|min:0',
+            'salary_max' => 'required|numeric|gt:salary_min',
+            'description' => 'required|string',
+            'deadline' => 'required|date|after:today',
+            'status' => 'required|in:open,closed',
+        ]);
+
+        $vacancy->update([
+            'title' => $request->title,
+            'subject' => $request->subject,
+            'target_class' => $request->target_class,
+            'experience_required' => $request->experience_required,
+            'location' => $request->location,
+            'salary_min' => $request->salary_min,
+            'salary_max' => $request->salary_max,
+            'description' => $request->description,
+            'deadline' => $request->deadline,
+            'status' => $request->status,
+        ]);
+
+        return redirect()->route('recruiter.dashboard', ['tab' => 'my-vacancies'])->with('success', 'Vacancy updated successfully!');
+    }
 }

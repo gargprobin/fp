@@ -5,6 +5,9 @@ use App\Http\Controllers\ThemeController;
 use App\Http\Controllers\VacancyController;
 use App\Http\Controllers\RefereeController;
 use App\Http\Controllers\LoginDemoController;
+use App\Http\Controllers\AdminController;
+use App\Http\Controllers\RecruiterController;
+use App\Http\Controllers\FacultyController;
 
 // 1. Home Landing Page (Same to Same c:\jobs)
 use App\Models\Vacancy;
@@ -36,7 +39,17 @@ Route::get('/', function (Request $request) {
         }
     }
 
-    $vacancies = $query->latest()->get();
+    // Apply Sort
+    $sort = $request->input('sort', 'latest');
+    if ($sort === 'salary_high') {
+        $query->orderBy('salary_max', 'desc');
+    } elseif ($sort === 'deadline_soon') {
+        $query->orderBy('deadline', 'asc');
+    } else {
+        $query->latest();
+    }
+
+    $vacancies = $query->paginate(6)->withQueryString();
 
     return view('welcome', compact('vacancies'));
 })->name('home');
@@ -44,6 +57,7 @@ Route::get('/', function (Request $request) {
 
 // 2. Demo Auth Routes
 Route::get('/login-demo', [LoginDemoController::class, 'show'])->name('login-demo');
+Route::post('/login-demo', [LoginDemoController::class, 'submitLogin'])->name('login.submit');
 Route::get('/login-quick', [LoginDemoController::class, 'login'])->name('login-quick');
 Route::get('/logout', [LoginDemoController::class, 'logout'])->name('logout');
 Route::get('/signup', [LoginDemoController::class, 'showSignUp'])->name('signup');
@@ -69,68 +83,72 @@ Route::get('/refresh-csrf', function() {
 });
 
 // 6. Admin Panel settings (SaaS customization)
-use App\Http\Controllers\AdminController;
-Route::get('/admin/settings', [AdminController::class, 'index'])->name('admin.settings');
-Route::post('/admin/settings', [AdminController::class, 'update'])->name('admin.settings.update');
-Route::post('/admin/clear-cache', [AdminController::class, 'clearCache'])->name('admin.clear-cache');
 
-// Impersonate Routes
-Route::post('/admin/impersonate/{id}', [AdminController::class, 'impersonate'])->name('admin.impersonate');
-Route::post('/admin/impersonate-leave', [AdminController::class, 'leaveImpersonate'])->name('admin.impersonate-leave');
+Route::middleware(['auth', 'role:admin'])->group(function () {
+    Route::get('/admin/settings', [AdminController::class, 'index'])->name('admin.settings');
+    Route::post('/admin/settings', [AdminController::class, 'update'])->name('admin.settings.update');
+    Route::post('/admin/clear-cache', [AdminController::class, 'clearCache'])->name('admin.clear-cache');
 
-// CRUD & Restore Routes
-Route::post('/admin/user/store', [AdminController::class, 'storeUser'])->name('admin.user.store');
-Route::post('/admin/user/{id}/update', [AdminController::class, 'updateUser'])->name('admin.user.update');
-Route::delete('/admin/user/{id}', [AdminController::class, 'deleteUser'])->name('admin.user.delete');
-Route::post('/admin/user/{id}/restore', [AdminController::class, 'restoreUser'])->name('admin.user.restore');
+    // Impersonate Routes
+    Route::post('/admin/impersonate/{id}', [AdminController::class, 'impersonate'])->name('admin.impersonate');
+    Route::post('/admin/impersonate-leave', [AdminController::class, 'leaveImpersonate'])->name('admin.impersonate-leave');
 
-Route::post('/admin/user/{id}/toggle-verification', [AdminController::class, 'toggleVerification'])->name('admin.user.toggle-verification');
-Route::post('/admin/vacancy/store', [AdminController::class, 'storeVacancy'])->name('admin.vacancy.store');
-Route::post('/admin/vacancy/{id}/update', [AdminController::class, 'updateVacancy'])->name('admin.vacancy.update');
-Route::post('/admin/vacancy/{id}/toggle-status', [AdminController::class, 'toggleVacancyStatus'])->name('admin.vacancy.toggle-status');
-Route::delete('/admin/vacancy/{id}', [AdminController::class, 'deleteVacancy'])->name('admin.vacancy.delete');
-Route::post('/admin/vacancy/{id}/restore', [AdminController::class, 'restoreVacancy'])->name('admin.vacancy.restore');
+    // CRUD & Restore Routes
+    Route::post('/admin/user/store', [AdminController::class, 'storeUser'])->name('admin.user.store');
+    Route::post('/admin/user/{id}/update', [AdminController::class, 'updateUser'])->name('admin.user.update');
+    Route::delete('/admin/user/{id}', [AdminController::class, 'deleteUser'])->name('admin.user.delete');
+    Route::post('/admin/user/{id}/restore', [AdminController::class, 'restoreUser'])->name('admin.user.restore');
 
-// WhatsApp Sandbox
-Route::post('/admin/whatsapp/test-send', [AdminController::class, 'sendTestWhatsApp'])->name('admin.whatsapp.test-send');
+    Route::post('/admin/user/{id}/toggle-verification', [AdminController::class, 'toggleVerification'])->name('admin.user.toggle-verification');
+    Route::post('/admin/vacancy/store', [AdminController::class, 'storeVacancy'])->name('admin.vacancy.store');
+    Route::post('/admin/vacancy/{id}/update', [AdminController::class, 'updateVacancy'])->name('admin.vacancy.update');
+    Route::post('/admin/vacancy/{id}/toggle-status', [AdminController::class, 'toggleVacancyStatus'])->name('admin.vacancy.toggle-status');
+    Route::delete('/admin/vacancy/{id}', [AdminController::class, 'deleteVacancy'])->name('admin.vacancy.delete');
+    Route::post('/admin/vacancy/{id}/restore', [AdminController::class, 'restoreVacancy'])->name('admin.vacancy.restore');
+
+    // WhatsApp Sandbox
+    Route::post('/admin/whatsapp/test-send', [AdminController::class, 'sendTestWhatsApp'])->name('admin.whatsapp.test-send');
+
+    // Admin Advanced Faculty Sourcing Pipeline Moderation
+    Route::post('/admin/application/{id}/shortlist', [AdminController::class, 'shortlistApplication'])->name('admin.application.shortlist');
+    Route::post('/admin/application/{id}/unlock-approve', [AdminController::class, 'unlockApprove'])->name('admin.application.unlock-approve');
+    Route::delete('/admin/application/{id}', [AdminController::class, 'deleteApplication'])->name('admin.application.delete');
+    Route::post('/admin/application/{id}/restore', [AdminController::class, 'restoreApplication'])->name('admin.application.restore');
+});
 
 // 7. Recruiter Dashboard & Funnel Pipeline Management
-use App\Http\Controllers\RecruiterController;
-Route::get('/recruiter/dashboard', [RecruiterController::class, 'dashboard'])->name('recruiter.dashboard');
-Route::post('/recruiter/vacancy', [RecruiterController::class, 'postVacancy'])->name('recruiter.post-vacancy');
-Route::post('/recruiter/application/{application}/unlock', [RecruiterController::class, 'requestUnlock'])->name('recruiter.request-unlock');
-Route::post('/recruiter/application/{application}/pipeline', [RecruiterController::class, 'updatePipeline'])->name('recruiter.update-pipeline');
 
-// 8. Admin Advanced Faculty Sourcing Pipeline Moderation
-Route::post('/admin/application/{id}/shortlist', [AdminController::class, 'shortlistApplication'])->name('admin.application.shortlist');
-Route::post('/admin/application/{id}/unlock-approve', [AdminController::class, 'unlockApprove'])->name('admin.application.unlock-approve');
-Route::delete('/admin/application/{id}', [AdminController::class, 'deleteApplication'])->name('admin.application.delete');
-Route::post('/admin/application/{id}/restore', [AdminController::class, 'restoreApplication'])->name('admin.application.restore');
+Route::middleware(['auth', 'role:institution'])->group(function () {
+    Route::get('/recruiter/dashboard', [RecruiterController::class, 'dashboard'])->name('recruiter.dashboard');
+    Route::post('/recruiter/vacancy', [RecruiterController::class, 'postVacancy'])->name('recruiter.post-vacancy');
+    Route::get('/recruiter/vacancy/{vacancy}/edit', [RecruiterController::class, 'editVacancy'])->name('recruiter.vacancy.edit');
+    Route::post('/recruiter/vacancy/{vacancy}/update', [RecruiterController::class, 'updateVacancy'])->name('recruiter.vacancy.update');
+    Route::post('/recruiter/application/{application}/unlock', [RecruiterController::class, 'requestUnlock'])->name('recruiter.request-unlock');
+    Route::post('/recruiter/application/{application}/pipeline', [RecruiterController::class, 'updatePipeline'])->name('recruiter.update-pipeline');
+});
 
 // 9. Real-Time Notification Center routes
-Route::post('/notifications/read-all', function() {
-    if (auth()->check()) {
+Route::middleware(['auth'])->group(function () {
+    Route::post('/notifications/read-all', function() {
         \App\Models\Notification::where('user_id', auth()->id())->update(['is_read' => true]);
         if (request()->wantsJson() || request()->ajax()) {
             return response()->json(['success' => true]);
         }
-    }
-    return back()->with('success', 'All notifications marked as read.');
-})->name('notifications.read-all');
+        return back()->with('success', 'All notifications marked as read.');
+    })->name('notifications.read-all');
 
-Route::post('/notifications/{notification}/toggle-read', function(\App\Models\Notification $notification) {
-    if (auth()->check() && $notification->user_id === auth()->id()) {
-        $notification->is_read = !$notification->is_read;
-        $notification->save();
-        if (request()->wantsJson() || request()->ajax()) {
-            return response()->json(['success' => true, 'is_read' => $notification->is_read]);
+    Route::post('/notifications/{notification}/toggle-read', function(\App\Models\Notification $notification) {
+        if ($notification->user_id === auth()->id()) {
+            $notification->is_read = !$notification->is_read;
+            $notification->save();
+            if (request()->wantsJson() || request()->ajax()) {
+                return response()->json(['success' => true, 'is_read' => $notification->is_read]);
+            }
         }
-    }
-    return back();
-})->name('notifications.toggle-read');
+        return back();
+    })->name('notifications.toggle-read');
 
-Route::post('/notifications/settings', function() {
-    if (auth()->check()) {
+    Route::post('/notifications/settings', function() {
         $user = auth()->user();
         $settings = request()->validate([
             'in_app' => 'required|boolean',
@@ -143,22 +161,26 @@ Route::post('/notifications/settings', function() {
         $user->notification_settings = $settings;
         $user->save();
         return response()->json(['success' => true, 'settings' => $user->getNotificationSettings()]);
-    }
-    return response()->json(['error' => 'Unauthorized'], 403);
-})->name('notifications.save-settings');
+    })->name('notifications.save-settings');
 
-Route::get('/notifications/{notification}/read', function(\App\Models\Notification $notification) {
-    if (auth()->check() && $notification->user_id === auth()->id()) {
-        $notification->is_read = true;
-        $notification->save();
-        if ($notification->action_url) {
-            return redirect($notification->action_url);
+    Route::get('/notifications/{notification}/read', function(\App\Models\Notification $notification) {
+        if ($notification->user_id === auth()->id()) {
+            $notification->is_read = true;
+            $notification->save();
+            if ($notification->action_url) {
+                return redirect($notification->action_url);
+            }
         }
-    }
-    return back();
-})->name('notifications.read');
+        return back();
+    })->name('notifications.read');
 
-// 10. Faculty Candidate Dashboard route
-use App\Http\Controllers\FacultyController;
-Route::get('/faculty/dashboard', [FacultyController::class, 'dashboard'])->name('faculty.dashboard');
+    // 10. Faculty Candidate Dashboard route
+    Route::middleware(['role:candidate'])->group(function () {
+        Route::get('/faculty/dashboard', [FacultyController::class, 'dashboard'])->name('faculty.dashboard');
+        Route::get('/faculty/profile', [FacultyController::class, 'editProfile'])->name('faculty.profile');
+        Route::post('/faculty/profile', [FacultyController::class, 'updateProfile'])->name('faculty.profile.update');
+    });
+});
+
+
 

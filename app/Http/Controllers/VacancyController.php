@@ -18,16 +18,18 @@ class VacancyController extends Controller
     {
         // 1. Dynamic Auto-Seeding for rich UX out of the box
         if (Vacancy::count() === 0) {
-            $user = User::firstOrCreate(
-                ['email' => 'recruiter@sourcing.com'],
-                [
+            $user = User::where('email', 'recruiter@sourcing.com')->first();
+            if (!$user) {
+                $user = new User([
+                    'email' => 'recruiter@sourcing.com',
                     'name' => 'Dr. Sharma (Director)',
                     'password' => Hash::make('password'),
-                    'role' => 'institution',
                     'theme_preference' => 'light',
-                    'is_verified' => true
-                ]
-            );
+                ]);
+                $user->role = 'institution';
+                $user->is_verified = true;
+                $user->save();
+            }
             $institution = Institution::firstOrCreate(
                 ['user_id' => $user->id],
                 [
@@ -44,16 +46,18 @@ class VacancyController extends Controller
                 ]
             );
 
-            $univUser = User::firstOrCreate(
-                ['email' => 'dean@apexuniv.edu'],
-                [
+            $univUser = User::where('email', 'dean@apexuniv.edu')->first();
+            if (!$univUser) {
+                $univUser = new User([
+                    'email' => 'dean@apexuniv.edu',
                     'name' => 'Dr. Rachel Green (Dean)',
                     'password' => Hash::make('password'),
-                    'role' => 'institution',
                     'theme_preference' => 'light',
-                    'is_verified' => true
-                ]
-            );
+                ]);
+                $univUser->role = 'institution';
+                $univUser->is_verified = true;
+                $univUser->save();
+            }
             $univ = Institution::firstOrCreate(
                 ['user_id' => $univUser->id],
                 [
@@ -155,6 +159,23 @@ class VacancyController extends Controller
 
         $user = auth()->user();
 
+        // Enforce candidate role check for security
+        if (!$user->isCandidate()) {
+            return back()->with('error', 'Only Faculty Candidates can apply to vacancies.');
+        }
+
+        // Enforce active status and deadline validation
+        if ($vacancy->status !== 'open' || ($vacancy->deadline && now()->greaterThan($vacancy->deadline->endOfDay()))) {
+            return back()->with('error', 'This vacancy board has closed or the application deadline has passed.');
+        }
+
+        // Validate cover letter and referees
+        $validated = $request->validate([
+            'cover_letter' => 'nullable|string|max:5000',
+            'referee_name' => 'nullable|string|max:100|required_with:referee_email',
+            'referee_email' => 'nullable|email|max:150|required_with:referee_name',
+        ]);
+
         // Prevent duplicate applications
         $exists = Application::where('vacancy_id', $vacancy->id)
                              ->where('candidate_id', $user->id)
@@ -168,15 +189,15 @@ class VacancyController extends Controller
         $application = Application::create([
             'vacancy_id' => $vacancy->id,
             'candidate_id' => $user->id,
-            'cover_letter' => $request->input('cover_letter', 'Interested in this faculty position.'),
+            'cover_letter' => $validated['cover_letter'] ?? 'Interested in this faculty position.',
             'status' => 'applied'
         ]);
 
         // Trigger automated confidential recommendation letter requests if referees are provided
-        if ($request->filled('referee_name') && $request->filled('referee_email')) {
+        if (!empty($validated['referee_name']) && !empty($validated['referee_email'])) {
             $application->recommendationLetters()->create([
-                'referee_name' => $request->referee_name,
-                'referee_email' => $request->referee_email,
+                'referee_name' => $validated['referee_name'],
+                'referee_email' => $validated['referee_email'],
                 'token' => bin2hex(random_bytes(16)),
             ]);
         }

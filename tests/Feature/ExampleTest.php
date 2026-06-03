@@ -23,12 +23,13 @@ class ExampleTest extends TestCase
      */
     public function test_search_vacancies_by_subject_and_location(): void
     {
-        $recruiterUser = \App\Models\User::create([
+        $recruiterUser = new \App\Models\User([
             'name' => 'Recruiter User',
             'email' => 'recruiter_search@example.com',
             'password' => bcrypt('password'),
-            'role' => 'institution'
         ]);
+        $recruiterUser->role = 'institution';
+        $recruiterUser->save();
 
         $institution = \App\Models\Institution::create([
             'user_id' => $recruiterUser->id,

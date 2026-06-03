@@ -4,9 +4,13 @@
 
 @section('content')
 <div x-data="{ 
-    activeTab: (window.location.hash.startsWith('#app-') || '{{ request('tab') }}' === 'applications') 
-        ? 'applications' 
-        : ((window.location.hash.startsWith('#user-') || '{{ request('tab') }}' === 'users') ? 'users' : (localStorage.getItem('admin_active_tab') || 'settings')),
+    activeTab: '{{ request('tab') }}' 
+        ? '{{ request('tab') }}' 
+        : (window.location.hash.startsWith('#app-') 
+            ? 'applications' 
+            : (window.location.hash.startsWith('#user-') 
+                ? 'users' 
+                : (localStorage.getItem('admin_active_tab') || 'settings'))),
     selectTab(tab) {
         this.activeTab = tab;
         localStorage.setItem('admin_active_tab', tab);
@@ -21,7 +25,13 @@
     // Add/Edit User Modals
     showAddUserModal: false,
     showEditUserModal: false,
-    editUser: { id: '', name: '', email: '', phone: '', role: 'candidate', company_name: '', is_verified: false },
+    editUser: { 
+        id: '', name: '', email: '', phone: '', role: 'candidate', is_verified: false,
+        highest_degree: '', subjects_taught: '', experience_years: 0, current_designation: '',
+        experience_summary: '', current_ctc: '', expected_ctc: '', preferred_location: '',
+        demo_video_url: '', google_scholar_url: '', h_index: 0, candidate_type: 'academic',
+        company_name: '', institution_type: 'coaching_center', location: '', website: '', description: ''
+    },
     
     // Add/Edit Vacancy Modals
     showAddVacancyModal: false,
@@ -46,8 +56,24 @@
             email: user.email, 
             phone: user.phone, 
             role: user.role, 
-            company_name: user.company_name, 
-            is_verified: user.is_verified 
+            is_verified: user.is_verified,
+            highest_degree: user.highest_degree || '',
+            subjects_taught: user.subjects_taught || '',
+            experience_years: user.experience_years || 0,
+            current_designation: user.current_designation || '',
+            experience_summary: user.experience_summary || '',
+            current_ctc: user.current_ctc || '',
+            expected_ctc: user.expected_ctc || '',
+            preferred_location: user.preferred_location || '',
+            demo_video_url: user.demo_video_url || '',
+            google_scholar_url: user.google_scholar_url || '',
+            h_index: user.h_index || 0,
+            candidate_type: user.candidate_type || 'academic',
+            company_name: user.company_name || '',
+            institution_type: user.institution_type || 'coaching_center',
+            location: user.location || '',
+            website: user.website || '',
+            description: user.description || ''
         };
         this.showEditUserModal = true;
     },
@@ -213,20 +239,30 @@
             </div>
 
             <!-- Search and Add User Controls -->
-            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4">
+            <form action="{{ route('admin.settings') }}" method="GET" class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4 w-full">
+                <input type="hidden" name="tab" value="users" />
                 <div class="flex flex-wrap items-center gap-3 w-full sm:w-auto">
-                    <input type="text" x-model="userSearch" placeholder="🔍 Search users by name, email or role..." class="p-2.5 text-xs bg-[var(--theme-bg)] border border-[var(--theme-border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 text-theme-text w-full sm:w-80 font-medium" />
-                    <select x-model="userRoleFilter" class="p-2.5 text-xs bg-[var(--theme-bg)] border border-[var(--theme-border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 text-theme-text font-semibold">
-                        <option value="all">👥 All Roles</option>
-                        <option value="candidate">🧑‍🏫 Candidates</option>
-                        <option value="institution">🏢 Institutions</option>
-                        <option value="admin">🛠️ Admins</option>
+                    <input type="text" name="search_user" value="{{ request('search_user') }}" placeholder="🔍 Search users by name, email..." class="p-2.5 text-xs bg-[var(--theme-bg)] border border-[var(--theme-border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 text-theme-text w-full sm:w-60 font-medium" />
+                    <select name="user_role" onchange="this.form.submit()" class="p-2.5 text-xs bg-[var(--theme-bg)] border border-[var(--theme-border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 text-theme-text font-semibold">
+                        <option value="all" {{ request('user_role') === 'all' ? 'selected' : '' }}>👥 All Roles</option>
+                        <option value="candidate" {{ request('user_role') === 'candidate' ? 'selected' : '' }}>🧑‍🏫 Candidates</option>
+                        <option value="institution" {{ request('user_role') === 'institution' ? 'selected' : '' }}>🏢 Institutions</option>
+                        <option value="admin" {{ request('user_role') === 'admin' ? 'selected' : '' }}>🛠️ Admins</option>
                     </select>
+                    <select name="sort_user" onchange="this.form.submit()" class="p-2.5 text-xs bg-[var(--theme-bg)] border border-[var(--theme-border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 text-theme-text font-semibold">
+                        <option value="latest" {{ request('sort_user') === 'latest' ? 'selected' : '' }}>📅 Latest</option>
+                        <option value="name_asc" {{ request('sort_user') === 'name_asc' ? 'selected' : '' }}>🔤 Name A-Z</option>
+                        <option value="name_desc" {{ request('sort_user') === 'name_desc' ? 'selected' : '' }}>🔤 Name Z-A</option>
+                    </select>
+                    <button type="submit" class="px-4 py-2.5 bg-red-600 text-white text-xs font-bold rounded-xl shadow-sm hover:bg-red-700 transition cursor-pointer">Filter</button>
+                    @if(request()->anyFilled(['search_user', 'user_role', 'sort_user']))
+                        <a href="{{ route('admin.settings', ['tab' => 'users']) }}" class="text-xs text-red-500 font-bold hover:underline">Clear</a>
+                    @endif
                 </div>
-                <button @click="showAddUserModal = true" class="w-full sm:w-auto px-4 py-2.5 bg-red-600 hover:bg-red-700 active:scale-95 text-white text-xs font-bold rounded-xl shadow-sm transition flex items-center justify-center gap-1.5 cursor-pointer">
+                <button type="button" @click="showAddUserModal = true" class="w-full sm:w-auto px-4 py-2.5 bg-red-600 hover:bg-red-700 active:scale-95 text-white text-xs font-bold rounded-xl shadow-sm transition flex items-center justify-center gap-1.5 cursor-pointer shrink-0">
                     ➕ Add New User
                 </button>
-            </div>
+            </form>
 
             <div class="overflow-x-auto border border-[var(--theme-border)] rounded-xl">
                 <table class="w-full text-sm text-left text-theme-text">
@@ -242,8 +278,7 @@
                     </thead>
                     <tbody class="divide-y divide-[var(--theme-border)] bg-[var(--theme-bg)]">
                         @foreach($users as $user)
-                            <tr id="user-{{ $user->id }}" class="hover:bg-theme-primary/5 transition-colors"
-                                x-show="(userSearch === '' || '{{ strtolower($user->name) }}'.includes(userSearch.toLowerCase()) || '{{ strtolower($user->email) }}'.includes(userSearch.toLowerCase())) && (userRoleFilter === 'all' || '{{ $user->role }}' === userRoleFilter)">
+                            <tr id="user-{{ $user->id }}" class="hover:bg-theme-primary/5 transition-colors">
                                 <td class="px-6 py-4 font-bold">
                                     <div class="flex flex-col">
                                         <span>{{ $user->name }}</span>
@@ -283,16 +318,31 @@
                                             </button>
                                         </form>
 
-                                        <!-- Edit User Trigger -->
                                         <button @click="openEditUser({
-                                            id: {{ json_encode($user->id) }},
-                                            name: {{ json_encode($user->name) }},
-                                            email: {{ json_encode($user->email) }},
-                                            phone: {{ json_encode($user->phone) }},
-                                            role: {{ json_encode($user->role) }},
-                                            company_name: {{ json_encode($user->institution ? $user->institution->company_name : '') }},
-                                            is_verified: {{ $user->is_verified ? 'true' : 'false' }}
-                                        })" class="px-2.5 py-1.5 text-xs font-bold rounded-lg border border-theme-primary/20 text-theme-primary bg-theme-primary/5 hover:bg-theme-primary hover:text-white transition cursor-pointer">
+                                             id: {{ json_encode($user->id) }},
+                                             name: {{ json_encode($user->name) }},
+                                             email: {{ json_encode($user->email) }},
+                                             phone: {{ json_encode($user->phone) }},
+                                             role: {{ json_encode($user->role) }},
+                                             is_verified: {{ $user->is_verified ? 'true' : 'false' }},
+                                             highest_degree: {{ json_encode($user->candidateProfile ? $user->candidateProfile->highest_degree : '') }},
+                                             subjects_taught: {{ json_encode($user->candidateProfile ? (is_array($user->candidateProfile->subjects_taught) ? implode(', ', $user->candidateProfile->subjects_taught) : $user->candidateProfile->subjects_taught) : '') }},
+                                             experience_years: {{ json_encode($user->candidateProfile ? $user->candidateProfile->experience_years : 0) }},
+                                             current_designation: {{ json_encode($user->candidateProfile ? $user->candidateProfile->current_designation : '') }},
+                                             experience_summary: {{ json_encode($user->candidateProfile ? $user->candidateProfile->experience_summary : '') }},
+                                             current_ctc: {{ json_encode($user->candidateProfile ? $user->candidateProfile->current_ctc : '') }},
+                                             expected_ctc: {{ json_encode($user->candidateProfile ? $user->candidateProfile->expected_ctc : '') }},
+                                             preferred_location: {{ json_encode($user->candidateProfile ? $user->candidateProfile->preferred_location : '') }},
+                                             demo_video_url: {{ json_encode($user->candidateProfile ? $user->candidateProfile->demo_video_url : '') }},
+                                             google_scholar_url: {{ json_encode($user->candidateProfile ? $user->candidateProfile->google_scholar_url : '') }},
+                                             h_index: {{ json_encode($user->candidateProfile ? $user->candidateProfile->h_index : 0) }},
+                                             candidate_type: {{ json_encode($user->candidateProfile ? $user->candidateProfile->type : 'academic') }},
+                                             company_name: {{ json_encode($user->institution ? $user->institution->company_name : '') }},
+                                             institution_type: {{ json_encode($user->institution ? $user->institution->type : 'coaching_center') }},
+                                             location: {{ json_encode($user->institution ? $user->institution->location : '') }},
+                                             website: {{ json_encode($user->institution ? $user->institution->website : '') }},
+                                             description: {{ json_encode($user->institution ? $user->institution->description : '') }}
+                                         })" class="px-2.5 py-1.5 text-xs font-bold rounded-lg border border-theme-primary/20 text-theme-primary bg-theme-primary/5 hover:bg-theme-primary hover:text-white transition cursor-pointer">
                                             Edit
                                         </button>
 
@@ -313,6 +363,9 @@
                     </tbody>
                 </table>
             </div>
+            <div class="mt-4">
+                {{ $users->links() }}
+            </div>
         </div>
 
         <!-- Tab C: Vacancies Moderation -->
@@ -325,12 +378,24 @@
             </div>
 
             <!-- Search and Add Vacancy Controls -->
-            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4">
-                <input type="text" x-model="vacancySearch" placeholder="🔍 Search jobs by title, subject or brand..." class="p-2.5 text-xs bg-[var(--theme-bg)] border border-[var(--theme-border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 text-theme-text w-full sm:w-80 font-medium" />
-                <button @click="showAddVacancyModal = true" class="w-full sm:w-auto px-4 py-2.5 bg-red-600 hover:bg-red-700 active:scale-95 text-white text-xs font-bold rounded-xl shadow-sm transition flex items-center justify-center gap-1.5 cursor-pointer">
+            <form action="{{ route('admin.settings') }}" method="GET" class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4 w-full">
+                <input type="hidden" name="tab" value="vacancies" />
+                <div class="flex flex-wrap items-center gap-3 w-full sm:w-auto">
+                    <input type="text" name="search_vacancy" value="{{ request('search_vacancy') }}" placeholder="🔍 Search jobs by title, subject, brand..." class="p-2.5 text-xs bg-[var(--theme-bg)] border border-[var(--theme-border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 text-theme-text w-full sm:w-60 font-medium" />
+                    <select name="sort_vacancy" onchange="this.form.submit()" class="p-2.5 text-xs bg-[var(--theme-bg)] border border-[var(--theme-border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 text-theme-text font-semibold">
+                        <option value="latest" {{ request('sort_vacancy') === 'latest' ? 'selected' : '' }}>📅 Latest</option>
+                        <option value="title_asc" {{ request('sort_vacancy') === 'title_asc' ? 'selected' : '' }}>🔤 Title A-Z</option>
+                        <option value="salary_high" {{ request('sort_vacancy') === 'salary_high' ? 'selected' : '' }}>💰 Highest Salary</option>
+                    </select>
+                    <button type="submit" class="px-4 py-2.5 bg-red-600 text-white text-xs font-bold rounded-xl shadow-sm hover:bg-red-700 transition cursor-pointer">Filter</button>
+                    @if(request()->anyFilled(['search_vacancy', 'sort_vacancy']))
+                        <a href="{{ route('admin.settings', ['tab' => 'vacancies']) }}" class="text-xs text-red-500 font-bold hover:underline">Clear</a>
+                    @endif
+                </div>
+                <button type="button" @click="showAddVacancyModal = true" class="w-full sm:w-auto px-4 py-2.5 bg-red-600 hover:bg-red-700 active:scale-95 text-white text-xs font-bold rounded-xl shadow-sm transition flex items-center justify-center gap-1.5 cursor-pointer shrink-0">
                     ➕ Post New Vacancy
                 </button>
-            </div>
+            </form>
 
             <div class="overflow-x-auto border border-[var(--theme-border)] rounded-xl">
                 <table class="w-full text-sm text-left text-theme-text">
@@ -346,8 +411,7 @@
                     </thead>
                     <tbody class="divide-y divide-[var(--theme-border)] bg-[var(--theme-bg)]">
                         @forelse($vacancies as $vacancy)
-                            <tr class="hover:bg-theme-primary/5 transition-colors"
-                                x-show="vacancySearch === '' || '{{ strtolower($vacancy->title) }}'.includes(vacancySearch.toLowerCase()) || '{{ strtolower($vacancy->subject) }}'.includes(vacancySearch.toLowerCase()) || '{{ strtolower($vacancy->institution->company_name) }}'.includes(vacancySearch.toLowerCase())">
+                            <tr class="hover:bg-theme-primary/5 transition-colors">
                                 <td class="px-6 py-4 font-bold">{{ $vacancy->title }}</td>
                                 <td class="px-6 py-4 text-theme-primary font-semibold">{{ $vacancy->institution->company_name }}</td>
                                 <td class="px-6 py-4 text-theme-text/75">{{ $vacancy->subject }} ({{ $vacancy->target_class }})</td>
@@ -403,6 +467,9 @@
                     </tbody>
                 </table>
             </div>
+            <div class="mt-4">
+                {{ $vacancies->links() }}
+            </div>
         </div>
 
         <!-- Tab D: Active Applications -->
@@ -418,9 +485,27 @@
             </p>
 
             <!-- Search Controls -->
-            <div class="mb-4">
-                <input type="text" x-model="appSearch" placeholder="🔍 Search pipeline by candidate, vacancy or status..." class="p-2.5 text-xs bg-[var(--theme-bg)] border border-[var(--theme-border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 text-theme-text w-full sm:w-80 font-medium" />
-            </div>
+            <form action="{{ route('admin.settings') }}" method="GET" class="flex flex-wrap items-center gap-3 mb-4 w-full">
+                <input type="hidden" name="tab" value="applications" />
+                <input type="text" name="search_app" value="{{ request('search_app') }}" placeholder="🔍 Search pipeline by candidate or vacancy..." class="p-2.5 text-xs bg-[var(--theme-bg)] border border-[var(--theme-border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 text-theme-text w-full sm:w-60 font-medium" />
+                <select name="status_app" onchange="this.form.submit()" class="p-2.5 text-xs bg-[var(--theme-bg)] border border-[var(--theme-border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 text-theme-text font-semibold">
+                    <option value="all" {{ request('status_app') === 'all' ? 'selected' : '' }}>📌 All Statuses</option>
+                    <option value="applied" {{ request('status_app') === 'applied' ? 'selected' : '' }}>📥 Applied</option>
+                    <option value="shortlisted_by_admin" {{ request('status_app') === 'shortlisted_by_admin' ? 'selected' : '' }}>🔎 Shortlisted (Admin)</option>
+                    <option value="shortlisted_by_institution" {{ request('status_app') === 'shortlisted_by_institution' ? 'selected' : '' }}>🔑 Lined Up</option>
+                    <option value="unlocked" {{ request('status_app') === 'unlocked' ? 'selected' : '' }}>🔓 Unlocked</option>
+                    <option value="appointed" {{ request('status_app') === 'appointed' ? 'selected' : '' }}>🎉 Appointed</option>
+                    <option value="rejected" {{ request('status_app') === 'rejected' ? 'selected' : '' }}>❌ Rejected</option>
+                </select>
+                <select name="sort_app" onchange="this.form.submit()" class="p-2.5 text-xs bg-[var(--theme-bg)] border border-[var(--theme-border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 text-theme-text font-semibold">
+                    <option value="latest" {{ request('sort_app') === 'latest' ? 'selected' : '' }}>📅 Latest</option>
+                    <option value="oldest" {{ request('sort_app') === 'oldest' ? 'selected' : '' }}>📅 Oldest</option>
+                </select>
+                <button type="submit" class="px-4 py-2.5 bg-red-600 text-white text-xs font-bold rounded-xl shadow-sm hover:bg-red-700 transition cursor-pointer">Filter</button>
+                @if(request()->anyFilled(['search_app', 'status_app', 'sort_app']))
+                    <a href="{{ route('admin.settings', ['tab' => 'applications']) }}" class="text-xs text-red-500 font-bold hover:underline">Clear</a>
+                @endif
+            </form>
 
             <div class="overflow-x-auto border border-[var(--theme-border)] rounded-xl">
                 <table class="w-full text-sm text-left text-theme-text">
@@ -435,8 +520,7 @@
                     </thead>
                     <tbody class="divide-y divide-[var(--theme-border)] bg-[var(--theme-bg)]">
                         @forelse($applications as $application)
-                            <tr id="app-{{ $application->id }}" class="hover:bg-theme-primary/5 transition-colors"
-                                x-show="appSearch === '' || '{{ strtolower($application->candidate->name) }}'.includes(appSearch.toLowerCase()) || '{{ strtolower($application->vacancy->title) }}'.includes(appSearch.toLowerCase()) || '{{ strtolower($application->status) }}'.includes(appSearch.toLowerCase())">
+                            <tr id="app-{{ $application->id }}" class="hover:bg-theme-primary/5 transition-colors">
                                 <td class="px-6 py-4">
                                     <div class="font-bold text-theme-text">{{ $application->candidate->name }}</div>
                                     <div class="text-xs text-theme-text/50">Degree: {{ $application->candidate->candidateProfile?->highest_degree ?? 'N/A' }}</div>
@@ -517,6 +601,9 @@
                         @endforelse
                     </tbody>
                 </table>
+            </div>
+            <div class="mt-4">
+                {{ $applications->links() }}
             </div>
         </div>
 
@@ -885,7 +972,7 @@
 
     <!-- Modal 2: Edit User -->
     <div x-show="showEditUserModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm" x-transition x-cloak>
-        <div @click.away="showEditUserModal = false" class="relative w-full max-w-lg p-6 bg-[var(--theme-card)] border border-[var(--theme-border)] rounded-2xl shadow-2xl space-y-4 text-theme-text">
+        <div @click.away="showEditUserModal = false" class="relative w-full max-w-2xl p-6 bg-[var(--theme-card)] border border-[var(--theme-border)] rounded-2xl shadow-2xl space-y-4 text-theme-text max-h-[90vh] overflow-y-auto">
             <div class="flex justify-between items-center border-b border-[var(--theme-border)] pb-3">
                 <h4 class="text-base font-extrabold flex items-center gap-1.5">👤 Edit User Account</h4>
                 <button @click="showEditUserModal = false" class="text-theme-text/50 hover:text-theme-text text-lg cursor-pointer">&times;</button>
@@ -909,10 +996,102 @@
                     </div>
                 </div>
 
-                <!-- Recruiter specific branding name field -->
-                <div x-show="editUser.role === 'institution'" x-transition>
-                    <label class="block text-xs font-bold uppercase tracking-wider mb-2">Hiring Institution / Company Name *</label>
-                    <input type="text" name="company_name" x-model="editUser.company_name" class="w-full p-3 text-sm bg-[var(--theme-bg)] border border-[var(--theme-border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 text-theme-text font-semibold" />
+                <!-- Candidate fields -->
+                <div x-show="editUser.role === 'candidate'" class="space-y-4 pt-4 border-t border-[var(--theme-border)]" x-transition>
+                    <h5 class="text-xs font-black text-red-500 uppercase tracking-wider">🎓 Faculty Profile Information</h5>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-bold uppercase tracking-wider mb-2">Category Type *</label>
+                            <select name="candidate_type" x-model="editUser.candidate_type" class="w-full p-3 text-sm bg-[var(--theme-bg)] border border-[var(--theme-border)] rounded-xl text-theme-text">
+                                <option value="academic">Academic</option>
+                                <option value="coaching">Coaching</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold uppercase tracking-wider mb-2">Current Designation</label>
+                            <input type="text" name="current_designation" x-model="editUser.current_designation" class="w-full p-3 text-sm bg-[var(--theme-bg)] border border-[var(--theme-border)] rounded-xl text-theme-text" />
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-bold uppercase tracking-wider mb-2">Highest Degree</label>
+                            <input type="text" name="highest_degree" x-model="editUser.highest_degree" class="w-full p-3 text-sm bg-[var(--theme-bg)] border border-[var(--theme-border)] rounded-xl text-theme-text" />
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold uppercase tracking-wider mb-2">Experience (Years)</label>
+                            <input type="number" step="0.1" name="experience_years" x-model="editUser.experience_years" class="w-full p-3 text-sm bg-[var(--theme-bg)] border border-[var(--theme-border)] rounded-xl text-theme-text" />
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold uppercase tracking-wider mb-2">Subjects Taught (comma separated)</label>
+                        <input type="text" name="subjects_taught" x-model="editUser.subjects_taught" class="w-full p-3 text-sm bg-[var(--theme-bg)] border border-[var(--theme-border)] rounded-xl text-theme-text" />
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div>
+                            <label class="block text-xs font-bold uppercase tracking-wider mb-2">Current CTC</label>
+                            <input type="number" name="current_ctc" x-model="editUser.current_ctc" class="w-full p-3 text-sm bg-[var(--theme-bg)] border border-[var(--theme-border)] rounded-xl text-theme-text" />
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold uppercase tracking-wider mb-2">Expected CTC</label>
+                            <input type="number" name="expected_ctc" x-model="editUser.expected_ctc" class="w-full p-3 text-sm bg-[var(--theme-bg)] border border-[var(--theme-border)] rounded-xl text-theme-text" />
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold uppercase tracking-wider mb-2">Preferred Location</label>
+                            <input type="text" name="preferred_location" x-model="editUser.preferred_location" class="w-full p-3 text-sm bg-[var(--theme-bg)] border border-[var(--theme-border)] rounded-xl text-theme-text" />
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-bold uppercase tracking-wider mb-2">Google Scholar Profile URL</label>
+                            <input type="url" name="google_scholar_url" x-model="editUser.google_scholar_url" class="w-full p-3 text-sm bg-[var(--theme-bg)] border border-[var(--theme-border)] rounded-xl text-theme-text" />
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold uppercase tracking-wider mb-2">H-Index</label>
+                            <input type="number" name="h_index" x-model="editUser.h_index" class="w-full p-3 text-sm bg-[var(--theme-bg)] border border-[var(--theme-border)] rounded-xl text-theme-text" />
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold uppercase tracking-wider mb-2">Demo Video URL</label>
+                        <input type="url" name="demo_video_url" x-model="editUser.demo_video_url" class="w-full p-3 text-sm bg-[var(--theme-bg)] border border-[var(--theme-border)] rounded-xl text-theme-text" />
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold uppercase tracking-wider mb-2">Brief Summary</label>
+                        <textarea name="experience_summary" x-model="editUser.experience_summary" rows="2" class="w-full p-3 text-sm bg-[var(--theme-bg)] border border-[var(--theme-border)] rounded-xl text-theme-text"></textarea>
+                    </div>
+                </div>
+
+                <!-- Recruiter/Institution fields -->
+                <div x-show="editUser.role === 'institution'" class="space-y-4 pt-4 border-t border-[var(--theme-border)]" x-transition>
+                    <h5 class="text-xs font-black text-red-500 uppercase tracking-wider">🏢 Institution Profile Information</h5>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-bold uppercase tracking-wider mb-2">Hiring Institution / Company Name *</label>
+                            <input type="text" name="company_name" x-model="editUser.company_name" class="w-full p-3 text-sm bg-[var(--theme-bg)] border border-[var(--theme-border)] rounded-xl text-theme-text font-semibold" />
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold uppercase tracking-wider mb-2">Institution Type *</label>
+                            <select name="institution_type" x-model="editUser.institution_type" class="w-full p-3 text-sm bg-[var(--theme-bg)] border border-[var(--theme-border)] rounded-xl text-theme-text">
+                                <option value="coaching_center">Coaching Center</option>
+                                <option value="school">School / Academy</option>
+                                <option value="university">University</option>
+                                <option value="other">Other Educational Org</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-bold uppercase tracking-wider mb-2">Location</label>
+                            <input type="text" name="location" x-model="editUser.location" class="w-full p-3 text-sm bg-[var(--theme-bg)] border border-[var(--theme-border)] rounded-xl text-theme-text" />
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold uppercase tracking-wider mb-2">Official Website</label>
+                            <input type="url" name="website" x-model="editUser.website" class="w-full p-3 text-sm bg-[var(--theme-bg)] border border-[var(--theme-border)] rounded-xl text-theme-text" />
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold uppercase tracking-wider mb-2">Description</label>
+                        <textarea name="description" x-model="editUser.description" rows="2" class="w-full p-3 text-sm bg-[var(--theme-bg)] border border-[var(--theme-border)] rounded-xl text-theme-text"></textarea>
+                    </div>
                 </div>
 
                 <div class="flex items-center gap-3 bg-[var(--theme-bg)] p-3 rounded-xl border border-[var(--theme-border)]">

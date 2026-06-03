@@ -97,6 +97,18 @@
                         class="w-full py-2 bg-transparent text-theme-text focus:outline-none text-sm font-semibold"
                     />
                 </div>
+                <div class="w-full flex items-center px-4 gap-2 border-t md:border-t-0 md:border-l border-[var(--theme-border)]">
+                    <svg class="w-5 h-5 text-theme-text/40 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4h13M3 8h9m-9 4h6m4 0l4-4m0 0l4 4m-4-4v12"></path></svg>
+                    <select 
+                        name="sort" 
+                        class="w-full py-2 bg-transparent text-theme-text focus:outline-none text-sm font-semibold cursor-pointer"
+                        onchange="this.form.submit()"
+                    >
+                        <option value="latest" {{ request('sort') === 'latest' ? 'selected' : '' }}>Latest Postings</option>
+                        <option value="salary_high" {{ request('sort') === 'salary_high' ? 'selected' : '' }}>Highest Budget</option>
+                        <option value="deadline_soon" {{ request('sort') === 'deadline_soon' ? 'selected' : '' }}>Deadline: Soonest</option>
+                    </select>
+                </div>
                 <button 
                     type="submit"
                     class="w-full md:w-auto px-8 py-3 text-sm font-bold text-white bg-theme-primary hover:bg-theme-accent rounded-xl md:rounded-full transition-all shadow-md shadow-theme-primary/10 cursor-pointer shrink-0"
@@ -134,8 +146,8 @@
                 
                 <!-- Reset Filters Button -->
                 <button 
-                    x-show="searchSubject || searchLocation || selectedCategory !== 'all'"
-                    @click="clearFilters()"
+                    x-show="searchSubject || searchLocation || selectedCategory !== 'all' || '{{ request('subject') }}' || '{{ request('location') }}' || '{{ request('category') }}'"
+                    @click="clearFilters(); window.location.href = '{{ route('home') }}'"
                     class="px-4 py-2 text-xs font-bold text-red-500 bg-red-50 hover:bg-red-100 border border-red-200 rounded-full transition-all cursor-pointer"
                 >
                     Clear Filters
@@ -212,6 +224,11 @@
                     </div>
                 @endif
             </div>
+
+            <!-- Pagination Links -->
+            <div class="mt-8 flex justify-center">
+                {{ $vacancies->links() }}
+            </div>
         </div>
     </section>
 
@@ -249,7 +266,7 @@
 
         <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
             <a 
-                href="?category=Physics"
+                href="{{ route('home', ['category' => 'Physics']) }}"
                 :class="selectedCategory === 'Physics' ? 'border-theme-primary bg-theme-primary/5 ring-2 ring-theme-primary/20' : 'bg-[var(--theme-card)] border-[var(--theme-border)] hover:border-theme-primary/20'"
                 class="group p-8 rounded-2xl border text-left shadow-xs hover:shadow-xl hover:-translate-y-1 transition-all duration-300 cursor-pointer block"
             >
@@ -260,7 +277,7 @@
             </a>
 
             <a 
-                href="?category=Chemistry"
+                href="{{ route('home', ['category' => 'Chemistry']) }}"
                 :class="selectedCategory === 'Chemistry' ? 'border-theme-primary bg-theme-primary/5 ring-2 ring-theme-primary/20' : 'bg-[var(--theme-card)] border-[var(--theme-border)] hover:border-theme-primary/20'"
                 class="group p-8 rounded-2xl border text-left shadow-xs hover:shadow-xl hover:-translate-y-1 transition-all duration-300 cursor-pointer block"
             >
@@ -271,7 +288,7 @@
             </a>
 
             <a 
-                href="?category=Computer%20Science"
+                href="{{ route('home', ['category' => 'Computer Science']) }}"
                 :class="selectedCategory === 'Computer Science' ? 'border-theme-primary bg-theme-primary/5 ring-2 ring-theme-primary/20' : 'bg-[var(--theme-card)] border-[var(--theme-border)] hover:border-theme-primary/20'"
                 class="group p-8 rounded-2xl border text-left shadow-xs hover:shadow-xl hover:-translate-y-1 transition-all duration-300 cursor-pointer block"
             >
@@ -282,7 +299,7 @@
             </a>
 
             <a 
-                href="./"
+                href="{{ route('home') }}"
                 :class="selectedCategory === 'all' ? 'border-theme-primary bg-theme-primary/5 ring-2 ring-theme-primary/20' : 'bg-[var(--theme-card)] border-[var(--theme-border)] hover:border-theme-primary/20'"
                 class="group p-8 rounded-2xl border text-left shadow-xs hover:shadow-xl hover:-translate-y-1 transition-all duration-300 cursor-pointer block"
             >
