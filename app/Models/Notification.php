@@ -55,6 +55,7 @@ class Notification extends Model
     {
         // ── 1. Retrieve Settings ──────────────────────────────────────
         $apiUrl = SiteSetting::getVal('whatsapp_api_url');
+        $token = SiteSetting::getVal('whatsapp_api_key');
 
         if (empty($apiUrl)) {
             Log::warning('WhatsApp: API URL not configured.');
@@ -80,32 +81,77 @@ class Notification extends Model
             $cleanVars[] = trim($str);
         }
 
-        // ── 4. Build FlowHora Payload ─────────────────────────────────
-        $payload = [
-            'phone_number'      => $cleanPhone,
-            'template_name'     => $templateName,
-            'template_language' => 'en',
-        ];
+        // ── 4. Determine if FlowHora Gateway ──────────────────────────
+        $isFlowHora = str_contains($apiUrl, 'rj19web.com')
+                   || str_contains($apiUrl, 'flowhora')
+                   || str_contains($apiUrl, 'contact/send-template-message');
 
-        // Map variables to field_1, field_2, field_3, etc.
-        if (!empty($cleanVars)) {
-            foreach ($cleanVars as $index => $val) {
-                $payload['field_' . ($index + 1)] = (string)$val;
+        // ── 5. Build Payload & Headers ────────────────────────────────
+        if ($isFlowHora) {
+            // Auto-correct endpoint from send-message to send-template-message for FlowHora
+            if (str_contains($apiUrl, 'contact/send-message') && !str_contains($apiUrl, 'contact/send-template-message')) {
+                $apiUrl = str_replace('contact/send-message', 'contact/send-template-message', $apiUrl);
             }
+
+            $payload = [
+                'phone_number'      => $cleanPhone,
+                'template_name'     => $templateName,
+                'template_language' => 'en',
+            ];
+
+            // Map variables to field_1, field_2, field_3, etc.
+            if (!empty($cleanVars)) {
+                foreach ($cleanVars as $index => $val) {
+                    $payload['field_' . ($index + 1)] = (string)$val;
+                }
+            }
+
+            // Auto-append token if not already present in the URL query string
+            $apiUrlWithToken = $apiUrl;
+            if (!empty($token) && !str_contains($apiUrl, 'token=')) {
+                $connector = (str_contains($apiUrl, '?') === false) ? '?' : '&';
+                $apiUrlWithToken = $apiUrl . $connector . 'token=' . $token;
+            }
+
+            $headers = [
+                'Content-Type' => 'application/json',
+                'Accept'       => 'application/json'
+            ];
+        } else {
+            // Official Meta Cloud API nested payload format
+            $payload = [
+                'messaging_product' => 'whatsapp',
+                'to'                => $cleanPhone,
+                'type'              => 'template',
+                'template'          => [
+                    'name'     => $templateName,
+                    'language' => ['code' => 'en'],
+                ],
+            ];
+            if (!empty($cleanVars)) {
+                $parameters = array_map(fn($v) => ['type' => 'text', 'text' => $v], $cleanVars);
+                $payload['template']['components'] = [['type' => 'body', 'parameters' => $parameters]];
+            }
+
+            $apiUrlWithToken = $apiUrl;
+            $headers = [
+                'Content-Type' => 'application/json'
+            ];
         }
 
-        $headers = [
-            'Content-Type' => 'application/json',
-            'Accept'       => 'application/json'
-        ];
-
-        // ── 5. HTTP Request ───────────────────────────────────────────
-        $debugLog = ['target_url' => $apiUrl, 'payload' => $payload];
+        // ── 6. HTTP Request ───────────────────────────────────────────
+        $debugLog = ['target_url' => $apiUrlWithToken, 'payload' => $payload];
         try {
             // withoutVerifying() resolves SSL certificate issues on local XAMPP environments
             $client = Http::withoutVerifying()->withHeaders($headers);
+
+            // Set Bearer Token for Meta Cloud API if token is provided
+            if (!$isFlowHora && !empty($token)) {
+                $client = $client->withToken($token);
+            }
+
             $startTime   = microtime(true);
-            $response    = $client->post($apiUrl, $payload);
+            $response    = $client->post($apiUrlWithToken, $payload);
             $duration    = round((microtime(true) - $startTime) * 1000, 2);
 
             $debugLog['http_status']   = $response->status();

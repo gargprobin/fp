@@ -27,6 +27,7 @@ class AdminController extends Controller
 
         // WhatsApp settings
         $whatsappProvider = SiteSetting::getVal('whatsapp_api_provider', 'wa.rj19web.com Official Gateway');
+        $whatsappApiKey = SiteSetting::getVal('whatsapp_api_key');
         $whatsappApiUrl = SiteSetting::getVal('whatsapp_api_url');
         $whatsappEnabled = SiteSetting::getVal('whatsapp_enabled', '1');
 
@@ -115,7 +116,7 @@ class AdminController extends Controller
 
         return view('admin.settings', compact(
             'platformName', 'platformTagline', 'supportEmail',
-            'whatsappProvider', 'whatsappApiUrl', 'whatsappEnabled', 'whatsappSentLogs',
+            'whatsappProvider', 'whatsappApiKey', 'whatsappApiUrl', 'whatsappEnabled', 'whatsappSentLogs',
             'totalCandidates', 'totalInstitutions', 'totalVacancies', 'totalApplications',
             'users', 'vacancies', 'applications',
             'deletedUsers', 'deletedVacancies', 'deletedApplications'
