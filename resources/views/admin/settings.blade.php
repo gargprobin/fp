@@ -481,7 +481,7 @@
                                         <span class="text-[9px] text-theme-text/45 font-normal mt-0.5">Joined: ({{ $user->created_at->format('h:i:s A, d M y ') }})</span>
                                         @if($user->role === 'candidate' && $user->candidateProfile?->cv_path)
                                             <div class="mt-1">
-                                                <a href="{{ route('cv.view', ['profile' => $user->candidateProfile->id]) }}" target="_blank" class="inline-flex items-center gap-1 text-[10px] font-black text-theme-primary bg-theme-primary/10 border border-theme-primary/20 px-2 py-0.5 rounded hover:bg-theme-primary hover:text-white transition">
+                                                <a href="{{ route('cv.view', ['filename' => basename($user->candidateProfile->cv_path)]) }}" class="inline-flex items-center gap-1 text-[10px] font-black text-theme-primary bg-theme-primary/10 border border-theme-primary/20 px-2 py-0.5 rounded hover:bg-theme-primary hover:text-white transition">
                                                     📄 View CV
                                                 </a>
                                             </div>
@@ -748,7 +748,7 @@
                                     <div class="text-xs text-theme-text/50">Degree: {{ $application->candidate->candidateProfile?->highest_degree ?? 'N/A' }}</div>
                                     @if($application->candidate->candidateProfile?->cv_path)
                                         <div class="mt-1">
-                                            <a href="{{ route('cv.view', ['profile' => $application->candidate->candidateProfile->id]) }}" target="_blank" class="inline-flex items-center gap-1 text-[10px] font-black text-theme-primary bg-theme-primary/10 border border-theme-primary/20 px-2 py-0.5 rounded hover:bg-theme-primary hover:text-white transition">
+                                            <a href="{{ route('cv.view', ['filename' => basename($application->candidate->candidateProfile->cv_path)]) }}" class="inline-flex items-center gap-1 text-[10px] font-black text-theme-primary bg-theme-primary/10 border border-theme-primary/20 px-2 py-0.5 rounded hover:bg-theme-primary hover:text-white transition">
                                                 📄 View CV
                                             </a>
                                         </div>

@@ -206,7 +206,7 @@
                                             </div>
                                             @if($app->candidate->candidateProfile?->cv_path)
                                                 <div class="mt-1.5">
-                                                    <a href="{{ route('cv.view', ['profile' => $app->candidate->candidateProfile->id]) }}" target="_blank" class="inline-flex items-center gap-1 text-[10px] font-black text-theme-primary bg-theme-primary/10 border border-theme-primary/20 px-2 py-0.5 rounded hover:bg-theme-primary hover:text-white transition">
+                                                    <a href="{{ route('cv.view', ['filename' => basename($app->candidate->candidateProfile->cv_path)]) }}" class="inline-flex items-center gap-1 text-[10px] font-black text-theme-primary bg-theme-primary/10 border border-theme-primary/20 px-2 py-0.5 rounded hover:bg-theme-primary hover:text-white transition">
                                                         📄 View Detailed CV
                                                     </a>
                                                 </div>

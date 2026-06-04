@@ -15,10 +15,10 @@
             <h1 class="text-xl font-black text-theme-primary">📄 Candidate Resume / CV</h1>
         </div>
         <div class="flex items-center gap-3">
-            <a href="{{ route('cv.raw', ['profile' => $profile->id]) }}" download class="flex items-center gap-2 text-sm font-bold bg-[var(--theme-bg)] hover:bg-theme-primary hover:text-white text-theme-text px-4 py-2 rounded-lg transition border border-[var(--theme-border)]">
+            <a href="{{ route('cv.raw', ['filename' => $filename]) }}" download class="flex items-center gap-2 text-sm font-bold bg-[var(--theme-bg)] hover:bg-theme-primary hover:text-white text-theme-text px-4 py-2 rounded-lg transition border border-[var(--theme-border)]">
                 ⬇️ Download CV
             </a>
-            <a href="{{ route('cv.raw', ['profile' => $profile->id]) }}" target="_blank" class="flex items-center gap-2 text-sm font-bold bg-theme-primary text-white px-4 py-2 rounded-lg hover:brightness-110 transition shadow-sm">
+            <a href="{{ route('cv.raw', ['filename' => $filename]) }}" target="_blank" class="flex items-center gap-2 text-sm font-bold bg-theme-primary text-white px-4 py-2 rounded-lg hover:brightness-110 transition shadow-sm">
                 ↗️ Open in New Tab
             </a>
         </div>
@@ -26,7 +26,6 @@
 
     <div class="bg-[var(--theme-card)] rounded-xl border border-[var(--theme-border)] shadow-sm overflow-hidden" style="height: 80vh;">
         @php
-            $filename = basename($profile->cv_path);
             $ext = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
         @endphp
 
@@ -37,12 +36,12 @@
                 <p class="text-theme-text/70 max-w-md">
                     This CV is in MS Word format ({{ strtoupper($ext) }}) which cannot be previewed securely inline in the browser.
                 </p>
-                <a href="{{ route('cv.raw', ['profile' => $profile->id]) }}" download class="bg-theme-primary text-white font-bold px-6 py-3 rounded-xl hover:brightness-110 transition shadow-lg inline-flex items-center gap-2 mt-4">
+                <a href="{{ route('cv.raw', ['filename' => $filename]) }}" download class="bg-theme-primary text-white font-bold px-6 py-3 rounded-xl hover:brightness-110 transition shadow-lg inline-flex items-center gap-2 mt-4">
                     ⬇️ Download Document to View
                 </a>
             </div>
         @else
-            <iframe src="{{ route('cv.raw', ['profile' => $profile->id]) }}" class="w-full h-full border-0" title="CV Viewer"></iframe>
+            <iframe src="{{ route('cv.raw', ['filename' => $filename]) }}" class="w-full h-full border-0" title="CV Viewer"></iframe>
         @endif
     </div>
 </div>
