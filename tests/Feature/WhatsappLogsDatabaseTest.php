@@ -159,4 +159,61 @@ class WhatsappLogsDatabaseTest extends TestCase
         $logs = $response->viewData('whatsappSentLogs');
         $this->assertEquals('Alice Dev', $logs->first()->recipient_name);
     }
+
+    /**
+     * Test notification sending falls back to legacy JSON logging when the whatsapp_logs table does not exist.
+     */
+    public function test_notification_falls_back_to_legacy_logging_when_table_is_missing()
+    {
+        // Drop the whatsapp_logs table to simulate production environment
+        \Illuminate\Support\Facades\Schema::dropIfExists('whatsapp_logs');
+
+        // Enforce WhatsApp is enabled in site settings
+        SiteSetting::setVal('whatsapp_enabled', '1');
+        SiteSetting::setVal('whatsapp_sent_logs', json_encode([])); // Start with empty logs
+
+        $candidate = new User([
+            'name' => 'Candidate Fallback Test',
+            'email' => 'fallback_test@example.com',
+            'password' => bcrypt('password'),
+            'phone' => '919876543212',
+        ]);
+        $candidate->role = 'candidate';
+        $candidate->save();
+
+        // Dispatch a template notification
+        \App\Models\Notification::send(
+            $candidate->id,
+            '📥 Application Submitted',
+            'You have applied for Chemistry Teacher. Your profile is sent for Admin screening.',
+            '/'
+        );
+
+        // Verify that the table remains missing and no table logs were written
+        $this->assertFalse(\Illuminate\Support\Facades\Schema::hasTable('whatsapp_logs'));
+
+        // Verify fallback: JSON logs in site settings contains the entry
+        $rawLogs = SiteSetting::getVal('whatsapp_sent_logs', '[]');
+        $logs = json_decode($rawLogs, true);
+        $this->assertCount(1, $logs);
+        $this->assertEquals('Candidate Fallback Test', $logs[0]['recipient_name']);
+        $this->assertEquals('919876543212', $logs[0]['recipient_phone']);
+        $this->assertEquals('📥 Application Submitted', $logs[0]['title']);
+        $this->assertStringContainsString('Chemistry Teacher', $logs[0]['message']);
+        
+        // Let's also verify that the admin settings page loads without error and uses manual paginator
+        $admin = new User([
+            'name' => 'Admin User Fallback',
+            'email' => 'admin_fallback@example.com',
+            'password' => bcrypt('password'),
+        ]);
+        $admin->role = 'admin';
+        $admin->save();
+
+        $this->actingAs($admin);
+        
+        $response = $this->get(route('admin.settings') . '?tab=whatsapp');
+        $response->assertStatus(200);
+        $response->assertSee('Candidate Fallback Test');
+    }
 }

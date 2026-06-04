@@ -95,7 +95,7 @@ class User extends Authenticatable
 
     public function isInstitution(): bool
     {
-        return $this->role === 'institution';
+        return $this->role === 'institution' || $this->role === 'recruiter';
     }
 
     public function isAdmin(): bool
@@ -105,6 +105,6 @@ class User extends Authenticatable
 
     public function isRecruiter(): bool
     {
-        return $this->role === 'recruiter';
+        return $this->role === 'recruiter' || $this->role === 'institution';
     }
 }

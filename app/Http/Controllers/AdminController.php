@@ -60,27 +60,87 @@ class AdminController extends Controller
         $searchWap = $request->input('search_wap');
         $sortWap = $request->input('sort_wap', 'latest');
 
-        $wapQuery = \App\Models\WhatsappLog::query();
-        if ($searchWap) {
-            $wapQuery->where(function($q) use ($searchWap) {
-                $q->where('recipient_name', 'like', "%{$searchWap}%")
-                  ->orWhere('recipient_phone', 'like', "%{$searchWap}%")
-                  ->orWhere('title', 'like', "%{$searchWap}%")
-                  ->orWhere('message', 'like', "%{$searchWap}%");
-            });
-        }
+        if (\Schema::hasTable('whatsapp_logs')) {
+            $wapQuery = \App\Models\WhatsappLog::query();
+            if ($searchWap) {
+                $wapQuery->where(function($q) use ($searchWap) {
+                    $q->where('recipient_name', 'like', "%{$searchWap}%")
+                      ->orWhere('recipient_phone', 'like', "%{$searchWap}%")
+                      ->orWhere('title', 'like', "%{$searchWap}%")
+                      ->orWhere('message', 'like', "%{$searchWap}%");
+                });
+            }
 
-        if ($sortWap === 'oldest') {
-            $wapQuery->oldest();
-        } elseif ($sortWap === 'status') {
-            $wapQuery->orderBy('status', 'asc');
+            if ($sortWap === 'oldest') {
+                $wapQuery->oldest();
+            } elseif ($sortWap === 'status') {
+                $wapQuery->orderBy('status', 'asc');
+            } else {
+                $wapQuery->latest();
+            }
+
+            $whatsappSentLogs = $wapQuery->paginate(10, ['*'], 'wap_page')->appends(['tab' => 'whatsapp'])->withQueryString();
         } else {
-            $wapQuery->latest();
-        }
+            // Manual fallback: load from site settings
+            $legacyLogs = json_decode(SiteSetting::getVal('whatsapp_sent_logs', '[]'), true) ?: [];
 
-        $whatsappSentLogs = \Schema::hasTable('whatsapp_logs')
-            ? $wapQuery->paginate(10, ['*'], 'wap_page')->appends(['tab' => 'whatsapp'])->withQueryString()
-            : collect([]);
+            // Filter
+            if ($searchWap) {
+                $legacyLogs = array_filter($legacyLogs, function($log) use ($searchWap) {
+                    return str_contains(strtolower($log['recipient_name'] ?? ''), strtolower($searchWap))
+                        || str_contains(strtolower($log['recipient_phone'] ?? ''), strtolower($searchWap))
+                        || str_contains(strtolower($log['title'] ?? ''), strtolower($searchWap))
+                        || str_contains(strtolower($log['message'] ?? ''), strtolower($searchWap));
+                });
+            }
+
+            // Sort
+            usort($legacyLogs, function($a, $b) use ($sortWap) {
+                if ($sortWap === 'oldest') {
+                    $ta = strtotime($a['timestamp'] ?? $a['created_at'] ?? 'now');
+                    $tb = strtotime($b['timestamp'] ?? $b['created_at'] ?? 'now');
+                    return $ta <=> $tb;
+                } elseif ($sortWap === 'status') {
+                    $sa = $a['status'] ?? '';
+                    $sb = $b['status'] ?? '';
+                    return strcmp($sa, $sb);
+                } else { // latest
+                    $ta = strtotime($a['timestamp'] ?? $a['created_at'] ?? 'now');
+                    $tb = strtotime($b['timestamp'] ?? $b['created_at'] ?? 'now');
+                    return $tb <=> $ta;
+                }
+            });
+
+            // Paginate manually
+            $currentPage = \Illuminate\Pagination\LengthAwarePaginator::resolveCurrentPage('wap_page');
+            $perPage = 10;
+            $currentItems = array_slice($legacyLogs, ($currentPage - 1) * $perPage, $perPage);
+
+            // Convert to array of objects
+            $objectItems = array_map(function($item) {
+                return (object) [
+                    'recipient_name'  => $item['recipient_name'] ?? 'N/A',
+                    'recipient_phone' => $item['recipient_phone'] ?? 'N/A',
+                    'recipient_role'  => $item['recipient_role'] ?? 'candidate',
+                    'title'           => $item['title'] ?? 'Notification',
+                    'message'         => $item['message'] ?? '',
+                    'status'          => $item['status'] ?? '✅ Sent',
+                    'created_at'      => \Carbon\Carbon::parse($item['timestamp'] ?? $item['created_at'] ?? 'now'),
+                ];
+            }, $currentItems);
+
+            $whatsappSentLogs = new \Illuminate\Pagination\LengthAwarePaginator(
+                $objectItems,
+                count($legacyLogs),
+                $perPage,
+                $currentPage,
+                [
+                    'path' => \Illuminate\Pagination\LengthAwarePaginator::resolveCurrentPath(),
+                    'pageName' => 'wap_page',
+                ]
+            );
+            $whatsappSentLogs->appends(['tab' => 'whatsapp'])->withQueryString();
+        }
 
         // Smart Admin Breakdown stats
         $phdCount = CandidateProfile::where('highest_degree', 'PhD')->count();

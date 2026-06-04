@@ -409,15 +409,47 @@ class Notification extends Model
             }
         }
 
-        // ── 4. Update sent-messages log in database ──────────────────
-        \App\Models\WhatsappLog::create([
-            'recipient_name'  => $user->name,
-            'recipient_phone' => $rawPhone,
-            'recipient_role'  => $user->role,
-            'title'           => $title,
-            'message'         => $message,
-            'status'          => $sent ? '✅ Sent' : '⚠️ No Template Match / Skipped',
-        ]);
+        // ── 4. Update sent-messages log in database / fallback ─────────
+        if (\Schema::hasTable('whatsapp_logs')) {
+            \App\Models\WhatsappLog::create([
+                'recipient_name'  => $user->name,
+                'recipient_phone' => $rawPhone,
+                'recipient_role'  => $user->role,
+                'title'           => $title,
+                'message'         => $message,
+                'status'          => $sent ? '✅ Sent' : '⚠️ No Template Match / Skipped',
+            ]);
+        } else {
+            // Fallback: log to Laravel's file log
+            Log::info("WhatsApp log fallback (table 'whatsapp_logs' missing): " . json_encode([
+                'recipient_name'  => $user->name,
+                'recipient_phone' => $rawPhone,
+                'recipient_role'  => $user->role,
+                'title'           => $title,
+                'message'         => $message,
+                'status'          => $sent ? '✅ Sent' : '⚠️ No Template Match / Skipped',
+            ]));
+
+            // Fallback: Update legacy logs in SiteSetting
+            try {
+                $legacyLogs = json_decode(SiteSetting::getVal('whatsapp_sent_logs', '[]'), true) ?: [];
+                array_unshift($legacyLogs, [
+                    'recipient_name'  => $user->name,
+                    'recipient_phone' => $rawPhone,
+                    'recipient_role'  => $user->role,
+                    'title'           => $title,
+                    'message'         => $message,
+                    'status'          => $sent ? '✅ Sent' : '⚠️ No Template Match / Skipped',
+                    'timestamp'       => now()->toDateTimeString(),
+                ]);
+                if (count($legacyLogs) > 100) {
+                    $legacyLogs = array_slice($legacyLogs, 0, 100);
+                }
+                SiteSetting::setVal('whatsapp_sent_logs', json_encode($legacyLogs));
+            } catch (\Exception $e) {
+                Log::error("Failed to write to legacy whatsapp_sent_logs settings: " . $e->getMessage());
+            }
+        }
 
         return $notification;
     }
