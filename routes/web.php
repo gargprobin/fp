@@ -130,7 +130,8 @@ Route::get('/realtime/check', function() {
                 $notification = [
                     'id' => $newNotification->id,
                     'title' => $newNotification->title,
-                    'message' => $newNotification->message
+                    'message' => $newNotification->message,
+                    'type' => $newNotification->type
                 ];
             }
         }

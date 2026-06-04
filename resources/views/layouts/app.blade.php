@@ -306,6 +306,23 @@
             -webkit-backdrop-filter: blur(20px) !important;
         }
 
+        /* Premium macOS glass styling for the notification drawer */
+        .theme-mac_glass_light .notification-drawer,
+        .theme-mac_glass_dark .notification-drawer,
+        .theme-mac_glass_aurora .notification-drawer {
+            background: var(--theme-card) !important;
+            backdrop-filter: blur(24px) !important;
+            -webkit-backdrop-filter: blur(24px) !important;
+            border-left: 1px solid var(--theme-border) !important;
+        }
+
+        .theme-mac_glass_light .notification-drawer-header,
+        .theme-mac_glass_dark .notification-drawer-header,
+        .theme-mac_glass_aurora .notification-drawer-header {
+            background: transparent !important;
+            border-bottom: 1px solid var(--theme-border) !important;
+        }
+
         /* High-quality highlight fade animation for targeted notification items */
         :target {
             animation: highlight-fade 3s ease-in-out;
@@ -338,8 +355,11 @@
     @endif
 
     <!-- Top Navigation Header -->
-    <header x-data="{ mobileMenuOpen: false }" class="shadow-sm border-b border-[var(--theme-border)] bg-[var(--theme-card)] sticky top-0 z-[45] transition-colors">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <header x-data="{ mobileMenuOpen: false }" class="shadow-sm border-b border-[var(--theme-border)] sticky top-0 z-[45] transition-colors bg-transparent">
+        <!-- Glassmorphic Background Layer for macOS glass themes to prevent stacking context bug -->
+        <div class="absolute inset-0 bg-[var(--theme-card)] backdrop-blur-xl -z-10"></div>
+        
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
             <div class="flex justify-between h-16 items-center">
                 
                 <!-- Logo -->
@@ -458,6 +478,26 @@
                                  (this.currentFilter === 'unread' && !n.is_read) || 
                                  (this.currentFilter === 'alerts' && (n.type === 'alert' || n.type === 'warning')))
                             );
+                        },
+                        init() {
+                            window.addEventListener('new-notification-received', (e) => {
+                                const notif = e.detail;
+                                if (!this.notifications.some(n => n.id === notif.id)) {
+                                    const newNotif = {
+                                        id: notif.id,
+                                        is_read: false,
+                                        type: notif.type || 'info',
+                                        title: notif.title,
+                                        message: notif.message,
+                                        created_at_human: 'Just now',
+                                        date_group: 'Today',
+                                        read_url: `{{ url('/notifications') }}/${notif.id}/read`,
+                                        toggle_url: `{{ url('/notifications') }}/${notif.id}/toggle-read`
+                                    };
+                                    this.notifications.unshift(newNotif);
+                                    this.unreadCount = this.notifications.filter(n => !n.is_read).length;
+                                }
+                            });
                         }
                     }" class="relative">
                         <!-- Bell Icon Trigger -->
@@ -469,47 +509,50 @@
                         </button>
                         
                         <!-- Backdrop (frosted overlay) -->
-                        <div x-show="open" 
-                             x-transition:enter="transition-opacity ease-out duration-300"
-                             x-transition:enter-start="opacity-0"
-                             x-transition:enter-end="opacity-100"
-                             x-transition:leave="transition-opacity ease-in duration-200"
-                             x-transition:leave-start="opacity-100"
-                             x-transition:leave-end="opacity-0"
-                             @click="open = false" 
-                             class="fixed inset-0 bg-black/40 backdrop-blur-xs z-50" 
-                             x-cloak></div>
+                        <template x-teleport="body">
+                            <div x-show="open" 
+                                 x-transition:enter="transition-opacity ease-out duration-300"
+                                 x-transition:enter-start="opacity-0"
+                                 x-transition:enter-end="opacity-100"
+                                 x-transition:leave="transition-opacity ease-in duration-200"
+                                 x-transition:leave-start="opacity-100"
+                                 x-transition:leave-end="opacity-0"
+                                 @click="open = false" 
+                                 class="fixed inset-0 bg-black/40 backdrop-blur-xs z-50" 
+                                 x-cloak></div>
+                        </template>
                         
                         <!-- Slide-out Drawer Panel -->
-                        <div x-show="open" 
-                             x-transition:enter="transform transition ease-out duration-300"
-                             x-transition:enter-start="translate-x-full"
-                             x-transition:enter-end="translate-x-0"
-                             x-transition:leave="transform transition ease-in duration-200"
-                             x-transition:leave-start="translate-x-0"
-                             x-transition:leave-end="translate-x-full"
-                             class="fixed right-0 top-0 bottom-0 w-full sm:w-[400px] bg-[var(--theme-bg)] border-l border-[var(--theme-border)] shadow-2xl z-[60] flex flex-col text-sm overflow-hidden" 
-                             x-cloak>
-                             
-                             <!-- Header -->
-                             <div class="px-5 py-4 border-b border-[var(--theme-border)] flex items-center justify-between bg-[var(--theme-bg)]">
-                                 <div>
-                                     <h2 class="text-lg font-black text-theme-text flex items-center gap-2 tracking-tight">
-                                         Notifications
-                                         <span x-show="unreadCount > 0" class="px-2 py-0.5 text-xs font-extrabold rounded-full bg-theme-primary/10 text-theme-primary" x-text="unreadCount"></span>
-                                     </h2>
+                        <template x-teleport="body">
+                            <div x-show="open" 
+                                 x-transition:enter="transform transition ease-out duration-300"
+                                 x-transition:enter-start="translate-x-full"
+                                 x-transition:enter-end="translate-x-0"
+                                 x-transition:leave="transform transition ease-in duration-200"
+                                 x-transition:leave-start="translate-x-0"
+                                 x-transition:leave-end="translate-x-full"
+                                 class="notification-drawer fixed right-0 top-0 bottom-0 w-full sm:w-[400px] bg-[var(--theme-bg)] border-l border-[var(--theme-border)] shadow-2xl z-[60] flex flex-col text-sm overflow-hidden" 
+                                 x-cloak>
+                                 
+                                 <!-- Header -->
+                                 <div class="notification-drawer-header px-5 py-4 border-b border-[var(--theme-border)] flex items-center justify-between bg-[var(--theme-bg)]">
+                                     <div>
+                                         <h2 class="text-lg font-black text-theme-text flex items-center gap-2 tracking-tight">
+                                             Notifications
+                                             <span x-show="unreadCount > 0" class="px-2 py-0.5 text-xs font-extrabold rounded-full bg-theme-primary/10 text-theme-primary" x-text="unreadCount"></span>
+                                         </h2>
+                                     </div>
+                                     <div class="flex items-center gap-3">
+                                         <!-- Help button -->
+                                         <a href="mailto:{{ $siteSettings->support_email ?? 'support@sourcing.com' }}" class="px-3 py-1.5 rounded-full border border-theme-primary/20 bg-theme-primary/5 text-theme-primary hover:bg-theme-primary/10 transition text-[10px] font-black flex items-center gap-1.5 cursor-pointer">
+                                             <span>💬</span> Need help?
+                                         </a>
+                                         <!-- Close Button -->
+                                         <button @click="open = false" class="w-8 h-8 rounded-full hover:bg-theme-text/10 text-theme-text/80 flex items-center justify-center transition cursor-pointer border border-[var(--theme-border)] bg-[var(--theme-card)] shadow-xs" title="Close panel">
+                                             <span class="text-lg font-bold">&times;</span>
+                                         </button>
+                                     </div>
                                  </div>
-                                 <div class="flex items-center gap-3">
-                                     <!-- Help button -->
-                                     <a href="mailto:{{ $siteSettings->support_email ?? 'support@sourcing.com' }}" class="px-3 py-1.5 rounded-full border border-theme-primary/20 bg-theme-primary/5 text-theme-primary hover:bg-theme-primary/10 transition text-[10px] font-black flex items-center gap-1.5 cursor-pointer">
-                                         <span>💬</span> Need help?
-                                     </a>
-                                     <!-- Close Button -->
-                                     <button @click="open = false" class="w-8 h-8 rounded-full hover:bg-theme-text/10 text-theme-text/80 flex items-center justify-center transition cursor-pointer border border-[var(--theme-border)] bg-[var(--theme-card)] shadow-xs" title="Close panel">
-                                         <span class="text-lg font-bold">&times;</span>
-                                     </button>
-                                 </div>
-                             </div>
 
                              <!-- Tab Filters & Settings Row -->
                              <div class="px-5 py-3 border-b border-[var(--theme-border)] flex justify-between items-center bg-[var(--theme-card)] select-none">
@@ -713,95 +756,96 @@
                                      <span class="text-4xl block leading-none">📭</span>
                                      <p class="font-bold text-xs uppercase tracking-wider">No notifications found</p>
                                  </div>
-                                 
-                             </div>
-                        </div>
+                         </div>
+                         </template>
 
                          <!-- Settings Modal -->
-                         <div x-show="showSettingsModal" 
-                              class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs"
-                              x-cloak>
-                              
-                              <!-- Modal Container -->
-                              <div @click.away="showSettingsModal = false" 
-                                   class="w-full max-w-md bg-[var(--theme-card)] border border-[var(--theme-border)] rounded-3xl p-6 shadow-2xl space-y-6 text-sm text-theme-text relative">
-                                   
-                                   <!-- Close Button -->
-                                   <button @click="showSettingsModal = false" class="absolute top-4 right-4 w-8 h-8 rounded-full hover:bg-theme-text/10 flex items-center justify-center transition cursor-pointer border border-[var(--theme-border)] bg-[var(--theme-card)]" title="Close">
-                                       <span class="text-lg font-bold">&times;</span>
-                                   </button>
+                         <template x-teleport="body">
+                             <div x-show="showSettingsModal" 
+                                  class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs"
+                                  x-cloak>
+                                  
+                                  <!-- Modal Container -->
+                                  <div @click.away="showSettingsModal = false" 
+                                       class="w-full max-w-md bg-[var(--theme-card)] border border-[var(--theme-border)] rounded-3xl p-6 shadow-2xl space-y-6 text-sm text-theme-text relative">
+                                       
+                                       <!-- Close Button -->
+                                       <button @click="showSettingsModal = false" class="absolute top-4 right-4 w-8 h-8 rounded-full hover:bg-theme-text/10 flex items-center justify-center transition cursor-pointer border border-[var(--theme-border)] bg-[var(--theme-card)]" title="Close">
+                                           <span class="text-lg font-bold">&times;</span>
+                                       </button>
 
-                                   <!-- Header -->
-                                   <div class="space-y-1">
-                                       <h3 class="text-xl font-extrabold tracking-tight">Notification Settings</h3>
-                                       <p class="text-xs text-theme-text/50">Manage how you receive alerts and communications</p>
-                                   </div>
+                                       <!-- Header -->
+                                       <div class="space-y-1">
+                                           <h3 class="text-xl font-extrabold tracking-tight">Notification Settings</h3>
+                                           <p class="text-xs text-theme-text/50">Manage how you receive alerts and communications</p>
+                                       </div>
 
-                                   <!-- Body Options -->
-                                   <div class="space-y-4">
-                                       <!-- Option 1: In-App -->
-                                       <label class="flex items-center justify-between p-3 rounded-2xl border border-[var(--theme-border)] bg-[var(--theme-bg)] hover:bg-[var(--theme-bg)]/80 cursor-pointer select-none">
-                                           <div class="space-y-0.5">
-                                               <span class="font-bold block">In-App Notifications</span>
-                                               <span class="text-[10px] text-theme-text/50 block">Show real-time alerts inside the portal</span>
-                                           </div>
-                                           <input type="checkbox" x-model="settings.in_app" class="w-4 h-4 rounded text-theme-primary focus:ring-theme-primary cursor-pointer" />
-                                       </label>
-
-                                       <!-- Option 2: WhatsApp -->
-                                       <label class="flex items-center justify-between p-3 rounded-2xl border border-[var(--theme-border)] bg-[var(--theme-bg)] hover:bg-[var(--theme-bg)]/80 cursor-pointer select-none">
-                                           <div class="space-y-0.5">
-                                               <span class="font-bold block">WhatsApp Notifications</span>
-                                               <span class="text-[10px] text-theme-text/50 block">Send real-time alerts via WhatsApp templates</span>
-                                           </div>
-                                           <input type="checkbox" x-model="settings.whatsapp" class="w-4 h-4 rounded text-theme-primary focus:ring-theme-primary cursor-pointer" />
-                                       </label>
-
-                                       <!-- Option 3: Email -->
-                                       <label class="flex items-center justify-between p-3 rounded-2xl border border-[var(--theme-border)] bg-[var(--theme-bg)] hover:bg-[var(--theme-bg)]/80 cursor-pointer select-none">
-                                           <div class="space-y-0.5">
-                                               <span class="font-bold block">Email Notifications</span>
-                                               <span class="text-[10px] text-theme-text/50 block">Send digest summary emails to your inbox</span>
-                                           </div>
-                                           <input type="checkbox" x-model="settings.email" class="w-4 h-4 rounded text-theme-primary focus:ring-theme-primary cursor-pointer" />
-                                       </label>
-
-                                       <!-- DND Mode Section -->
-                                       <div class="p-3.5 rounded-2xl border border-[var(--theme-border)] bg-[var(--theme-bg)] space-y-3">
-                                           <label class="flex items-center justify-between cursor-pointer select-none">
+                                       <!-- Body Options -->
+                                       <div class="space-y-4">
+                                           <!-- Option 1: In-App -->
+                                           <label class="flex items-center justify-between p-3 rounded-2xl border border-[var(--theme-border)] bg-[var(--theme-bg)] hover:bg-[var(--theme-bg)]/80 cursor-pointer select-none">
                                                <div class="space-y-0.5">
-                                                   <span class="font-bold block">Do Not Disturb (DND)</span>
-                                                   <span class="text-[10px] text-theme-text/50 block">Silence notifications during quiet hours</span>
+                                                   <span class="font-bold block">In-App Notifications</span>
+                                                   <span class="text-[10px] text-theme-text/50 block">Show real-time alerts inside the portal</span>
                                                </div>
-                                               <input type="checkbox" x-model="settings.dnd" class="w-4 h-4 rounded text-theme-primary focus:ring-theme-primary cursor-pointer" />
+                                               <input type="checkbox" x-model="settings.in_app" class="w-4 h-4 rounded text-theme-primary focus:ring-theme-primary cursor-pointer" />
                                            </label>
 
-                                           <!-- Quiet Hours Selector -->
-                                           <div x-show="settings.dnd" class="grid grid-cols-2 gap-3 pt-2.5 border-t border-[var(--theme-border)]" x-cloak>
-                                               <div class="space-y-1">
-                                                   <span class="text-[10px] font-bold text-theme-text/50 uppercase">Quiet Hours Start</span>
-                                                   <input type="time" x-model="settings.dnd_start" class="w-full p-2 bg-[var(--theme-bg)] border border-[var(--theme-border)] rounded-xl focus:outline-none focus:ring-1 focus:ring-theme-primary text-xs font-semibold" />
+                                           <!-- Option 2: WhatsApp -->
+                                           <label class="flex items-center justify-between p-3 rounded-2xl border border-[var(--theme-border)] bg-[var(--theme-bg)] hover:bg-[var(--theme-bg)]/80 cursor-pointer select-none">
+                                               <div class="space-y-0.5">
+                                                   <span class="font-bold block">WhatsApp Notifications</span>
+                                                   <span class="text-[10px] text-theme-text/50 block">Send real-time alerts via WhatsApp templates</span>
                                                </div>
-                                               <div class="space-y-1">
-                                                   <span class="text-[10px] font-bold text-theme-text/50 uppercase">Quiet Hours End</span>
-                                                   <input type="time" x-model="settings.dnd_end" class="w-full p-2 bg-[var(--theme-bg)] border border-[var(--theme-border)] rounded-xl focus:outline-none focus:ring-1 focus:ring-theme-primary text-xs font-semibold" />
+                                               <input type="checkbox" x-model="settings.whatsapp" class="w-4 h-4 rounded text-theme-primary focus:ring-theme-primary cursor-pointer" />
+                                           </label>
+
+                                           <!-- Option 3: Email -->
+                                           <label class="flex items-center justify-between p-3 rounded-2xl border border-[var(--theme-border)] bg-[var(--theme-bg)] hover:bg-[var(--theme-bg)]/80 cursor-pointer select-none">
+                                               <div class="space-y-0.5">
+                                                   <span class="font-bold block">Email Notifications</span>
+                                                   <span class="text-[10px] text-theme-text/50 block">Send digest summary emails to your inbox</span>
+                                               </div>
+                                               <input type="checkbox" x-model="settings.email" class="w-4 h-4 rounded text-theme-primary focus:ring-theme-primary cursor-pointer" />
+                                           </label>
+
+                                           <!-- DND Mode Section -->
+                                           <div class="p-3.5 rounded-2xl border border-[var(--theme-border)] bg-[var(--theme-bg)] space-y-3">
+                                               <label class="flex items-center justify-between cursor-pointer select-none">
+                                                   <div class="space-y-0.5">
+                                                       <span class="font-bold block">Do Not Disturb (DND)</span>
+                                                       <span class="text-[10px] text-theme-text/50 block">Silence notifications during quiet hours</span>
+                                                   </div>
+                                                   <input type="checkbox" x-model="settings.dnd" class="w-4 h-4 rounded text-theme-primary focus:ring-theme-primary cursor-pointer" />
+                                               </label>
+
+                                               <!-- Quiet Hours Selector -->
+                                               <div x-show="settings.dnd" class="grid grid-cols-2 gap-3 pt-2.5 border-t border-[var(--theme-border)]" x-cloak>
+                                                   <div class="space-y-1">
+                                                       <span class="text-[10px] font-bold text-theme-text/50 uppercase">Quiet Hours Start</span>
+                                                       <input type="time" x-model="settings.dnd_start" class="w-full p-2 bg-[var(--theme-bg)] border border-[var(--theme-border)] rounded-xl focus:outline-none focus:ring-1 focus:ring-theme-primary text-xs font-semibold" />
+                                                   </div>
+                                                   <div class="space-y-1">
+                                                       <span class="text-[10px] font-bold text-theme-text/50 uppercase">Quiet Hours End</span>
+                                                       <input type="time" x-model="settings.dnd_end" class="w-full p-2 bg-[var(--theme-bg)] border border-[var(--theme-border)] rounded-xl focus:outline-none focus:ring-1 focus:ring-theme-primary text-xs font-semibold" />
+                                                   </div>
                                                </div>
                                            </div>
                                        </div>
-                                   </div>
 
-                                   <!-- Actions Footer -->
-                                   <div class="flex gap-3 pt-2">
-                                       <button @click="showSettingsModal = false" class="flex-grow py-2.5 px-4 text-xs font-extrabold bg-[var(--theme-bg)] hover:bg-theme-text/5 border border-[var(--theme-border)] rounded-2xl transition cursor-pointer text-center">
-                                           Cancel
-                                       </button>
-                                       <button @click="saveSettings()" class="flex-grow py-2.5 px-4 text-xs font-extrabold bg-theme-primary hover:bg-theme-accent text-white rounded-2xl transition cursor-pointer shadow-md shadow-theme-primary/25 text-center active:scale-95 duration-150">
-                                           Save Preferences
-                                       </button>
-                                   </div>
+                                       <!-- Actions Footer -->
+                                       <div class="flex gap-3 pt-2">
+                                           <button @click="showSettingsModal = false" class="flex-grow py-2.5 px-4 text-xs font-extrabold bg-[var(--theme-bg)] hover:bg-theme-text/5 border border-[var(--theme-border)] rounded-2xl transition cursor-pointer text-center">
+                                               Cancel
+                                           </button>
+                                           <button @click="saveSettings()" class="flex-grow py-2.5 px-4 text-xs font-extrabold bg-theme-primary hover:bg-theme-accent text-white rounded-2xl transition cursor-pointer shadow-md shadow-theme-primary/25 text-center active:scale-95 duration-150">
+                                               Save Preferences
+                                           </button>
+                                       </div>
 
-                              </div>
-                         </div>
+                                  </div>
+                             </div>
+                         </template>
                     </div>
                     @endauth
 
@@ -1357,6 +1401,9 @@
                                 toastMessage = `${data.notification.title}: ${data.notification.message}`;
                                 toastIcon = '🔔';
                                 
+                                // Dispatch custom event for real-time notification drawer count & list updates
+                                window.dispatchEvent(new CustomEvent('new-notification-received', { detail: data.notification }));
+
                                 // Update session storage ID
                                 this.lastNotificationId = data.notification.id;
                                 sessionStorage.setItem('last_notification_id', this.lastNotificationId);
