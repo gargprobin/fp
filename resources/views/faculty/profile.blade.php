@@ -127,7 +127,7 @@
             @if($profile && $profile->cv_path)
                 <div class="mt-2 text-xs">
                     <span class="text-theme-text/60">📄 Current CV: </span>
-                    <a href="{{ route('cv.view', ['filename' => basename($profile->cv_path)]) }}" target="_blank" class="text-theme-primary font-bold hover:underline">
+                    <a href="{{ route('cv.view', ['filename' => basename($profile->cv_path)]) }}" class="text-theme-primary font-bold hover:underline">
                         View Uploaded CV File
                     </a>
                 </div>

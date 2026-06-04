@@ -78,14 +78,23 @@ Route::get('/vacancies', function (Request $request) {
 Route::get('/vacancy/{vacancy}', [VacancyController::class, 'show'])->name('vacancies.show');
 Route::post('/vacancy/{vacancy}/apply', [VacancyController::class, 'apply'])->name('vacancies.apply');
 
-// 4.5 Fallback CV File Viewer Route (handles cases when storage symlink is broken on live servers)
-Route::get('/view-cv/{filename}', function ($filename) {
+// 4.5 CV File Viewer Routes (Inline with system UI)
+Route::get('/raw-cv/{filename}', function ($filename) {
     $path = storage_path('app/public/cvs/' . $filename);
     if (!\Illuminate\Support\Facades\File::exists($path)) {
         abort(404, 'CV file not found.');
     }
     return response()->file($path);
+})->name('cv.raw');
+
+Route::get('/view-cv/{filename}', function ($filename) {
+    $path = storage_path('app/public/cvs/' . $filename);
+    if (!\Illuminate\Support\Facades\File::exists($path)) {
+        abort(404, 'CV file not found.');
+    }
+    return view('cv-viewer', compact('filename'));
 })->name('cv.view');
+
 
 // 5. Secure Signed Routes for Confidential Recommendation Letters
 Route::get('/referee/upload/{token}', [RefereeController::class, 'showForm'])->name('referee.upload-form');
