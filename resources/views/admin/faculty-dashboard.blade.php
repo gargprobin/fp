@@ -50,6 +50,14 @@
 
                 <!-- Search and Sort Form -->
         <div class="bg-[var(--theme-card)] rounded-2xl p-6 border border-[var(--theme-border)] shadow-sm mb-6">
+            <div class="flex justify-between items-center mb-4 pb-4 border-b border-[var(--theme-border)]">
+                <div class="text-xs font-bold text-theme-text/60">
+                    Showing {{ $applications->firstItem() ?? 0 }}-{{ $applications->lastItem() ?? 0 }}/{{ $applications->total() }}
+                </div>
+                <div class="text-xs font-bold text-theme-text/50">
+                    Filter applications to refine results
+                </div>
+            </div>
             <form action="{{ route('faculty.dashboard') }}" method="GET" class="flex flex-col md:flex-row gap-4 items-end">
                 <div class="flex-1 w-full">
                     <label for="search_app" class="block text-xs font-bold text-theme-text/75 uppercase tracking-wider mb-2">Search Applications</label>
@@ -67,11 +75,19 @@
                         <option value="status_desc" {{ request('sort_app') === 'status_desc' ? 'selected' : '' }}>Status (Z-A)</option>
                     </select>
                 </div>
+                <div class="w-full md:w-36">
+                    <label for="per_page_applications" class="block text-xs font-bold text-theme-text/75 uppercase tracking-wider mb-2">Rows</label>
+                    <select id="per_page_applications" name="per_page_applications" onchange="this.form.submit()" class="w-full p-3 text-sm bg-[var(--theme-bg)] border border-[var(--theme-border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-theme-primary text-theme-text font-bold">
+                        @foreach([10, 25, 50, 100, 500] as $opt)
+                            <option value="{{ $opt }}" {{ $limitApps == $opt ? 'selected' : '' }}>Show {{ $opt }}</option>
+                        @endforeach
+                    </select>
+                </div>
                 <div class="flex gap-2 w-full md:w-auto shrink-0">
                     <button type="submit" class="flex-1 md:flex-none px-6 py-3 text-sm font-bold text-white bg-theme-primary hover:bg-theme-accent rounded-xl shadow transition cursor-pointer">
                         Filter
                     </button>
-                    @if(request()->has('search_app') || request()->has('sort_app'))
+                    @if(request()->has('search_app') || request()->has('sort_app') || request()->has('per_page_applications'))
                         <a href="{{ route('faculty.dashboard') }}" class="flex-1 md:flex-none px-4 py-3 text-sm font-semibold bg-theme-primary/10 text-theme-primary border border-theme-primary/20 rounded-xl hover:bg-theme-primary/20 transition text-center cursor-pointer">
                             Clear
                         </a>

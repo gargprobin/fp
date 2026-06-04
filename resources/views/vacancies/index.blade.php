@@ -59,7 +59,28 @@
         
         <!-- Left 2 Cols: Vacancies List -->
         <div class="lg:col-span-2 space-y-4">
-            <h2 class="text-2xl font-bold">Latest Job Openings ({{ $vacancies->total() }})</h2>
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-[var(--theme-card)] p-5 rounded-2xl border border-[var(--theme-border)] shadow-sm">
+                <div>
+                    <h2 class="text-xl font-bold text-theme-text">Latest Job Openings ({{ $vacancies->total() }})</h2>
+                    <span class="text-xs font-bold text-theme-text/60">
+                        Showing {{ $vacancies->firstItem() ?? 0 }}-{{ $vacancies->lastItem() ?? 0 }}/{{ $vacancies->total() }}
+                    </span>
+                </div>
+                
+                <form action="{{ route('vacancies.index') }}" method="GET" class="flex items-center gap-2">
+                    <!-- Preserve existing filters -->
+                    @if(request('subject')) <input type="hidden" name="subject" value="{{ request('subject') }}"> @endif
+                    @if(request('location')) <input type="hidden" name="location" value="{{ request('location') }}"> @endif
+                    @if(request('type')) <input type="hidden" name="type" value="{{ request('type') }}"> @endif
+                    
+                    <label for="per_page" class="text-xs font-bold text-theme-text/70 uppercase">Rows:</label>
+                    <select id="per_page" name="per_page" onchange="this.form.submit()" class="p-2 text-xs bg-[var(--theme-bg)] border border-[var(--theme-border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-theme-primary text-theme-text font-bold">
+                        @foreach([10, 25, 50, 100, 500] as $opt)
+                            <option value="{{ $opt }}" {{ $limit == $opt ? 'selected' : '' }}>Show {{ $opt }}</option>
+                        @endforeach
+                    </select>
+                </form>
+            </div>
             
             @forelse($vacancies as $vacancy)
                 @php

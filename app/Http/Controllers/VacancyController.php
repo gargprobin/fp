@@ -132,9 +132,14 @@ class VacancyController extends Controller
             });
         }
 
-        $vacancies = $query->latest()->paginate(10);
+        $allowedLimits = [10, 25, 50, 100, 500];
+        $limit = intval($request->input('per_page', session('per_page_public_vacs', 25)));
+        if (!in_array($limit, $allowedLimits)) $limit = 25;
+        session(['per_page_public_vacs' => $limit]);
 
-        return view('vacancies.index', compact('vacancies'));
+        $vacancies = $query->latest()->paginate($limit)->withQueryString();
+
+        return view('vacancies.index', compact('vacancies', 'limit'));
     }
 
     /**

@@ -136,8 +136,8 @@ class DashboardFiltersAndPaginationTest extends TestCase
         $response->assertStatus(200);
         
         // 4. Test pagination works
-        // Let's add 4 more applications to make it 7 total (page size is 5)
-        for ($i = 0; $i < 4; $i++) {
+        // Let's add 8 more applications to make it 11 total (page size is 10)
+        for ($i = 0; $i < 8; $i++) {
             Application::create([
                 'candidate_id' => $candidateUser->id,
                 'vacancy_id' => $v1->id,
@@ -146,9 +146,9 @@ class DashboardFiltersAndPaginationTest extends TestCase
             ]);
         }
 
-        $response = $this->get(route('faculty.dashboard', ['apps_page' => 2]));
+        $response = $this->get(route('faculty.dashboard', ['apps_page' => 2, 'per_page_applications' => 10]));
         $response->assertStatus(200);
-        $response->assertSee('Showing 6 to 7 of 7 entries');
+        $response->assertSee('Showing 11-11/11');
     }
 
     public function test_recruiter_dashboard_vacancies_search_sorting_and_pagination()
@@ -187,23 +187,23 @@ class DashboardFiltersAndPaginationTest extends TestCase
         $this->actingAs($recruiterUser);
 
         // 1. Search by subject
-        $response = $this->get(route('recruiter.dashboard', ['search_vac' => 'Chemistry']));
+        $response = $this->get(route('recruiter.dashboard', ['search_vac' => 'Chemistry', 'per_page_vacs' => 10]));
         $response->assertStatus(200);
-        $response->assertSee('Showing 1 to 6 of 6 entries');
+        $response->assertSee('Showing 1-6/6');
 
         // 2. Search by target_class
-        $response = $this->get(route('recruiter.dashboard', ['search_vac' => 'Class 10']));
+        $response = $this->get(route('recruiter.dashboard', ['search_vac' => 'Class 10', 'per_page_vacs' => 10]));
         $response->assertStatus(200);
-        $response->assertSee('Showing 1 to 4 of 4 entries');
+        $response->assertSee('Showing 1-4/4');
 
         // 3. Test sorting title A-Z
-        $response = $this->get(route('recruiter.dashboard', ['sort_vac' => 'title']));
+        $response = $this->get(route('recruiter.dashboard', ['sort_vac' => 'title', 'per_page_vacs' => 10]));
         $response->assertStatus(200);
 
         // 4. Test pagination using vacs_page=2
-        $response = $this->get(route('recruiter.dashboard', ['vacs_page' => 2]));
+        $response = $this->get(route('recruiter.dashboard', ['vacs_page' => 2, 'per_page_vacs' => 10]));
         $response->assertStatus(200);
-        $response->assertSee('Showing 11 to 12 of 12 entries');
+        $response->assertSee('Showing 11-12/12');
     }
 
     public function test_recruiter_dashboard_pipeline_search_sorting_and_pagination()
@@ -272,22 +272,22 @@ class DashboardFiltersAndPaginationTest extends TestCase
         $this->actingAs($recruiterUser);
 
         // 1. Search candidate name
-        $response = $this->get(route('recruiter.dashboard', ['search_app' => 'Candidate Name 5']));
+        $response = $this->get(route('recruiter.dashboard', ['search_app' => 'Candidate Name 5', 'per_page_apps' => 10]));
         $response->assertStatus(200);
         $response->assertSee('Candidate Name 5');
 
         // 2. Search vacancy title
-        $response = $this->get(route('recruiter.dashboard', ['search_app' => 'Biology']));
+        $response = $this->get(route('recruiter.dashboard', ['search_app' => 'Biology', 'per_page_apps' => 10]));
         $response->assertStatus(200);
-        $response->assertSee('Showing 1 to 10 of 12 entries');
+        $response->assertSee('Showing 1-10/12');
 
         // 3. Test rating sorting (descending)
-        $response = $this->get(route('recruiter.dashboard', ['sort_app' => 'rating']));
+        $response = $this->get(route('recruiter.dashboard', ['sort_app' => 'rating', 'per_page_apps' => 10]));
         $response->assertStatus(200);
 
         // 4. Test pagination using apps_page=2
-        $response = $this->get(route('recruiter.dashboard', ['apps_page' => 2]));
+        $response = $this->get(route('recruiter.dashboard', ['apps_page' => 2, 'per_page_apps' => 10]));
         $response->assertStatus(200);
-        $response->assertSee('Showing 11 to 12 of 12 entries');
+        $response->assertSee('Showing 11-12/12');
     }
 }

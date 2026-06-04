@@ -54,9 +54,14 @@ class FacultyController extends Controller
                 break;
         }
 
-        $applications = $query->paginate(5, ['*'], 'apps_page')->withQueryString();
+        $allowedLimits = [10, 25, 50, 100, 500];
+        $limitApps = intval($request->input('per_page_applications', session('per_page_faculty_apps', 25)));
+        if (!in_array($limitApps, $allowedLimits)) $limitApps = 25;
+        session(['per_page_faculty_apps' => $limitApps]);
 
-        return view('admin.faculty-dashboard', compact('applications'));
+        $applications = $query->paginate($limitApps, ['*'], 'apps_page')->withQueryString();
+
+        return view('admin.faculty-dashboard', compact('applications', 'limitApps'));
     }
 
     /**

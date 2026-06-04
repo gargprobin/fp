@@ -63,6 +63,36 @@ class AdminController extends Controller
             }
         }
 
+        $allowedLimits = [10, 25, 50, 100, 500];
+
+        $limitUsers = intval($request->input('per_page_users', session('per_page_users', 25)));
+        if (!in_array($limitUsers, $allowedLimits)) $limitUsers = 25;
+        session(['per_page_users' => $limitUsers]);
+
+        $limitVacancies = intval($request->input('per_page_vacancies', session('per_page_vacancies', 25)));
+        if (!in_array($limitVacancies, $allowedLimits)) $limitVacancies = 25;
+        session(['per_page_vacancies' => $limitVacancies]);
+
+        $limitApplications = intval($request->input('per_page_applications', session('per_page_applications', 25)));
+        if (!in_array($limitApplications, $allowedLimits)) $limitApplications = 25;
+        session(['per_page_applications' => $limitApplications]);
+
+        $limitDelUsers = intval($request->input('per_page_del_users', session('per_page_del_users', 25)));
+        if (!in_array($limitDelUsers, $allowedLimits)) $limitDelUsers = 25;
+        session(['per_page_del_users' => $limitDelUsers]);
+
+        $limitDelVacancies = intval($request->input('per_page_del_vacancies', session('per_page_del_vacancies', 25)));
+        if (!in_array($limitDelVacancies, $allowedLimits)) $limitDelVacancies = 25;
+        session(['per_page_del_vacancies' => $limitDelVacancies]);
+
+        $limitDelApplications = intval($request->input('per_page_del_applications', session('per_page_del_applications', 25)));
+        if (!in_array($limitDelApplications, $allowedLimits)) $limitDelApplications = 25;
+        session(['per_page_del_applications' => $limitDelApplications]);
+
+        $limitWapLogs = intval($request->input('per_page_whatsapp_logs', session('per_page_whatsapp_logs', 25)));
+        if (!in_array($limitWapLogs, $allowedLimits)) $limitWapLogs = 25;
+        session(['per_page_whatsapp_logs' => $limitWapLogs]);
+
         $searchWap = $request->input('search_wap');
         $sortWap = $request->input('sort_wap', 'latest');
 
@@ -85,7 +115,7 @@ class AdminController extends Controller
                 $wapQuery->latest();
             }
 
-            $whatsappSentLogs = $wapQuery->paginate(10, ['*'], 'wap_page')->appends(['tab' => 'whatsapp'])->withQueryString();
+            $whatsappSentLogs = $wapQuery->paginate($limitWapLogs, ['*'], 'wap_page')->appends(['tab' => 'whatsapp'])->withQueryString();
         } else {
             // Manual fallback: load from site settings
             $legacyLogs = json_decode(SiteSetting::getVal('whatsapp_sent_logs', '[]'), true) ?: [];
@@ -119,7 +149,7 @@ class AdminController extends Controller
 
             // Paginate manually
             $currentPage = \Illuminate\Pagination\LengthAwarePaginator::resolveCurrentPage('wap_page');
-            $perPage = 10;
+            $perPage = $limitWapLogs;
             $currentItems = array_slice($legacyLogs, ($currentPage - 1) * $perPage, $perPage);
 
             // Convert to array of objects
@@ -201,7 +231,7 @@ class AdminController extends Controller
         } else {
             $usersQuery->latest();
         }
-        $users = $usersQuery->paginate(15, ['*'], 'users_page')->withQueryString();
+        $users = $usersQuery->paginate($limitUsers, ['*'], 'users_page')->withQueryString();
 
         $searchVacancy = $request->input('search_vacancy');
         $sortVacancy = $request->input('sort_vacancy', 'latest');
@@ -221,7 +251,7 @@ class AdminController extends Controller
         } else {
             $vacanciesQuery->latest();
         }
-        $vacancies = $vacanciesQuery->paginate(15, ['*'], 'vacancies_page')->withQueryString();
+        $vacancies = $vacanciesQuery->paginate($limitVacancies, ['*'], 'vacancies_page')->withQueryString();
 
         $searchApp = $request->input('search_app');
         $statusApp = $request->input('status_app');
@@ -246,7 +276,7 @@ class AdminController extends Controller
         } else {
             $appsQuery->latest();
         }
-        $applications = $appsQuery->paginate(15, ['*'], 'apps_page')->withQueryString();
+        $applications = $appsQuery->paginate($limitApplications, ['*'], 'apps_page')->withQueryString();
 
         // 4. Soft Deleted (Trash Lists)
         $searchDelUser = $request->input('search_del_user');
@@ -266,7 +296,7 @@ class AdminController extends Controller
         } else {
             $deletedUsersQuery->orderBy('deleted_at', 'desc');
         }
-        $deletedUsers = $deletedUsersQuery->paginate(15, ['*'], 'deleted_users_page')->withQueryString();
+        $deletedUsers = $deletedUsersQuery->paginate($limitDelUsers, ['*'], 'deleted_users_page')->withQueryString();
 
         $searchDelVac = $request->input('search_del_vac');
         $sortDelVac = $request->input('sort_del_vac', 'latest');
@@ -288,7 +318,7 @@ class AdminController extends Controller
         } else {
             $deletedVacanciesQuery->orderBy('deleted_at', 'desc');
         }
-        $deletedVacancies = $deletedVacanciesQuery->paginate(15, ['*'], 'deleted_vacancies_page')->withQueryString();
+        $deletedVacancies = $deletedVacanciesQuery->paginate($limitDelVacancies, ['*'], 'deleted_vacancies_page')->withQueryString();
 
         $searchDelApp = $request->input('search_del_app');
         $sortDelApp = $request->input('sort_del_app', 'latest');
@@ -310,7 +340,7 @@ class AdminController extends Controller
         } else {
             $deletedApplicationsQuery->orderBy('deleted_at', 'desc');
         }
-        $deletedApplications = $deletedApplicationsQuery->paginate(15, ['*'], 'deleted_apps_page')->withQueryString();
+        $deletedApplications = $deletedApplicationsQuery->paginate($limitDelApplications, ['*'], 'deleted_apps_page')->withQueryString();
 
         return view('admin.settings', compact(
             'platformName', 'platformTagline', 'supportEmail',
@@ -323,7 +353,8 @@ class AdminController extends Controller
             'deletedUsers', 'deletedVacancies', 'deletedApplications',
             'phdCount', 'masterCount', 'bachelorCount', 'otherDegreeCount',
             'appliedCount', 'shortlistedCount', 'interviewCount', 'appointedCount',
-            'recentApplications', 'recentVacancies', 'searchWap', 'sortWap'
+            'recentApplications', 'recentVacancies', 'searchWap', 'sortWap',
+            'limitUsers', 'limitVacancies', 'limitApplications', 'limitDelUsers', 'limitDelVacancies', 'limitDelApplications', 'limitWapLogs'
         ));
     }
 

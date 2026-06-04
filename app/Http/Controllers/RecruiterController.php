@@ -30,6 +30,16 @@ class RecruiterController extends Controller
         // Get all vacancy IDs for this institution to query applications
         $allVacancyIds = Vacancy::where('institution_id', $institution->id)->pluck('id');
 
+        $allowedLimits = [10, 25, 50, 100, 500];
+
+        $limitVacs = intval($request->input('per_page_vacs', session('per_page_recruiter_vacs', 25)));
+        if (!in_array($limitVacs, $allowedLimits)) $limitVacs = 25;
+        session(['per_page_recruiter_vacs' => $limitVacs]);
+
+        $limitApps = intval($request->input('per_page_apps', session('per_page_recruiter_apps', 25)));
+        if (!in_array($limitApps, $allowedLimits)) $limitApps = 25;
+        session(['per_page_recruiter_apps' => $limitApps]);
+
         // Handle GET inputs for Vacancies: search_vac and sort_vac
         $vacanciesQuery = Vacancy::where('institution_id', $institution->id);
         if ($request->filled('search_vac')) {
@@ -53,7 +63,7 @@ class RecruiterController extends Controller
                 $vacanciesQuery->latest();
                 break;
         }
-        $vacancies = $vacanciesQuery->paginate(10, ['*'], 'vacs_page')->withQueryString();
+        $vacancies = $vacanciesQuery->paginate($limitVacs, ['*'], 'vacs_page')->withQueryString();
 
         // Handle GET inputs for Applications pipeline: search_app and sort_app
         $applicationsQuery = Application::whereIn('vacancy_id', $allVacancyIds)
@@ -97,14 +107,14 @@ class RecruiterController extends Controller
                 $applicationsQuery->latest();
                 break;
         }
-        $applications = $applicationsQuery->paginate(10, ['*'], 'apps_page')->withQueryString();
+        $applications = $applicationsQuery->paginate($limitApps, ['*'], 'apps_page')->withQueryString();
 
         // Count pending raw applicants that are under Admin screening
         $pendingAdminScreeningCount = Application::whereIn('vacancy_id', $allVacancyIds)
             ->where('status', 'applied')
             ->count();
 
-        return view('admin.recruiter-dashboard', compact('institution', 'vacancies', 'applications', 'pendingAdminScreeningCount'));
+        return view('admin.recruiter-dashboard', compact('institution', 'vacancies', 'applications', 'pendingAdminScreeningCount', 'limitVacs', 'limitApps'));
     }
 
     /**

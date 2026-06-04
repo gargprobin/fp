@@ -49,9 +49,14 @@ Route::get('/', function (Request $request) {
         $query->latest();
     }
 
-    $vacancies = $query->paginate(6)->withQueryString();
+    $allowedLimits = [10, 25, 50, 100, 500];
+    $limit = intval($request->input('per_page', session('per_page_public_vacs', 25)));
+    if (!in_array($limit, $allowedLimits)) $limit = 25;
+    session(['per_page_public_vacs' => $limit]);
 
-    return view('welcome', compact('vacancies'));
+    $vacancies = $query->paginate($limit)->withQueryString();
+
+    return view('welcome', compact('vacancies', 'limit'));
 })->name('home');
 
 

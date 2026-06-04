@@ -141,17 +141,33 @@
             <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 gap-4">
                 <div>
                     <h2 class="text-3xl font-black text-theme-text tracking-tight">Active Faculty Openings</h2>
-                    <p class="text-xs text-theme-text/50 font-bold uppercase tracking-wider mt-1">Real-time Sandbox Database &bull; Showing {{ $vacancies->firstItem() ?? 0 }}-{{ $vacancies->lastItem() ?? 0 }} of {{ $vacancies->total() }} openings</p>
+                    <p class="text-xs text-theme-text/50 font-bold uppercase tracking-wider mt-1">Real-time Sandbox Database &bull; Showing {{ $vacancies->firstItem() ?? 0 }}-{{ $vacancies->lastItem() ?? 0 }}/{{ $vacancies->total() }}</p>
                 </div>
                 
-                <!-- Reset Filters Button -->
-                <button 
-                    x-show="searchSubject || searchLocation || selectedCategory !== 'all' || '{{ request('subject') }}' || '{{ request('location') }}' || '{{ request('category') }}'"
-                    @click="clearFilters(); window.location.href = '{{ route('home') }}'"
-                    class="px-4 py-2 text-xs font-bold text-red-500 bg-red-50 hover:bg-red-100 border border-red-200 rounded-full transition-all cursor-pointer"
-                >
-                    Clear Filters
-                </button>
+                <div class="flex flex-wrap items-center gap-3">
+                    <form action="{{ route('home') }}" method="GET" class="inline-flex items-center gap-2">
+                        <!-- Preserve existing filter query params -->
+                        @if(request('subject')) <input type="hidden" name="subject" value="{{ request('subject') }}"> @endif
+                        @if(request('location')) <input type="hidden" name="location" value="{{ request('location') }}"> @endif
+                        @if(request('category')) <input type="hidden" name="category" value="{{ request('category') }}"> @endif
+                        
+                        <label for="per_page" class="text-xs font-bold text-theme-text/60 uppercase">Show Rows:</label>
+                        <select id="per_page" name="per_page" onchange="this.form.submit()" class="p-2 text-xs bg-[var(--theme-card)] border border-[var(--theme-border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-theme-primary text-theme-text font-bold">
+                            @foreach([10, 25, 50, 100, 500] as $opt)
+                                <option value="{{ $opt }}" {{ ($limit ?? 25) == $opt ? 'selected' : '' }}>Show {{ $opt }}</option>
+                            @endforeach
+                        </select>
+                    </form>
+
+                    <!-- Reset Filters Button -->
+                    <button 
+                        x-show="searchSubject || searchLocation || selectedCategory !== 'all' || '{{ request('subject') }}' || '{{ request('location') }}' || '{{ request('category') }}'"
+                        @click="clearFilters(); window.location.href = '{{ route('home') }}'"
+                        class="px-4 py-2 text-xs font-bold text-red-500 bg-red-50 hover:bg-red-100 border border-red-200 rounded-full transition-all cursor-pointer"
+                    >
+                        Clear Filters
+                    </button>
+                </div>
             </div>
 
             <!-- Job Cards Container -->

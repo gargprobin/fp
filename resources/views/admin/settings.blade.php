@@ -444,6 +444,11 @@
                         <option value="name_asc" {{ request('sort_user') === 'name_asc' ? 'selected' : '' }}>🔤 Name A-Z</option>
                         <option value="name_desc" {{ request('sort_user') === 'name_desc' ? 'selected' : '' }}>🔤 Name Z-A</option>
                     </select>
+                    <select name="per_page_users" onchange="this.form.submit()" class="p-2.5 text-xs bg-[var(--theme-bg)] border border-[var(--theme-border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 text-theme-text font-bold">
+                        @foreach([10, 25, 50, 100, 500] as $opt)
+                            <option value="{{ $opt }}" {{ $limitUsers == $opt ? 'selected' : '' }}>Show {{ $opt }}</option>
+                        @endforeach
+                    </select>
                     <button type="submit" class="px-4 py-2.5 bg-red-600 text-white text-xs font-bold rounded-xl shadow-sm hover:bg-red-700 transition cursor-pointer">Filter</button>
                     @if(request()->anyFilled(['search_user', 'user_role', 'sort_user']))
                         <a href="{{ route('admin.settings', ['tab' => 'users']) }}" class="text-xs text-red-500 font-bold hover:underline">Clear</a>
@@ -455,7 +460,7 @@
             </form>
 
             <div class="flex justify-between items-center text-xs text-theme-text/60 mb-2 px-1">
-                <span>Showing {{ $users->firstItem() ?? 0 }} to {{ $users->lastItem() ?? 0 }} of {{ $users->total() }} active users</span>
+                <span class="font-bold">Showing {{ $users->firstItem() ?? 0 }}-{{ $users->lastItem() ?? 0 }}/{{ $users->total() }}</span>
             </div>
 
             <div class="overflow-x-auto border border-[var(--theme-border)] rounded-xl">
@@ -581,6 +586,11 @@
                         <option value="title_asc" {{ request('sort_vacancy') === 'title_asc' ? 'selected' : '' }}>🔤 Title A-Z</option>
                         <option value="salary_high" {{ request('sort_vacancy') === 'salary_high' ? 'selected' : '' }}>💰 Highest Salary</option>
                     </select>
+                    <select name="per_page_vacancies" onchange="this.form.submit()" class="p-2.5 text-xs bg-[var(--theme-bg)] border border-[var(--theme-border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 text-theme-text font-bold">
+                        @foreach([10, 25, 50, 100, 500] as $opt)
+                            <option value="{{ $opt }}" {{ $limitVacancies == $opt ? 'selected' : '' }}>Show {{ $opt }}</option>
+                        @endforeach
+                    </select>
                     <button type="submit" class="px-4 py-2.5 bg-red-600 text-white text-xs font-bold rounded-xl shadow-sm hover:bg-red-700 transition cursor-pointer">Filter</button>
                     @if(request()->anyFilled(['search_vacancy', 'sort_vacancy']))
                         <a href="{{ route('admin.settings', ['tab' => 'vacancies']) }}" class="text-xs text-red-500 font-bold hover:underline">Clear</a>
@@ -592,7 +602,7 @@
             </form>
 
             <div class="flex justify-between items-center text-xs text-theme-text/60 mb-2 px-1">
-                <span>Showing {{ $vacancies->firstItem() ?? 0 }} to {{ $vacancies->lastItem() ?? 0 }} of {{ $vacancies->total() }} active vacancies</span>
+                <span class="font-bold">Showing {{ $vacancies->firstItem() ?? 0 }}-{{ $vacancies->lastItem() ?? 0 }}/{{ $vacancies->total() }}</span>
             </div>
 
             <div class="overflow-x-auto border border-[var(--theme-border)] rounded-xl">
@@ -699,6 +709,11 @@
                     <option value="latest" {{ request('sort_app') === 'latest' ? 'selected' : '' }}>📅 Latest</option>
                     <option value="oldest" {{ request('sort_app') === 'oldest' ? 'selected' : '' }}>📅 Oldest</option>
                 </select>
+                <select name="per_page_applications" onchange="this.form.submit()" class="p-2.5 text-xs bg-[var(--theme-bg)] border border-[var(--theme-border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 text-theme-text font-bold">
+                    @foreach([10, 25, 50, 100, 500] as $opt)
+                        <option value="{{ $opt }}" {{ $limitApplications == $opt ? 'selected' : '' }}>Show {{ $opt }}</option>
+                    @endforeach
+                </select>
                 <button type="submit" class="px-4 py-2.5 bg-red-600 text-white text-xs font-bold rounded-xl shadow-sm hover:bg-red-700 transition cursor-pointer">Filter</button>
                 @if(request()->anyFilled(['search_app', 'status_app', 'sort_app']))
                     <a href="{{ route('admin.settings', ['tab' => 'applications']) }}" class="text-xs text-red-500 font-bold hover:underline">Clear</a>
@@ -706,7 +721,7 @@
             </form>
 
             <div class="flex justify-between items-center text-xs text-theme-text/60 mb-2 px-1">
-                <span>Showing {{ $applications->firstItem() ?? 0 }} to {{ $applications->lastItem() ?? 0 }} of {{ $applications->total() }} active applications</span>
+                <span class="font-bold">Showing {{ $applications->firstItem() ?? 0 }}-{{ $applications->lastItem() ?? 0 }}/{{ $applications->total() }}</span>
             </div>
 
             <div class="overflow-x-auto border border-[var(--theme-border)] rounded-xl">
@@ -992,6 +1007,11 @@
                             <option value="oldest" {{ request('sort_wap') === 'oldest' ? 'selected' : '' }}>Oldest First</option>
                             <option value="status" {{ request('sort_wap') === 'status' ? 'selected' : '' }}>By Status</option>
                         </select>
+                        <select name="per_page_whatsapp_logs" onchange="this.form.submit()" class="px-2 py-1.5 bg-[var(--theme-bg)] border border-[var(--theme-border)] rounded-lg text-theme-text focus:outline-none focus:ring-1 focus:ring-red-500 text-xs font-bold">
+                            @foreach([10, 25, 50, 100, 500] as $opt)
+                                <option value="{{ $opt }}" {{ $limitWapLogs == $opt ? 'selected' : '' }}>Show {{ $opt }}</option>
+                            @endforeach
+                        </select>
 
                         <button type="submit" class="px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white font-bold rounded-lg transition text-xs">Filter</button>
                         @if(request('search_wap') || request('sort_wap'))
@@ -1002,10 +1022,10 @@
 
                 <div class="flex justify-between items-center text-xs text-theme-text/60">
                     <div>
-                        @if($whatsappSentLogs instanceof \Illuminate\Pagination\LengthAwarePaginator)
-                            Showing <strong>{{ $whatsappSentLogs->firstItem() ?? 0 }}</strong> to <strong>{{ $whatsappSentLogs->lastItem() ?? 0 }}</strong> of <strong>{{ $whatsappSentLogs->total() ?? 0 }}</strong> logs
+                        @if($whatsappSentLogs instanceof \Illuminate\Pagination\LengthAwarePaginator && $whatsappSentLogs->total() > 0)
+                            <span class="font-bold">Showing {{ $whatsappSentLogs->firstItem() }}-{{ $whatsappSentLogs->lastItem() }}/{{ $whatsappSentLogs->total() }}</span>
                         @else
-                            Showing <strong>0</strong> to <strong>0</strong> of <strong>0</strong> logs
+                            <span class="font-bold">Showing 0-0/0</span>
                         @endif
                     </div>
                     <span class="px-2 py-0.5 bg-green-500/10 text-green-500 text-[10px] font-extrabold rounded-full">SIMULATED ACTIVE</span>
@@ -1095,6 +1115,11 @@
                         <option value="oldest" {{ request('sort_del_user') === 'oldest' ? 'selected' : '' }}>📅 Oldest Deleted</option>
                         <option value="name" {{ request('sort_del_user') === 'name' ? 'selected' : '' }}>🔤 Name A-Z</option>
                     </select>
+                    <select name="per_page_del_users" onchange="this.form.submit()" class="p-2.5 text-xs bg-[var(--theme-bg)] border border-[var(--theme-border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 text-theme-text font-bold">
+                        @foreach([10, 25, 50, 100, 500] as $opt)
+                            <option value="{{ $opt }}" {{ $limitDelUsers == $opt ? 'selected' : '' }}>Show {{ $opt }}</option>
+                        @endforeach
+                    </select>
                     <button type="submit" class="px-4 py-2.5 bg-red-600 text-white text-xs font-bold rounded-xl shadow-sm hover:bg-red-700 transition cursor-pointer">Filter</button>
                     @if(request()->anyFilled(['search_del_user', 'sort_del_user']))
                         <a href="{{ route('admin.settings', ['tab' => 'trash']) }}" class="text-xs text-red-500 font-bold hover:underline">Clear</a>
@@ -1102,7 +1127,7 @@
                 </form>
 
                 <div class="flex justify-between items-center text-xs text-theme-text/60 mb-2 px-1">
-                    <span>Showing {{ $deletedUsers->firstItem() ?? 0 }} to {{ $deletedUsers->lastItem() ?? 0 }} of {{ $deletedUsers->total() }} deleted users</span>
+                    <span class="font-bold">Showing {{ $deletedUsers->firstItem() ?? 0 }}-{{ $deletedUsers->lastItem() ?? 0 }}/{{ $deletedUsers->total() }}</span>
                 </div>
 
                 <div class="overflow-x-auto border border-[var(--theme-border)] rounded-xl">
@@ -1163,6 +1188,11 @@
                         <option value="oldest" {{ request('sort_del_vac') === 'oldest' ? 'selected' : '' }}>📅 Oldest Deleted</option>
                         <option value="title" {{ request('sort_del_vac') === 'title' ? 'selected' : '' }}>🔤 Title A-Z</option>
                     </select>
+                    <select name="per_page_del_vacancies" onchange="this.form.submit()" class="p-2.5 text-xs bg-[var(--theme-bg)] border border-[var(--theme-border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 text-theme-text font-bold">
+                        @foreach([10, 25, 50, 100, 500] as $opt)
+                            <option value="{{ $opt }}" {{ $limitDelVacancies == $opt ? 'selected' : '' }}>Show {{ $opt }}</option>
+                        @endforeach
+                    </select>
                     <button type="submit" class="px-4 py-2.5 bg-red-600 text-white text-xs font-bold rounded-xl shadow-sm hover:bg-red-700 transition cursor-pointer">Filter</button>
                     @if(request()->anyFilled(['search_del_vac', 'sort_del_vac']))
                         <a href="{{ route('admin.settings', ['tab' => 'trash']) }}" class="text-xs text-red-500 font-bold hover:underline">Clear</a>
@@ -1170,7 +1200,7 @@
                 </form>
 
                 <div class="flex justify-between items-center text-xs text-theme-text/60 mb-2 px-1">
-                    <span>Showing {{ $deletedVacancies->firstItem() ?? 0 }} to {{ $deletedVacancies->lastItem() ?? 0 }} of {{ $deletedVacancies->total() }} deleted vacancies</span>
+                    <span class="font-bold">Showing {{ $deletedVacancies->firstItem() ?? 0 }}-{{ $deletedVacancies->lastItem() ?? 0 }}/{{ $deletedVacancies->total() }}</span>
                 </div>
 
                 <div class="overflow-x-auto border border-[var(--theme-border)] rounded-xl">
@@ -1227,6 +1257,11 @@
                         <option value="oldest" {{ request('sort_del_app') === 'oldest' ? 'selected' : '' }}>📅 Oldest Deleted</option>
                         <option value="status" {{ request('sort_del_app') === 'status' ? 'selected' : '' }}>📌 Status</option>
                     </select>
+                    <select name="per_page_del_applications" onchange="this.form.submit()" class="p-2.5 text-xs bg-[var(--theme-bg)] border border-[var(--theme-border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 text-theme-text font-bold">
+                        @foreach([10, 25, 50, 100, 500] as $opt)
+                            <option value="{{ $opt }}" {{ $limitDelApplications == $opt ? 'selected' : '' }}>Show {{ $opt }}</option>
+                        @endforeach
+                    </select>
                     <button type="submit" class="px-4 py-2.5 bg-red-600 text-white text-xs font-bold rounded-xl shadow-sm hover:bg-red-700 transition cursor-pointer">Filter</button>
                     @if(request()->anyFilled(['search_del_app', 'sort_del_app']))
                         <a href="{{ route('admin.settings', ['tab' => 'trash']) }}" class="text-xs text-red-500 font-bold hover:underline">Clear</a>
@@ -1234,7 +1269,7 @@
                 </form>
 
                 <div class="flex justify-between items-center text-xs text-theme-text/60 mb-2 px-1">
-                    <span>Showing {{ $deletedApplications->firstItem() ?? 0 }} to {{ $deletedApplications->lastItem() ?? 0 }} of {{ $deletedApplications->total() }} deleted applications</span>
+                    <span class="font-bold">Showing {{ $deletedApplications->firstItem() ?? 0 }}-{{ $deletedApplications->lastItem() ?? 0 }}/{{ $deletedApplications->total() }}</span>
                 </div>
 
                 <div class="overflow-x-auto border border-[var(--theme-border)] rounded-xl">

@@ -4,7 +4,7 @@
 
 @section('content')
 <div x-data="{ 
-    activeTab: '{{ request()->has('search_vac') || request()->has('sort_vac') || request()->has('vacs_page') ? 'my-vacancies' : (request()->has('search_app') || request()->has('sort_app') || request()->has('apps_page') ? 'pipeline' : '') }}' || (window.location.hash.startsWith('#app-') ? 'pipeline' : (localStorage.getItem('recruiter_active_tab') || 'pipeline')),
+    activeTab: '{{ request()->has('search_vac') || request()->has('sort_vac') || request()->has('vacs_page') || request()->has('per_page_vacs') ? 'my-vacancies' : (request()->has('search_app') || request()->has('sort_app') || request()->has('apps_page') || request()->has('per_page_apps') ? 'pipeline' : '') }}' || (window.location.hash.startsWith('#app-') ? 'pipeline' : (localStorage.getItem('recruiter_active_tab') || 'pipeline')),
     selectTab(tab) {
         this.activeTab = tab;
         localStorage.setItem('recruiter_active_tab', tab);
@@ -112,6 +112,9 @@
             </div>
 
             <!-- Search & Sort Form for Pipeline -->
+            <div class="flex justify-between items-center text-xs text-theme-text/60 mb-2 px-1">
+                <span class="font-bold text-theme-primary">Showing {{ $applications->firstItem() ?? 0 }}-{{ $applications->lastItem() ?? 0 }}/{{ $applications->total() }}</span>
+            </div>
             <div class="bg-[var(--theme-bg)] rounded-xl p-4 border border-[var(--theme-border)] shadow-sm">
                 <form action="{{ route('recruiter.dashboard') }}" method="GET" class="flex flex-col md:flex-row gap-4 items-end">
                     <div class="flex-1 w-full">
@@ -130,11 +133,19 @@
                             <option value="rating" {{ request('sort_app') === 'rating' ? 'selected' : '' }}>Rating (High-Low)</option>
                         </select>
                     </div>
+                    <div class="w-full md:w-32">
+                        <label for="per_page_apps" class="block text-xs font-bold text-theme-text/75 uppercase tracking-wider mb-2">Rows</label>
+                        <select id="per_page_apps" name="per_page_apps" onchange="this.form.submit()" class="w-full p-2.5 text-xs bg-[var(--theme-card)] border border-[var(--theme-border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-theme-primary text-theme-text font-bold">
+                            @foreach([10, 25, 50, 100, 500] as $opt)
+                                <option value="{{ $opt }}" {{ $limitApps == $opt ? 'selected' : '' }}>Show {{ $opt }}</option>
+                            @endforeach
+                        </select>
+                    </div>
                     <div class="flex gap-2 w-full md:w-auto shrink-0">
                         <button type="submit" class="flex-1 md:flex-none px-5 py-2.5 text-xs font-bold text-white bg-theme-primary hover:bg-theme-accent rounded-xl shadow transition cursor-pointer">
                             Filter
                         </button>
-                        @if(request()->has('search_app') || request()->has('sort_app'))
+                        @if(request()->has('search_app') || request()->has('sort_app') || request()->has('per_page_apps'))
                             <a href="{{ route('recruiter.dashboard') }}" class="flex-1 md:flex-none px-4 py-2.5 text-xs font-semibold bg-theme-primary/10 text-theme-primary border border-theme-primary/20 rounded-xl hover:bg-theme-primary/20 transition text-center cursor-pointer">
                                 Clear
                             </a>
@@ -405,6 +416,9 @@
             <h3 class="text-lg font-bold border-b border-[var(--theme-border)] pb-3">My Posted Faculty Sourcing Requirements</h3>
 
             <!-- Search & Sort Form for Vacancies -->
+            <div class="flex justify-between items-center text-xs text-theme-text/60 mb-2 px-1">
+                <span class="font-bold text-theme-primary">Showing {{ $vacancies->firstItem() ?? 0 }}-{{ $vacancies->lastItem() ?? 0 }}/{{ $vacancies->total() }}</span>
+            </div>
             <div class="bg-[var(--theme-bg)] rounded-xl p-4 border border-[var(--theme-border)] shadow-sm mb-4">
                 <form action="{{ route('recruiter.dashboard') }}" method="GET" class="flex flex-col md:flex-row gap-4 items-end">
                     <div class="flex-1 w-full">
@@ -422,11 +436,19 @@
                             <option value="title" {{ request('sort_vac') === 'title' ? 'selected' : '' }}>Title (A-Z)</option>
                         </select>
                     </div>
+                    <div class="w-full md:w-32">
+                        <label for="per_page_vacs" class="block text-xs font-bold text-theme-text/75 uppercase tracking-wider mb-2">Rows</label>
+                        <select id="per_page_vacs" name="per_page_vacs" onchange="this.form.submit()" class="w-full p-2.5 text-xs bg-[var(--theme-card)] border border-[var(--theme-border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-theme-primary text-theme-text font-bold">
+                            @foreach([10, 25, 50, 100, 500] as $opt)
+                                <option value="{{ $opt }}" {{ $limitVacs == $opt ? 'selected' : '' }}>Show {{ $opt }}</option>
+                            @endforeach
+                        </select>
+                    </div>
                     <div class="flex gap-2 w-full md:w-auto shrink-0">
                         <button type="submit" class="flex-1 md:flex-none px-5 py-2.5 text-xs font-bold text-white bg-theme-primary hover:bg-theme-accent rounded-xl shadow transition cursor-pointer">
                             Filter
                         </button>
-                        @if(request()->has('search_vac') || request()->has('sort_vac'))
+                        @if(request()->has('search_vac') || request()->has('sort_vac') || request()->has('per_page_vacs'))
                             <a href="{{ route('recruiter.dashboard') }}" class="flex-1 md:flex-none px-4 py-2.5 text-xs font-semibold bg-theme-primary/10 text-theme-primary border border-theme-primary/20 rounded-xl hover:bg-theme-primary/20 transition text-center cursor-pointer">
                                 Clear
                             </a>
