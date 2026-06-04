@@ -204,6 +204,13 @@
                                             <div class="text-xs font-bold text-theme-text/70">
                                                 📧 Email: <a href="mailto:{{ $app->candidate->email }}" class="text-theme-primary hover:underline">{{ $app->candidate->email }}</a> &bull; 📞 Mob: {{ $app->candidate->phone ?? 'N/A' }}
                                             </div>
+                                            @if($app->candidate->candidateProfile?->cv_path)
+                                                <div class="mt-1.5">
+                                                    <a href="{{ asset('storage/' . $app->candidate->candidateProfile->cv_path) }}" target="_blank" class="inline-flex items-center gap-1 text-[10px] font-black text-theme-primary bg-theme-primary/10 border border-theme-primary/20 px-2 py-0.5 rounded hover:bg-theme-primary hover:text-white transition">
+                                                        📄 View Detailed CV
+                                                    </a>
+                                                </div>
+                                            @endif
                                         </div>
                                     @endif
 

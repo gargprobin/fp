@@ -472,6 +472,13 @@
                                             <span class="text-[10px] text-theme-accent font-semibold">Brand: {{ $user->institution->company_name }}</span>
                                         @endif
                                         <span class="text-[9px] text-theme-text/45 font-normal mt-0.5">Joined: ({{ $user->created_at->format('h:i:s A, d M y ') }})</span>
+                                        @if($user->role === 'candidate' && $user->candidateProfile?->cv_path)
+                                            <div class="mt-1">
+                                                <a href="{{ asset('storage/' . $user->candidateProfile->cv_path) }}" target="_blank" class="inline-flex items-center gap-1 text-[10px] font-black text-theme-primary bg-theme-primary/10 border border-theme-primary/20 px-2 py-0.5 rounded hover:bg-theme-primary hover:text-white transition">
+                                                    📄 View CV
+                                                </a>
+                                            </div>
+                                        @endif
                                     </div>
                                 </td>
                                 <td class="px-6 py-4">
@@ -732,6 +739,13 @@
                                 <td class="px-6 py-4">
                                     <div class="font-bold text-theme-text">{{ $application->candidate->name }}</div>
                                     <div class="text-xs text-theme-text/50">Degree: {{ $application->candidate->candidateProfile?->highest_degree ?? 'N/A' }}</div>
+                                    @if($application->candidate->candidateProfile?->cv_path)
+                                        <div class="mt-1">
+                                            <a href="{{ asset('storage/' . $application->candidate->candidateProfile->cv_path) }}" target="_blank" class="inline-flex items-center gap-1 text-[10px] font-black text-theme-primary bg-theme-primary/10 border border-theme-primary/20 px-2 py-0.5 rounded hover:bg-theme-primary hover:text-white transition">
+                                                📄 View CV
+                                            </a>
+                                        </div>
+                                    @endif
                                 </td>
                                 <td class="px-6 py-4">
                                     <div class="font-semibold text-theme-text/80">{{ $application->vacancy->title }}</div>

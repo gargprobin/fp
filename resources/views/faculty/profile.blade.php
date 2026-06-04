@@ -24,7 +24,7 @@
         </div>
     @endif
 
-    <form action="{{ route('faculty.profile.update') }}" method="POST" class="space-y-6">
+    <form action="{{ route('faculty.profile.update') }}" method="POST" enctype="multipart/form-data" class="space-y-6">
         @csrf
 
         <!-- Section 1: Basic Information -->
@@ -119,6 +119,19 @@
         <div>
             <label class="block text-xs font-bold text-theme-text/60 uppercase mb-1.5">Brief Profile Summary</label>
             <textarea name="experience_summary" rows="4" placeholder="Brief details about your target student scores, coaching methodologies, or classroom dynamics..." class="w-full p-4 text-sm bg-[var(--theme-bg)] border border-[var(--theme-border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-theme-primary text-theme-text">{{ old('experience_summary', $profile?->experience_summary) }}</textarea>
+        </div>
+
+        <div>
+            <label class="block text-xs font-bold text-theme-text/60 uppercase mb-1.5">Detailed CV File (PDF, DOC, DOCX - Max 5MB)</label>
+            <input type="file" name="cv_file" accept=".pdf,.doc,.docx" class="w-full p-2.5 text-sm bg-[var(--theme-bg)] border border-[var(--theme-border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-theme-primary text-theme-text file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-theme-primary/10 file:text-theme-primary hover:file:bg-theme-primary/20" />
+            @if($profile && $profile->cv_path)
+                <div class="mt-2 text-xs">
+                    <span class="text-theme-text/60">📄 Current CV: </span>
+                    <a href="{{ asset('storage/' . $profile->cv_path) }}" target="_blank" class="text-theme-primary font-bold hover:underline">
+                        View Uploaded CV File
+                    </a>
+                </div>
+            @endif
         </div>
 
         <!-- Submit Buttons -->

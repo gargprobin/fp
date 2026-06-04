@@ -106,6 +106,7 @@ class FacultyController extends Controller
             'google_scholar_url' => 'nullable|url|max:150',
             'h_index' => 'nullable|integer|min:0',
             'demo_video_url' => 'nullable|url|max:150',
+            'cv_file' => 'nullable|file|mimes:pdf,doc,docx|max:5120',
         ]);
 
         // 1. Update basic User info
@@ -135,6 +136,18 @@ class FacultyController extends Controller
             'h_index' => $request->h_index ?? 0,
             'demo_video_url' => $request->demo_video_url,
         ]);
+
+        if ($request->hasFile('cv_file')) {
+            $file = $request->file('cv_file');
+            $filename = 'cv_' . $user->id . '_' . time() . '.' . $file->getClientOriginalExtension();
+            $path = $file->storeAs('cvs', $filename, 'public');
+            
+            if ($profile->cv_path) {
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($profile->cv_path);
+            }
+            $profile->cv_path = $path;
+        }
+
         $profile->save();
 
         return redirect()->route('faculty.dashboard')->with('success', 'Profile updated successfully!');
