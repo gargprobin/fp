@@ -150,7 +150,10 @@ class LoginDemoController extends Controller
      */
     public function logout()
     {
+        session()->forget('impersonate_admin_id');
         Auth::logout();
+        request()->session()->invalidate();
+        request()->session()->regenerateToken();
         return redirect()->route('vacancies.index')->with('success', 'Logged out.');
     }
 

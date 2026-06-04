@@ -199,7 +199,7 @@
 </head>
 <body class="theme-{{ $themePreference ?? 'light' }} min-h-screen flex flex-col antialiased">
 
-    @if(session()->has('impersonate_admin_id'))
+    @if(session()->has('impersonate_admin_id') && auth()->check())
         <div class="bg-amber-500 text-white px-4 py-2.5 text-center text-sm font-bold flex justify-center items-center gap-2 relative z-50 shadow-md">
             <span>👤 You are currently logged in as: <strong>{{ auth()->user()->name }}</strong> (Impersonating Mode)</span>
             <form action="{{ route('admin.impersonate-leave') }}" method="POST" class="inline">
