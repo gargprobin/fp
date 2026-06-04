@@ -158,6 +158,120 @@
             --theme-accent: #00ab6c;
         }
 
+        /* 11. Cyberpunk Neon Theme */
+        .theme-cyberpunk_neon {
+            --theme-bg: #0d0c1d;
+            --theme-text: #00ffcc;
+            --theme-card: #1a1936;
+            --theme-border: #ff0055;
+            --theme-primary: #ff0055;
+            --theme-accent: #00ffcc;
+        }
+
+        /* 12. Dracula Vampire Theme */
+        .theme-dracula_vampire {
+            --theme-bg: #282a36;
+            --theme-text: #f8f8f2;
+            --theme-card: #343746;
+            --theme-border: #44475a;
+            --theme-primary: #ff79c6;
+            --theme-accent: #bd93f9;
+        }
+
+        /* 13. Rose Gold Romance Theme */
+        .theme-rosegold_romance {
+            --theme-bg: #fff5f5;
+            --theme-text: #5c3d47;
+            --theme-card: #ffe8e8;
+            --theme-border: #ffd1d1;
+            --theme-primary: #d4af37;
+            --theme-accent: #e57c9f;
+        }
+
+        /* 14. Coffee Latte Theme */
+        .theme-coffee_latte {
+            --theme-bg: #fbf8f3;
+            --theme-text: #3e2723;
+            --theme-card: #efebe9;
+            --theme-border: #d7ccc8;
+            --theme-primary: #8d6e63;
+            --theme-accent: #a1887f;
+        }
+
+        /* 15. Slate Graphite Theme */
+        .theme-slate_graphite {
+            --theme-bg: #1e2530;
+            --theme-text: #e2e8f0;
+            --theme-card: #27303f;
+            --theme-border: #3d4b5f;
+            --theme-primary: #6366f1;
+            --theme-accent: #818cf8;
+        }
+
+        /* 16. Royal Amethyst Theme */
+        .theme-royal_amethyst {
+            --theme-bg: #1a0b2e;
+            --theme-text: #e9d5ff;
+            --theme-card: #2d124d;
+            --theme-border: #4c1d95;
+            --theme-primary: #a855f7;
+            --theme-accent: #c084fc;
+        }
+
+        /* 17. Mint Green Sage Theme */
+        .theme-mint_green {
+            --theme-bg: #f2f7f4;
+            --theme-text: #2f4f4f;
+            --theme-card: #e1ede6;
+            --theme-border: #b4cfc0;
+            --theme-primary: #4e8a6c;
+            --theme-accent: #6aa884;
+        }
+
+        /* 18. macOS Glass Light Theme */
+        .theme-mac_glass_light {
+            --theme-bg: #f3f4f6;
+            --theme-text: #1f2937;
+            --theme-card: rgba(255, 255, 255, 0.45);
+            --theme-border: rgba(255, 255, 255, 0.4);
+            --theme-primary: #2563eb;
+            --theme-accent: #3b82f6;
+            --mac-glass-bg: radial-gradient(at 0% 0%, rgba(219, 234, 254, 0.8) 0, transparent 50%), 
+                            radial-gradient(at 50% 0%, rgba(255, 237, 213, 0.8) 0, transparent 50%), 
+                            radial-gradient(at 100% 0%, rgba(243, 232, 255, 0.8) 0, transparent 50%), 
+                            radial-gradient(at 50% 100%, rgba(254, 226, 226, 0.8) 0, transparent 50%), 
+                            #f3f4f6;
+        }
+
+        /* 19. macOS Glass Dark Theme */
+        .theme-mac_glass_dark {
+            --theme-bg: #0f172a;
+            --theme-text: #f8fafc;
+            --theme-card: rgba(15, 23, 42, 0.55);
+            --theme-border: rgba(255, 255, 255, 0.08);
+            --theme-primary: #38bdf8;
+            --theme-accent: #0284c7;
+            --mac-glass-bg: radial-gradient(at 0% 0%, rgba(30, 41, 59, 0.9) 0, transparent 50%), 
+                            radial-gradient(at 50% 0%, rgba(29, 78, 216, 0.15) 0, transparent 50%), 
+                            radial-gradient(at 100% 0%, rgba(88, 28, 135, 0.15) 0, transparent 50%), 
+                            radial-gradient(at 50% 100%, rgba(127, 29, 29, 0.1) 0, transparent 50%), 
+                            #0b0f19;
+        }
+
+        /* 20. macOS Glass Aurora Theme */
+        .theme-mac_glass_aurora {
+            --theme-bg: #080710;
+            --theme-text: #ffffff;
+            --theme-card: rgba(255, 255, 255, 0.07);
+            --theme-border: rgba(255, 255, 255, 0.08);
+            --theme-primary: #a855f7;
+            --theme-accent: #f43f5e;
+            --mac-glass-bg: radial-gradient(circle at 20% 30%, rgba(124, 58, 237, 0.25) 0, transparent 40%),
+                            radial-gradient(circle at 80% 20%, rgba(236, 72, 153, 0.25) 0, transparent 40%),
+                            radial-gradient(circle at 50% 80%, rgba(16, 185, 129, 0.15) 0, transparent 40%),
+                            #080710;
+        }
+
         /* Institutional custom branding override */
         @if(isset($activeInstitution) && $activeInstitution)
         :root {
@@ -168,9 +282,10 @@
 
         body {
             font-family: 'Plus Jakarta Sans', sans-serif;
-            background-color: var(--theme-bg);
+            background: var(--mac-glass-bg, var(--theme-bg));
+            background-attachment: fixed;
             color: var(--theme-text);
-            transition: background-color 0.3s ease, color 0.3s ease;
+            transition: background 0.3s ease, color 0.3s ease;
         }
         
         /* Glassmorphism utility card */
@@ -178,6 +293,17 @@
             background: rgba(var(--theme-card), 0.7);
             backdrop-filter: blur(12px);
             border: 1px solid var(--theme-border);
+        }
+
+        /* Glassmorphism card overrides for macOS glass themes */
+        .theme-mac_glass_light .bg-\[var\(--theme-card\)\],
+        .theme-mac_glass_dark .bg-\[var\(--theme-card\)\],
+        .theme-mac_glass_aurora .bg-\[var\(--theme-card\)\],
+        .theme-mac_glass_light [class*="bg-"][class*="-card"],
+        .theme-mac_glass_dark [class*="bg-"][class*="-card"],
+        .theme-mac_glass_aurora [class*="bg-"][class*="-card"] {
+            backdrop-filter: blur(20px) !important;
+            -webkit-backdrop-filter: blur(20px) !important;
         }
 
         /* High-quality highlight fade animation for targeted notification items */
@@ -686,17 +812,30 @@
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
                         </button>
                         
-                        <div x-show="open" @click.away="open = false" class="absolute right-0 mt-2 w-52 rounded-lg shadow-xl bg-[var(--theme-card)] border border-[var(--theme-border)] py-1 z-50 text-sm max-h-72 overflow-y-auto" x-cloak>
-                            <a href="{{ route('set-theme', ['theme' => 'light']) }}" class="block px-4 py-2 hover:bg-theme-primary/15 transition text-theme-text">☀️ Light Mode</a>
-                            <a href="{{ route('set-theme', ['theme' => 'dark']) }}" class="block px-4 py-2 hover:bg-theme-primary/15 transition text-theme-text">🌙 Dark Slate</a>
-                            <a href="{{ route('set-theme', ['theme' => 'sepia']) }}" class="block px-4 py-2 hover:bg-theme-primary/15 transition text-theme-text">☕ Sepia Gold</a>
-                            <a href="{{ route('set-theme', ['theme' => 'academic_blue']) }}" class="block px-4 py-2 hover:bg-theme-primary/15 transition text-theme-text">🎓 Academic Blue</a>
-                            <a href="{{ route('set-theme', ['theme' => 'forest_emerald']) }}" class="block px-4 py-2 hover:bg-theme-primary/15 transition text-theme-text">🌲 Forest Emerald</a>
-                            <a href="{{ route('set-theme', ['theme' => 'vintage_plum']) }}" class="block px-4 py-2 hover:bg-theme-primary/15 transition text-theme-text">🍇 Vintage Plum</a>
-                            <a href="{{ route('set-theme', ['theme' => 'sunset_amber']) }}" class="block px-4 py-2 hover:bg-theme-primary/15 transition text-theme-text">🍊 Sunset Amber</a>
-                            <a href="{{ route('set-theme', ['theme' => 'ocean_breeze']) }}" class="block px-4 py-2 hover:bg-theme-primary/15 transition text-theme-text">🌊 Ocean Breeze</a>
-                            <a href="{{ route('set-theme', ['theme' => 'crimson_ruby']) }}" class="block px-4 py-2 hover:bg-theme-primary/15 transition text-theme-text">🌹 Crimson Ruby</a>
-                            <a href="{{ route('set-theme', ['theme' => 'nord_minimal']) }}" class="block px-4 py-2 hover:bg-theme-primary/15 transition text-theme-text">⚖️ Nord Minimal</a>
+                        <div x-show="open" @click.away="open = false" class="absolute right-0 mt-2 w-56 rounded-lg shadow-xl bg-[var(--theme-card)] border border-[var(--theme-border)] py-1 z-50 text-sm max-h-72 overflow-y-auto" x-cloak>
+                            <span class="block px-4 py-1 text-[10px] font-black text-theme-text/40 uppercase tracking-wider bg-[var(--theme-bg)]">Presets</span>
+                            <a href="{{ route('set-theme', ['theme' => 'light']) }}" class="block px-4 py-2 hover:bg-theme-primary/15 transition text-theme-text font-medium">☀️ Light Mode</a>
+                            <a href="{{ route('set-theme', ['theme' => 'dark']) }}" class="block px-4 py-2 hover:bg-theme-primary/15 transition text-theme-text font-medium">🌙 Dark Slate</a>
+                            <a href="{{ route('set-theme', ['theme' => 'sepia']) }}" class="block px-4 py-2 hover:bg-theme-primary/15 transition text-theme-text font-medium">☕ Sepia Gold</a>
+                            <a href="{{ route('set-theme', ['theme' => 'academic_blue']) }}" class="block px-4 py-2 hover:bg-theme-primary/15 transition text-theme-text font-medium">🎓 Academic Blue</a>
+                            <a href="{{ route('set-theme', ['theme' => 'forest_emerald']) }}" class="block px-4 py-2 hover:bg-theme-primary/15 transition text-theme-text font-medium">🌲 Forest Emerald</a>
+                            <a href="{{ route('set-theme', ['theme' => 'vintage_plum']) }}" class="block px-4 py-2 hover:bg-theme-primary/15 transition text-theme-text font-medium">🍇 Vintage Plum</a>
+                            <a href="{{ route('set-theme', ['theme' => 'sunset_amber']) }}" class="block px-4 py-2 hover:bg-theme-primary/15 transition text-theme-text font-medium">🍊 Sunset Amber</a>
+                            <a href="{{ route('set-theme', ['theme' => 'ocean_breeze']) }}" class="block px-4 py-2 hover:bg-theme-primary/15 transition text-theme-text font-medium">🌊 Ocean Breeze</a>
+                            <a href="{{ route('set-theme', ['theme' => 'crimson_ruby']) }}" class="block px-4 py-2 hover:bg-theme-primary/15 transition text-theme-text font-medium">🌹 Crimson Ruby</a>
+                            <a href="{{ route('set-theme', ['theme' => 'nord_minimal']) }}" class="block px-4 py-2 hover:bg-theme-primary/15 transition text-theme-text font-medium">⚖️ Nord Minimal</a>
+                            <a href="{{ route('set-theme', ['theme' => 'unacademy_mint']) }}" class="block px-4 py-2 hover:bg-theme-primary/15 transition text-theme-text font-medium">🍃 Unacademy Mint</a>
+                            <a href="{{ route('set-theme', ['theme' => 'cyberpunk_neon']) }}" class="block px-4 py-2 hover:bg-theme-primary/15 transition text-theme-text font-medium">⚡ Cyberpunk Neon</a>
+                            <a href="{{ route('set-theme', ['theme' => 'dracula_vampire']) }}" class="block px-4 py-2 hover:bg-theme-primary/15 transition text-theme-text font-medium">🦇 Dracula Vampire</a>
+                            <a href="{{ route('set-theme', ['theme' => 'rosegold_romance']) }}" class="block px-4 py-2 hover:bg-theme-primary/15 transition text-theme-text font-medium">💝 Rose Gold</a>
+                            <a href="{{ route('set-theme', ['theme' => 'coffee_latte']) }}" class="block px-4 py-2 hover:bg-theme-primary/15 transition text-theme-text font-medium">☕ Coffee Latte</a>
+                            <a href="{{ route('set-theme', ['theme' => 'slate_graphite']) }}" class="block px-4 py-2 hover:bg-theme-primary/15 transition text-theme-text font-medium">🔗 Slate Graphite</a>
+                            <a href="{{ route('set-theme', ['theme' => 'royal_amethyst']) }}" class="block px-4 py-2 hover:bg-theme-primary/15 transition text-theme-text font-medium">🔮 Royal Amethyst</a>
+                            <a href="{{ route('set-theme', ['theme' => 'mint_green']) }}" class="block px-4 py-2 hover:bg-theme-primary/15 transition text-theme-text font-medium">🌿 Mint Green</a>
+                            <span class="block px-4 py-1 text-[10px] font-black text-theme-text/40 uppercase tracking-wider bg-[var(--theme-bg)] mt-2">macOS Glass</span>
+                            <a href="{{ route('set-theme', ['theme' => 'mac_glass_light']) }}" class="block px-4 py-2 hover:bg-theme-primary/15 transition text-theme-text font-medium">🖥️ macOS Glass Light</a>
+                            <a href="{{ route('set-theme', ['theme' => 'mac_glass_dark']) }}" class="block px-4 py-2 hover:bg-theme-primary/15 transition text-theme-text font-medium">🖥️ macOS Glass Dark</a>
+                            <a href="{{ route('set-theme', ['theme' => 'mac_glass_aurora']) }}" class="block px-4 py-2 hover:bg-theme-primary/15 transition text-theme-text font-medium">🖥️ macOS Glass Aurora</a>
                         </div>
                     </div>
 
@@ -772,28 +911,62 @@
     <!-- 🎨 Portal Dynamic Theme Engine Slide-out Customizer Widget -->
     <div x-data="{ 
         open: false, 
+        hidden: localStorage.getItem('theme_gear_hidden') === 'true',
+        hideGear() {
+            this.hidden = true;
+            localStorage.setItem('theme_gear_hidden', 'true');
+        },
         primary: '{{ (isset($activeInstitution) && $activeInstitution) ? ($activeInstitution->branding_settings['primary_color'] ?? '#059669') : '#059669' }}', 
         accent: '{{ (isset($activeInstitution) && $activeInstitution) ? ($activeInstitution->branding_settings['accent_color'] ?? '#047857') : '#047857' }}',
         background: '#f4fbf7',
         text: '#0f172a',
         clearBodyTheme() {
             document.body.className = document.body.className.replace(/\btheme-\S+/g, '');
+        },
+        init() {
+            // If loaded with hash, open the drawer
+            if (window.location.hash === '#theme-customizer') {
+                this.open = true;
+            }
+
+            // Listen to hashchange event to handle browser/hardware back button
+            window.addEventListener('hashchange', () => {
+                if (window.location.hash !== '#theme-customizer' && this.open) {
+                    this.open = false;
+                }
+            });
+            
+            // Watch open variable
+            this.$watch('open', value => {
+                if (value) {
+                    if (window.location.hash !== '#theme-customizer') {
+                        window.location.hash = 'theme-customizer';
+                    }
+                } else {
+                    if (window.location.hash === '#theme-customizer') {
+                        history.back();
+                    }
+                }
+            });
         }
     }">
         <!-- Floating Gear Button (Left side) -->
-        <div class="fixed bottom-6 left-6 z-50">
-            <button @click="open = true" class="p-4 bg-slate-900 text-white rounded-full shadow-2xl hover:scale-110 active:scale-95 transition transform duration-300 flex items-center justify-center border border-white/10 animate-bounce" title="Open Portal Theme Engine Demo Customizer">
-                <svg class="w-6 h-6 animate-[spin_8s_linear_infinite] text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div x-show="!hidden" class="fixed bottom-4 left-4 md:bottom-6 md:left-6 z-50 flex items-center gap-1 group">
+            <button @click="open = true" class="p-2 md:p-4 bg-slate-900 text-white rounded-full shadow-2xl hover:scale-110 active:scale-95 transition transform duration-300 flex items-center justify-center border border-white/10" title="Open Portal Theme Engine Demo Customizer">
+                <svg class="w-4 h-4 md:w-6 md:h-6 animate-[spin_8s_linear_infinite] text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
                 </svg>
             </button>
+            <button @click="hideGear()" class="w-4 h-4 md:w-5 md:h-5 bg-red-600 hover:bg-red-700 text-white rounded-full text-[8px] md:text-[10px] flex items-center justify-center font-bold cursor-pointer absolute -top-1 -right-1 md:-top-2 md:-right-2 shadow-sm" title="Hide customizer button">
+                &times;
+            </button>
         </div>
 
         <!-- Slide-out Sidebar Panel (Same to Same c:\jobs) -->
-        <div x-show="open" class="fixed inset-0 z-50 flex justify-end" x-cloak>
+        <div x-show="open" class="fixed inset-0 z-50" x-cloak>
             <!-- Backdrop -->
-            <div @click="open = false" class="absolute inset-0 bg-black/10 transition-opacity duration-300"></div>
+            <div @click="open = false" class="absolute inset-0 bg-black/20 backdrop-blur-xs transition-opacity duration-300"></div>
             
             <!-- Panel Container -->
             <div x-show="open" 
@@ -803,150 +976,174 @@
                  x-transition:leave="transition ease-in duration-200 transform" 
                  x-transition:leave-start="translate-x-0" 
                  x-transition:leave-end="translate-x-full" 
-                 class="relative w-80 max-w-full bg-white h-full shadow-2xl flex flex-col p-6 border-l border-gray-100 z-10 overflow-y-auto text-slate-800">
+                 class="fixed right-2 md:right-4 top-2 md:top-4 bottom-2 md:bottom-4 w-80 max-w-[85vw] bg-white shadow-2xl flex flex-col p-5 md:p-6 border border-gray-100 rounded-2xl z-50 overflow-y-auto text-slate-800">
                 
-                <div class="flex justify-between items-center border-b border-gray-100 pb-4 mb-6">
+                <div class="flex justify-between items-center border-b border-gray-100 pb-4 mb-4">
                     <div>
-                        <h4 class="font-extrabold text-slate-900 text-lg">Portal Theme Engine</h4>
-                        <p class="text-[10px] text-gray-500 font-bold uppercase tracking-wider mt-0.5">Live Demo Preview</p>
+                        <h4 class="font-extrabold text-slate-900 text-base">Portal Theme Engine</h4>
+                        <p class="text-[9px] text-gray-500 font-bold uppercase tracking-wider mt-0.5">Live Customizer</p>
                     </div>
                     <button @click="open = false" class="text-gray-400 hover:text-gray-600 text-lg font-bold p-1">&times;</button>
                 </div>
 
-                <p class="text-xs text-gray-500 mb-4 leading-relaxed bg-gray-50 p-3.5 rounded-xl border border-gray-100">
-                    💡 <strong>Live Theme Selector:</strong> Click any preset below to custom-brand your recruitment portal!
-                </p>
-
                 <!-- Reset Button at the Top -->
-                <button @click="primary='#059669'; accent='#047857'; background='#f4fbf7'; text='#0f172a'; clearBodyTheme();
-                        document.documentElement.style.setProperty('--theme-primary', '#059669'); 
-                        document.documentElement.style.setProperty('--theme-accent', '#047857');
-                        document.documentElement.style.setProperty('--theme-bg', '#f4fbf7');
-                        document.documentElement.style.setProperty('--theme-text', '#0f172a');
-                        document.documentElement.style.setProperty('--theme-card', '#ffffff');
-                        document.documentElement.style.setProperty('--theme-border', '#d1fae5')"
-                        class="w-full mb-6 py-2.5 px-4 text-xs font-black text-white bg-slate-900 hover:bg-slate-800 rounded-xl transition-all shadow-md flex items-center justify-center gap-1.5 cursor-pointer">
+                <a href="{{ route('set-theme', ['theme' => 'light']) }}"
+                        class="w-full mb-4 py-2 px-3 text-xs font-black text-white bg-slate-900 hover:bg-slate-800 rounded-xl transition-all shadow-md flex items-center justify-center gap-1.5 cursor-pointer no-underline text-center">
                     🔄 Reset Theme to Defaults
-                </button>
+                </a>
 
-                <!-- Presets List (Same to Same c:\jobs) -->
-                <div class="space-y-4 flex-grow">
-                    <h5 class="text-xs font-black text-slate-900 uppercase tracking-widest mb-3">Select Preset Theme</h5>
+                <!-- Presets List -->
+                <div class="space-y-3 flex-grow">
+                    <h5 class="text-[10px] font-black text-slate-900 uppercase tracking-widest mb-2">Select Preset Theme</h5>
                     
-                    <!-- Emerald -->
-                    <button @click="primary='#059669'; accent='#047857'; background='#f4fbf7'; text='#0f172a'; clearBodyTheme();
-                            document.documentElement.style.setProperty('--theme-primary', primary);
-                            document.documentElement.style.setProperty('--theme-accent', accent);
-                            document.documentElement.style.setProperty('--theme-bg', background);
-                            document.documentElement.style.setProperty('--theme-text', text);
-                            document.documentElement.style.setProperty('--theme-card', '#ffffff');
-                            document.documentElement.style.setProperty('--theme-border', '#d1fae5')" 
-                            class="w-full flex items-center justify-between p-3.5 rounded-2xl border border-gray-200 hover:border-gray-300 hover:bg-gray-50 transition text-left">
-                        <div>
-                            <span class="text-sm font-bold text-slate-800 block">Emerald Mint (Default)</span>
-                            <span class="text-[10px] text-gray-400 capitalize mt-0.5">Preset: emerald</span>
-                        </div>
-                        <div class="flex items-center gap-1 shrink-0">
-                            <span class="w-3.5 h-3.5 rounded-full bg-[#059669] border border-white shadow-sm"></span>
-                            <span class="w-3.5 h-3.5 rounded-full bg-[#1e293b] border border-white shadow-sm"></span>
-                        </div>
-                    </button>
+                    <div class="grid grid-cols-1 gap-2 max-h-[300px] overflow-y-auto pr-1 border border-gray-100 p-2 rounded-xl bg-gray-50/50">
+                        <!-- 1. Light Mode -->
+                        <a href="{{ route('set-theme', ['theme' => 'light']) }}" 
+                           class="flex items-center justify-between p-2 rounded-lg border border-gray-200 hover:border-theme-primary hover:bg-theme-primary/5 transition text-left no-underline {{ ($themePreference ?? 'light') === 'light' ? 'border-theme-primary bg-theme-primary/5 ring-1 ring-theme-primary' : '' }}">
+                            <span class="text-xs font-bold text-slate-800">☀️ Light Mode</span>
+                            <span class="w-3 h-3 rounded-full bg-[#2563eb] border border-white shadow-sm"></span>
+                        </a>
 
-                    <!-- Ocean -->
-                    <button @click="primary='#0284c7'; accent='#0369a1'; background='#f0f9ff'; text='#0f172a'; clearBodyTheme();
-                            document.documentElement.style.setProperty('--theme-primary', primary);
-                            document.documentElement.style.setProperty('--theme-accent', accent);
-                            document.documentElement.style.setProperty('--theme-bg', background);
-                            document.documentElement.style.setProperty('--theme-text', text);
-                            document.documentElement.style.setProperty('--theme-card', '#ffffff');
-                            document.documentElement.style.setProperty('--theme-border', '#bae6fd')" 
-                            class="w-full flex items-center justify-between p-3.5 rounded-2xl border border-gray-200 hover:border-gray-300 hover:bg-gray-50 transition text-left">
-                        <div>
-                            <span class="text-sm font-bold text-slate-800 block">Ocean Breeze</span>
-                            <span class="text-[10px] text-gray-400 capitalize mt-0.5">Preset: ocean</span>
-                        </div>
-                        <div class="flex items-center gap-1 shrink-0">
-                            <span class="w-3.5 h-3.5 rounded-full bg-[#0284c7] border border-white shadow-sm"></span>
-                            <span class="w-3.5 h-3.5 rounded-full bg-[#0f172a] border border-white shadow-sm"></span>
-                        </div>
-                    </button>
+                        <!-- 2. Dark Slate -->
+                        <a href="{{ route('set-theme', ['theme' => 'dark']) }}" 
+                           class="flex items-center justify-between p-2 rounded-lg border border-gray-200 hover:border-theme-primary hover:bg-theme-primary/5 transition text-left no-underline {{ ($themePreference ?? 'light') === 'dark' ? 'border-theme-primary bg-theme-primary/5 ring-1 ring-theme-primary' : '' }}">
+                            <span class="text-xs font-bold text-slate-800">🌙 Dark Slate</span>
+                            <span class="w-3 h-3 rounded-full bg-[#38bdf8] border border-white shadow-sm"></span>
+                        </a>
 
-                    <!-- Royal -->
-                    <button @click="primary='#3b82f6'; accent='#2563eb'; background='#f5f7ff'; text='#0f172a'; clearBodyTheme();
-                            document.documentElement.style.setProperty('--theme-primary', primary);
-                            document.documentElement.style.setProperty('--theme-accent', accent);
-                            document.documentElement.style.setProperty('--theme-bg', background);
-                            document.documentElement.style.setProperty('--theme-text', text);
-                            document.documentElement.style.setProperty('--theme-card', '#ffffff');
-                            document.documentElement.style.setProperty('--theme-border', '#c7d2fe')" 
-                            class="w-full flex items-center justify-between p-3.5 rounded-2xl border border-gray-200 hover:border-gray-300 hover:bg-gray-50 transition text-left">
-                        <div>
-                            <span class="text-sm font-bold text-slate-800 block">Royal Velvet</span>
-                            <span class="text-[10px] text-gray-400 capitalize mt-0.5">Preset: royal</span>
-                        </div>
-                        <div class="flex items-center gap-1 shrink-0">
-                            <span class="w-3.5 h-3.5 rounded-full bg-[#3b82f6] border border-white shadow-sm"></span>
-                            <span class="w-3.5 h-3.5 rounded-full bg-[#1e1b4b] border border-white shadow-sm"></span>
-                        </div>
-                    </button>
+                        <!-- 3. Sepia Gold -->
+                        <a href="{{ route('set-theme', ['theme' => 'sepia']) }}" 
+                           class="flex items-center justify-between p-2 rounded-lg border border-gray-200 hover:border-theme-primary hover:bg-theme-primary/5 transition text-left no-underline {{ ($themePreference ?? 'light') === 'sepia' ? 'border-theme-primary bg-theme-primary/5 ring-1 ring-theme-primary' : '' }}">
+                            <span class="text-xs font-bold text-slate-800">☕ Sepia Gold</span>
+                            <span class="w-3 h-3 rounded-full bg-[#b45309] border border-white shadow-sm"></span>
+                        </a>
 
-                    <!-- Purple -->
-                    <button @click="primary='#8b5cf6'; accent='#7c3aed'; background='#faf5ff'; text='#0f172a'; clearBodyTheme();
-                            document.documentElement.style.setProperty('--theme-primary', primary);
-                            document.documentElement.style.setProperty('--theme-accent', accent);
-                            document.documentElement.style.setProperty('--theme-bg', background);
-                            document.documentElement.style.setProperty('--theme-text', text);
-                            document.documentElement.style.setProperty('--theme-card', '#ffffff');
-                            document.documentElement.style.setProperty('--theme-border', '#e9d5ff')" 
-                            class="w-full flex items-center justify-between p-3.5 rounded-2xl border border-gray-200 hover:border-gray-300 hover:bg-gray-50 transition text-left">
-                        <div>
-                            <span class="text-sm font-bold text-slate-800 block">Purple Haze</span>
-                            <span class="text-[10px] text-gray-400 capitalize mt-0.5">Preset: purple</span>
-                        </div>
-                        <div class="flex items-center gap-1 shrink-0">
-                            <span class="w-3.5 h-3.5 rounded-full bg-[#8b5cf6] border border-white shadow-sm"></span>
-                            <span class="w-3.5 h-3.5 rounded-full bg-[#1e1b4b] border border-white shadow-sm"></span>
-                        </div>
-                    </button>
+                        <!-- 4. Academic Blue -->
+                        <a href="{{ route('set-theme', ['theme' => 'academic_blue']) }}" 
+                           class="flex items-center justify-between p-2 rounded-lg border border-gray-200 hover:border-theme-primary hover:bg-theme-primary/5 transition text-left no-underline {{ ($themePreference ?? 'light') === 'academic_blue' ? 'border-theme-primary bg-theme-primary/5 ring-1 ring-theme-primary' : '' }}">
+                            <span class="text-xs font-bold text-slate-800">🎓 Academic Blue</span>
+                            <span class="w-3 h-3 rounded-full bg-[#3b82f6] border border-white shadow-sm"></span>
+                        </a>
 
-                    <!-- Unacademy -->
-                    <button @click="primary='#00c37b'; accent='#00ab6c'; background='#f5fdf9'; text='#191d23'; clearBodyTheme();
-                            document.documentElement.style.setProperty('--theme-primary', primary);
-                            document.documentElement.style.setProperty('--theme-accent', accent);
-                            document.documentElement.style.setProperty('--theme-bg', background);
-                            document.documentElement.style.setProperty('--theme-text', text);
-                            document.documentElement.style.setProperty('--theme-card', '#ffffff');
-                            document.documentElement.style.setProperty('--theme-border', '#a7f3d0')" 
-                            class="w-full flex items-center justify-between p-3.5 rounded-2xl border border-gray-200 hover:border-gray-300 hover:bg-gray-50 transition text-left">
-                        <div>
-                            <span class="text-sm font-bold text-slate-800 block">Unacademy Mint</span>
-                            <span class="text-[10px] text-gray-400 capitalize mt-0.5">Preset: unacademy</span>
-                        </div>
-                        <div class="flex items-center gap-1 shrink-0">
-                            <span class="w-3.5 h-3.5 rounded-full bg-[#00c37b] border border-white shadow-sm"></span>
-                            <span class="w-3.5 h-3.5 rounded-full bg-[#191d23] border border-white shadow-sm"></span>
-                        </div>
-                    </button>
+                        <!-- 5. Forest Emerald -->
+                        <a href="{{ route('set-theme', ['theme' => 'forest_emerald']) }}" 
+                           class="flex items-center justify-between p-2 rounded-lg border border-gray-200 hover:border-theme-primary hover:bg-theme-primary/5 transition text-left no-underline {{ ($themePreference ?? 'light') === 'forest_emerald' ? 'border-theme-primary bg-theme-primary/5 ring-1 ring-theme-primary' : '' }}">
+                            <span class="text-xs font-bold text-slate-800">🌲 Forest Emerald</span>
+                            <span class="w-3 h-3 rounded-full bg-[#059669] border border-white shadow-sm"></span>
+                        </a>
 
-                    <!-- Fiery -->
-                    <button @click="primary='#f97316'; accent='#ea580c'; background='#fffaf5'; text='#0f172a'; clearBodyTheme();
-                            document.documentElement.style.setProperty('--theme-primary', primary);
-                            document.documentElement.style.setProperty('--theme-accent', accent);
-                            document.documentElement.style.setProperty('--theme-bg', background);
-                            document.documentElement.style.setProperty('--theme-text', text);
-                            document.documentElement.style.setProperty('--theme-card', '#ffffff');
-                            document.documentElement.style.setProperty('--theme-border', '#fed7aa')" 
-                            class="w-full flex items-center justify-between p-3.5 rounded-2xl border border-gray-200 hover:border-gray-300 hover:bg-gray-50 transition text-left">
-                        <div>
-                            <span class="text-sm font-bold text-slate-800 block">Fiery Orange</span>
-                            <span class="text-[10px] text-gray-400 capitalize mt-0.5">Preset: fiery</span>
-                        </div>
-                        <div class="flex items-center gap-1 shrink-0">
-                            <span class="w-3.5 h-3.5 rounded-full bg-[#f97316] border border-white shadow-sm"></span>
-                            <span class="w-3.5 h-3.5 rounded-full bg-[#1e293b] border border-white shadow-sm"></span>
-                        </div>
-                    </button>
+                        <!-- 6. Vintage Plum -->
+                        <a href="{{ route('set-theme', ['theme' => 'vintage_plum']) }}" 
+                           class="flex items-center justify-between p-2 rounded-lg border border-gray-200 hover:border-theme-primary hover:bg-theme-primary/5 transition text-left no-underline {{ ($themePreference ?? 'light') === 'vintage_plum' ? 'border-theme-primary bg-theme-primary/5 ring-1 ring-theme-primary' : '' }}">
+                            <span class="text-xs font-bold text-slate-800">🍇 Vintage Plum</span>
+                            <span class="w-3 h-3 rounded-full bg-[#8b5cf6] border border-white shadow-sm"></span>
+                        </a>
 
+                        <!-- 7. Sunset Amber -->
+                        <a href="{{ route('set-theme', ['theme' => 'sunset_amber']) }}" 
+                           class="flex items-center justify-between p-2 rounded-lg border border-gray-200 hover:border-theme-primary hover:bg-theme-primary/5 transition text-left no-underline {{ ($themePreference ?? 'light') === 'sunset_amber' ? 'border-theme-primary bg-theme-primary/5 ring-1 ring-theme-primary' : '' }}">
+                            <span class="text-xs font-bold text-slate-800">🍊 Sunset Amber</span>
+                            <span class="w-3 h-3 rounded-full bg-[#f97316] border border-white shadow-sm"></span>
+                        </a>
+
+                        <!-- 8. Ocean Breeze -->
+                        <a href="{{ route('set-theme', ['theme' => 'ocean_breeze']) }}" 
+                           class="flex items-center justify-between p-2 rounded-lg border border-gray-200 hover:border-theme-primary hover:bg-theme-primary/5 transition text-left no-underline {{ ($themePreference ?? 'light') === 'ocean_breeze' ? 'border-theme-primary bg-theme-primary/5 ring-1 ring-theme-primary' : '' }}">
+                            <span class="text-xs font-bold text-slate-800">🌊 Ocean Breeze</span>
+                            <span class="w-3 h-3 rounded-full bg-[#0284c7] border border-white shadow-sm"></span>
+                        </a>
+
+                        <!-- 9. Crimson Ruby -->
+                        <a href="{{ route('set-theme', ['theme' => 'crimson_ruby']) }}" 
+                           class="flex items-center justify-between p-2 rounded-lg border border-gray-200 hover:border-theme-primary hover:bg-theme-primary/5 transition text-left no-underline {{ ($themePreference ?? 'light') === 'crimson_ruby' ? 'border-theme-primary bg-theme-primary/5 ring-1 ring-theme-primary' : '' }}">
+                            <span class="text-xs font-bold text-slate-800">🌹 Crimson Ruby</span>
+                            <span class="w-3 h-3 rounded-full bg-[#b91c1c] border border-white shadow-sm"></span>
+                        </a>
+
+                        <!-- 10. Nord Minimal -->
+                        <a href="{{ route('set-theme', ['theme' => 'nord_minimal']) }}" 
+                           class="flex items-center justify-between p-2 rounded-lg border border-gray-200 hover:border-theme-primary hover:bg-theme-primary/5 transition text-left no-underline {{ ($themePreference ?? 'light') === 'nord_minimal' ? 'border-theme-primary bg-theme-primary/5 ring-1 ring-theme-primary' : '' }}">
+                            <span class="text-xs font-bold text-slate-800">⚖️ Nord Minimal</span>
+                            <span class="w-3 h-3 rounded-full bg-[#5e81ac] border border-white shadow-sm"></span>
+                        </a>
+
+                        <!-- 11. Unacademy Mint -->
+                        <a href="{{ route('set-theme', ['theme' => 'unacademy_mint']) }}" 
+                           class="flex items-center justify-between p-2 rounded-lg border border-gray-200 hover:border-theme-primary hover:bg-theme-primary/5 transition text-left no-underline {{ ($themePreference ?? 'light') === 'unacademy_mint' ? 'border-theme-primary bg-theme-primary/5 ring-1 ring-theme-primary' : '' }}">
+                            <span class="text-xs font-bold text-slate-800">🍃 Unacademy Mint</span>
+                            <span class="w-3 h-3 rounded-full bg-[#00c37b] border border-white shadow-sm"></span>
+                        </a>
+
+                        <!-- 12. Cyberpunk Neon -->
+                        <a href="{{ route('set-theme', ['theme' => 'cyberpunk_neon']) }}" 
+                           class="flex items-center justify-between p-2 rounded-lg border border-gray-200 hover:border-theme-primary hover:bg-theme-primary/5 transition text-left no-underline {{ ($themePreference ?? 'light') === 'cyberpunk_neon' ? 'border-theme-primary bg-theme-primary/5 ring-1 ring-theme-primary' : '' }}">
+                            <span class="text-xs font-bold text-slate-800">⚡ Cyberpunk Neon</span>
+                            <span class="w-3 h-3 rounded-full bg-[#ff0055] border border-white shadow-sm"></span>
+                        </a>
+
+                        <!-- 13. Dracula Vampire -->
+                        <a href="{{ route('set-theme', ['theme' => 'dracula_vampire']) }}" 
+                           class="flex items-center justify-between p-2 rounded-lg border border-gray-200 hover:border-theme-primary hover:bg-theme-primary/5 transition text-left no-underline {{ ($themePreference ?? 'light') === 'dracula_vampire' ? 'border-theme-primary bg-theme-primary/5 ring-1 ring-theme-primary' : '' }}">
+                            <span class="text-xs font-bold text-slate-800">🦇 Dracula Vampire</span>
+                            <span class="w-3 h-3 rounded-full bg-[#ff79c6] border border-white shadow-sm"></span>
+                        </a>
+
+                        <!-- 14. Rose Gold Romance -->
+                        <a href="{{ route('set-theme', ['theme' => 'rosegold_romance']) }}" 
+                           class="flex items-center justify-between p-2 rounded-lg border border-gray-200 hover:border-theme-primary hover:bg-theme-primary/5 transition text-left no-underline {{ ($themePreference ?? 'light') === 'rosegold_romance' ? 'border-theme-primary bg-theme-primary/5 ring-1 ring-theme-primary' : '' }}">
+                            <span class="text-xs font-bold text-slate-800">💝 Rose Gold</span>
+                            <span class="w-3 h-3 rounded-full bg-[#d4af37] border border-white shadow-sm"></span>
+                        </a>
+
+                        <!-- 15. Coffee Latte -->
+                        <a href="{{ route('set-theme', ['theme' => 'coffee_latte']) }}" 
+                           class="flex items-center justify-between p-2 rounded-lg border border-gray-200 hover:border-theme-primary hover:bg-theme-primary/5 transition text-left no-underline {{ ($themePreference ?? 'light') === 'coffee_latte' ? 'border-theme-primary bg-theme-primary/5 ring-1 ring-theme-primary' : '' }}">
+                            <span class="text-xs font-bold text-slate-800">☕ Coffee Latte</span>
+                            <span class="w-3 h-3 rounded-full bg-[#8d6e63] border border-white shadow-sm"></span>
+                        </a>
+
+                        <!-- 16. Slate Graphite -->
+                        <a href="{{ route('set-theme', ['theme' => 'slate_graphite']) }}" 
+                           class="flex items-center justify-between p-2 rounded-lg border border-gray-200 hover:border-theme-primary hover:bg-theme-primary/5 transition text-left no-underline {{ ($themePreference ?? 'light') === 'slate_graphite' ? 'border-theme-primary bg-theme-primary/5 ring-1 ring-theme-primary' : '' }}">
+                            <span class="text-xs font-bold text-slate-800">🔗 Slate Graphite</span>
+                            <span class="w-3 h-3 rounded-full bg-[#6366f1] border border-white shadow-sm"></span>
+                        </a>
+
+                        <!-- 17. Royal Amethyst -->
+                        <a href="{{ route('set-theme', ['theme' => 'royal_amethyst']) }}" 
+                           class="flex items-center justify-between p-2 rounded-lg border border-gray-200 hover:border-theme-primary hover:bg-theme-primary/5 transition text-left no-underline {{ ($themePreference ?? 'light') === 'royal_amethyst' ? 'border-theme-primary bg-theme-primary/5 ring-1 ring-theme-primary' : '' }}">
+                            <span class="text-xs font-bold text-slate-800">🔮 Royal Amethyst</span>
+                            <span class="w-3 h-3 rounded-full bg-[#a855f7] border border-white shadow-sm"></span>
+                        </a>
+
+                        <!-- 18. Mint Green -->
+                        <a href="{{ route('set-theme', ['theme' => 'mint_green']) }}" 
+                           class="flex items-center justify-between p-2 rounded-lg border border-gray-200 hover:border-theme-primary hover:bg-theme-primary/5 transition text-left no-underline {{ ($themePreference ?? 'light') === 'mint_green' ? 'border-theme-primary bg-theme-primary/5 ring-1 ring-theme-primary' : '' }}">
+                            <span class="text-xs font-bold text-slate-800">🌿 Mint Green</span>
+                            <span class="w-3 h-3 rounded-full bg-[#4e8a6c] border border-white shadow-sm"></span>
+                        </a>
+
+                        <!-- 19. macOS Glass Light -->
+                        <a href="{{ route('set-theme', ['theme' => 'mac_glass_light']) }}" 
+                           class="flex items-center justify-between p-2 rounded-lg border border-gray-200 hover:border-theme-primary hover:bg-theme-primary/5 transition text-left no-underline {{ ($themePreference ?? 'light') === 'mac_glass_light' ? 'border-theme-primary bg-theme-primary/5 ring-1 ring-theme-primary' : '' }}">
+                            <span class="text-xs font-bold text-slate-800">🖥️ macOS Glass Light</span>
+                            <span class="w-3 h-3 rounded-full bg-gradient-to-r from-blue-400 to-indigo-400 border border-white shadow-sm"></span>
+                        </a>
+
+                        <!-- 20. macOS Glass Dark -->
+                        <a href="{{ route('set-theme', ['theme' => 'mac_glass_dark']) }}" 
+                           class="flex items-center justify-between p-2 rounded-lg border border-gray-200 hover:border-theme-primary hover:bg-theme-primary/5 transition text-left no-underline {{ ($themePreference ?? 'light') === 'mac_glass_dark' ? 'border-theme-primary bg-theme-primary/5 ring-1 ring-theme-primary' : '' }}">
+                            <span class="text-xs font-bold text-slate-800">🖥️ macOS Glass Dark</span>
+                            <span class="w-3 h-3 rounded-full bg-gradient-to-r from-slate-700 to-slate-900 border border-white shadow-sm"></span>
+                        </a>
+
+                        <!-- 21. macOS Glass Aurora -->
+                        <a href="{{ route('set-theme', ['theme' => 'mac_glass_aurora']) }}" 
+                           class="flex items-center justify-between p-2 rounded-lg border border-gray-200 hover:border-theme-primary hover:bg-theme-primary/5 transition text-left no-underline {{ ($themePreference ?? 'light') === 'mac_glass_aurora' ? 'border-theme-primary bg-theme-primary/5 ring-1 ring-theme-primary' : '' }}">
+                            <span class="text-xs font-bold text-slate-800">🖥️ macOS Glass Aurora</span>
+                            <span class="w-3 h-3 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 border border-white shadow-sm"></span>
+                        </a>
+                    </div>
                 </div>
 
                 <!-- Custom Color Pickers (Same to Same c:\jobs) -->

@@ -17,7 +17,9 @@ class ThemeController extends Controller
         if (!in_array($theme, [
             'light', 'dark', 'sepia', 'academic_blue', 'forest_emerald', 
             'vintage_plum', 'sunset_amber', 'ocean_breeze', 'crimson_ruby', 
-            'nord_minimal', 'unacademy_mint'
+            'nord_minimal', 'unacademy_mint', 'cyberpunk_neon', 'dracula_vampire',
+            'rosegold_romance', 'coffee_latte', 'slate_graphite', 'royal_amethyst',
+            'mint_green', 'mac_glass_light', 'mac_glass_dark', 'mac_glass_aurora'
         ])) {
             $theme = 'light';
         }
