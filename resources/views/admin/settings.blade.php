@@ -484,6 +484,7 @@
                                         @if($user->role === 'institution' && $user->institution)
                                             <span class="text-[10px] text-theme-accent font-semibold">Brand: {{ $user->institution->company_name }}</span>
                                         @endif
+                                        <span class="text-[9px] text-theme-text/45 font-normal mt-0.5">Joined: ({{ $user->created_at->format('h:i:s A, d M y ') }})</span>
                                     </div>
                                 </td>
                                 <td class="px-6 py-4">
@@ -620,7 +621,10 @@
                     <tbody class="divide-y divide-[var(--theme-border)] bg-[var(--theme-bg)]">
                         @forelse($vacancies as $vacancy)
                             <tr class="hover:bg-theme-primary/5 transition-colors">
-                                <td class="px-6 py-4 font-bold">{{ $vacancy->title }}</td>
+                                <td class="px-6 py-4 font-bold">
+                                    {{ $vacancy->title }}
+                                    <div class="text-[10px] text-theme-text/45 font-normal mt-0.5">Posted: ({{ $vacancy->created_at->format('h:i:s A, d M y ') }})</div>
+                                </td>
                                 <td class="px-6 py-4 text-theme-primary font-semibold">{{ $vacancy->institution->company_name }}</td>
                                 <td class="px-6 py-4 text-theme-text/75">{{ $vacancy->subject }} ({{ $vacancy->target_class }})</td>
                                 <td class="px-6 py-4 text-theme-text/70 font-semibold">₹{{ number_format($vacancy->salary_min) }} - ₹{{ number_format($vacancy->salary_max) }}</td>
@@ -745,6 +749,7 @@
                                 <td class="px-6 py-4">
                                     <div class="font-semibold text-theme-text/80">{{ $application->vacancy->title }}</div>
                                     <div class="text-xs text-theme-text/50">Subject: {{ $application->vacancy->subject }}</div>
+                                    <div class="text-[10px] text-theme-text/45 mt-0.5">Applied: ({{ $application->created_at->format('h:i:s A, d M y ') }})</div>
                                 </td>
                                 <td class="px-6 py-4 font-semibold text-theme-primary">
                                     {{ $application->vacancy->institution->company_name }}
