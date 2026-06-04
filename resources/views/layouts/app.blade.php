@@ -4,11 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    @auth
-        <meta name="last-notification-id" content="{{ \App\Models\Notification::where('user_id', auth()->id())->latest()->value('id') ?? 0 }}">
-    @else
-        <meta name="last-vacancy-id" content="{{ \App\Models\Vacancy::open()->latest()->value('id') ?? 0 }}">
-    @endauth
+    <meta name="last-notification-id" content="{{ \App\Models\Notification::max('id') ?? 0 }}">
+    <meta name="last-vacancy-id" content="{{ \App\Models\Vacancy::max('id') ?? 0 }}">
     <title>@yield('title', $siteSettings->platform_name ?? 'Sourcing Portal')</title>
     
     <!-- Google Fonts for Premium Typography -->
@@ -1374,13 +1371,13 @@
             return {
                 toasts: [],
                 lastHash: sessionStorage.getItem('realtime_hash') || null,
-                lastNotificationId: parseInt(sessionStorage.getItem('last_notification_id') || document.querySelector('meta[name="last-notification-id"]')?.getAttribute('content') || 0),
-                lastVacancyId: parseInt(sessionStorage.getItem('last_vacancy_id') || document.querySelector('meta[name="last-vacancy-id"]')?.getAttribute('content') || 0),
+                lastNotificationId: parseInt(sessionStorage.getItem('last_notification_id_' + '{{ auth()->id() ?? 0 }}')) || parseInt(document.querySelector('meta[name="last-notification-id"]')?.getAttribute('content')) || 0,
+                lastVacancyId: parseInt(sessionStorage.getItem('last_vacancy_id_' + '{{ auth()->id() ?? 0 }}')) || parseInt(document.querySelector('meta[name="last-vacancy-id"]')?.getAttribute('content')) || 0,
                 pollInterval: 10000, // 10 seconds polling interval
                 initPolling() {
-                    // Save initial values to session storage
-                    sessionStorage.setItem('last_notification_id', this.lastNotificationId);
-                    sessionStorage.setItem('last_vacancy_id', this.lastVacancyId);
+                    // Save initial values to session storage with user scopes to avoid contamination
+                    sessionStorage.setItem('last_notification_id_' + '{{ auth()->id() ?? 0 }}', this.lastNotificationId);
+                    sessionStorage.setItem('last_vacancy_id_' + '{{ auth()->id() ?? 0 }}', this.lastVacancyId);
 
                     // Start polling
                     setInterval(() => this.checkUpdates(), this.pollInterval);
@@ -1406,7 +1403,7 @@
 
                                 // Update session storage ID
                                 this.lastNotificationId = data.notification.id;
-                                sessionStorage.setItem('last_notification_id', this.lastNotificationId);
+                                sessionStorage.setItem('last_notification_id_' + '{{ auth()->id() ?? 0 }}', this.lastNotificationId);
                             } else if (data.vacancy) {
                                 changeDetected = true;
                                 showToast = true;
@@ -1415,7 +1412,7 @@
 
                                 // Update session storage ID
                                 this.lastVacancyId = data.vacancy.id;
-                                sessionStorage.setItem('last_vacancy_id', this.lastVacancyId);
+                                sessionStorage.setItem('last_vacancy_id_' + '{{ auth()->id() ?? 0 }}', this.lastVacancyId);
                             } else if (this.lastHash && this.lastHash !== data.hash) {
                                 changeDetected = true;
                             }

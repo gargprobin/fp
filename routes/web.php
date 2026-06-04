@@ -119,8 +119,8 @@ Route::get('/realtime/check', function() {
             );
         }
 
-        // Check for new notification
-        if ($lastNotificationId > 0) {
+        // Check for new notification if parameter is provided and greater than 0
+        if ($lastNotificationId > 0 && request()->has('last_notification_id')) {
             $newNotification = \App\Models\Notification::where('user_id', $user->id)
                 ->where('id', '>', $lastNotificationId)
                 ->latest()
@@ -138,22 +138,22 @@ Route::get('/realtime/check', function() {
     } else {
         // Guest Hash (Welcome page openings count)
         $hash = md5(\App\Models\Vacancy::open()->count());
+    }
 
-        // Check for new vacancy
-        if ($lastVacancyId > 0) {
-            $newVacancy = \App\Models\Vacancy::open()
-                ->where('id', '>', $lastVacancyId)
-                ->with('institution')
-                ->latest()
-                ->first();
+    // Check for new vacancy (applicable to candidates, admins and guest users)
+    if ($lastVacancyId > 0 && request()->has('last_vacancy_id') && (!auth()->check() || auth()->user()->isCandidate() || auth()->user()->isAdmin())) {
+        $newVacancy = \App\Models\Vacancy::open()
+            ->where('id', '>', $lastVacancyId)
+            ->with('institution')
+            ->latest()
+            ->first();
 
-            if ($newVacancy) {
-                $vacancy = [
-                    'id' => $newVacancy->id,
-                    'title' => $newVacancy->title,
-                    'company' => $newVacancy->institution ? $newVacancy->institution->company_name : 'Confidential Partner Brand'
-                ];
-            }
+        if ($newVacancy) {
+            $vacancy = [
+                'id' => $newVacancy->id,
+                'title' => $newVacancy->title,
+                'company' => $newVacancy->institution ? $newVacancy->institution->company_name : 'Confidential Partner Brand'
+            ];
         }
     }
 
