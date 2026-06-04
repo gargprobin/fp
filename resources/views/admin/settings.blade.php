@@ -118,6 +118,13 @@
                         ⚡ Clear System Cache
                     </button>
                 </form>
+                
+                <form action="{{ route('admin.storage-link') }}" method="POST" onsubmit="return confirm('Are you sure you want to regenerate the storage symbolic link? This will connect your public storage folder with uploaded files.')">
+                    @csrf
+                    <button type="submit" class="px-4 py-2.5 bg-blue-500 hover:bg-blue-600 active:scale-95 text-white font-bold text-xs rounded-xl shadow-sm transition-all duration-200 flex items-center gap-1.5 border border-blue-600/20 cursor-pointer">
+                        🔗 Link Storage Folder
+                    </button>
+                </form>
             </div>
         </div>
     </div>

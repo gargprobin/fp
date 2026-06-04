@@ -171,6 +171,14 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::get('/admin/settings', [AdminController::class, 'index'])->name('admin.settings');
     Route::post('/admin/settings', [AdminController::class, 'update'])->name('admin.settings.update');
     Route::post('/admin/clear-cache', [AdminController::class, 'clearCache'])->name('admin.clear-cache');
+    Route::post('/admin/storage-link', function() {
+        try {
+            \Illuminate\Support\Facades\Artisan::call('storage:link');
+            return back()->with('success', '🔗 Storage symbolic link created successfully!');
+        } catch (\Exception $e) {
+            return back()->with('error', '❌ Failed to create link: ' . $e->getMessage());
+        }
+    })->name('admin.storage-link');
 
     // Impersonate Routes
     Route::post('/admin/impersonate/{id}', [AdminController::class, 'impersonate'])->name('admin.impersonate');
