@@ -169,10 +169,7 @@
                             <form action="{{ route('vacancies.apply', $vacancy->id) }}" method="POST" class="space-y-4">
                                 @csrf
                                 
-                                <div>
-                                    <label class="block text-xs font-bold text-theme-text/60 uppercase mb-1">Cover Letter</label>
-                                    <textarea name="cover_letter" rows="3" class="w-full p-3 text-sm bg-[var(--theme-bg)] border border-[var(--theme-border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-theme-primary text-theme-text" placeholder="Explain why you are the perfect fit for this faculty position..."></textarea>
-                                </div>
+
 
                                 <!-- Application Submission Confirmation -->
                                 <div class="p-4 rounded-xl bg-theme-primary/5 border border-theme-primary/10 space-y-2 flex items-start gap-3">

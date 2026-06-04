@@ -510,10 +510,7 @@
                 <!-- Authenticated Quick Application Form -->
                 <form :action="'{{ url('/vacancy') }}/' + (applyVacancy ? applyVacancy.id : '') + '/apply'" method="POST" class="space-y-4">
                     @csrf
-                    <div>
-                        <label class="block text-xs font-bold uppercase tracking-wider mb-2 text-theme-text/70">Cover Note</label>
-                        <textarea name="cover_letter" rows="3" required class="w-full p-3 text-sm bg-[var(--theme-bg)] border border-[var(--theme-border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-theme-primary text-theme-text" placeholder="Explain why you are qualified for this faculty role..."></textarea>
-                    </div>
+
 
                     <!-- Application Submission Confirmation -->
                     <div class="p-4 rounded-2xl bg-theme-primary/5 border border-theme-primary/10 space-y-2 flex items-start gap-3">
