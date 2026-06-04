@@ -158,13 +158,22 @@
             <div class="grid grid-cols-1 gap-6">
                 @php $hasVisibleJobs = false; @endphp
                 @foreach($vacancies as $job)
-                    @php $hasVisibleJobs = true; @endphp
+                    @php 
+                        $hasVisibleJobs = true; 
+                        $inst = $job->institution ?? (object) [
+                            'company_name' => 'Confidential Partner Brand',
+                            'primary_color' => '#059669',
+                            'accent_color' => '#047857',
+                            'type' => 'institution',
+                            'user_id' => 0
+                        ];
+                    @endphp
                     <div 
                         x-show="matchesFilters('{{ addslashes(str_replace(["'", '"'], ' ', $job->subject)) }}', '{{ addslashes(str_replace(["'", '"'], ' ', $job->title)) }}', '{{ addslashes(str_replace(["\r", "\n", "'", '"'], ' ', $job->description)) }}', '{{ addslashes(str_replace(["'", '"'], ' ', $job->location)) }}')"
                         class="p-6 rounded-2xl bg-[var(--theme-card)] border border-[var(--theme-border)] flex flex-col md:flex-row justify-between items-start md:items-center gap-6 hover:border-theme-primary/30 hover:shadow-lg transition-all duration-300 relative overflow-hidden"
                     >
                         <!-- Institutional Colored Border Strip -->
-                        <div class="absolute left-0 top-0 bottom-0 w-1.5" style="background-color: {{ $job->institution->primary_color ?? '#059669' }}"></div>
+                        <div class="absolute left-0 top-0 bottom-0 w-1.5" style="background-color: {{ $inst->primary_color }}"></div>
 
                         <div class="space-y-3 pl-3">
                             <div class="flex flex-wrap items-center gap-2">
@@ -185,7 +194,7 @@
                             @php
                                 $showRealName = false;
                                 if (auth()->check()) {
-                                    if (auth()->user()->isAdmin() || (auth()->user()->isInstitution() && auth()->user()->id == $job->institution->user_id)) {
+                                    if (auth()->user()->isAdmin() || (auth()->user()->isInstitution() && auth()->user()->id == $inst->user_id)) {
                                         $showRealName = true;
                                     } elseif (auth()->user()->isCandidate()) {
                                         $userApp = \App\Models\Application::where('vacancy_id', $job->id)
@@ -197,7 +206,7 @@
                                     }
                                 }
                             @endphp
-                            <span class="text-[10px] text-theme-text/40 block">Posted by: <strong>{{ $showRealName ? $job->institution->company_name : 'Confidential Partner Brand' }}</strong></span>
+                            <span class="text-[10px] text-theme-text/40 block">Posted by: <strong>{{ $showRealName ? $inst->company_name : 'Confidential Partner Brand' }}</strong></span>
                         </div>
 
                         <!-- 1-Click Apply Trigger or Applied Badge -->

@@ -62,10 +62,19 @@
             <h2 class="text-2xl font-bold">Latest Job Openings ({{ $vacancies->total() }})</h2>
             
             @forelse($vacancies as $vacancy)
+                @php
+                    $inst = $vacancy->institution ?? (object) [
+                        'company_name' => 'Confidential Partner Brand',
+                        'primary_color' => '#2563eb',
+                        'accent_color' => '#3b82f6',
+                        'type' => 'institution',
+                        'user_id' => 0
+                    ];
+                @endphp
                 <div class="p-6 rounded-2xl bg-[var(--theme-card)] border border-[var(--theme-border)] shadow-sm hover:shadow-lg transition-all duration-300 transform hover:-translate-y-0.5 relative group">
                     
                     <!-- Decorative custom branding border to show institutional color identity -->
-                    <div class="absolute left-0 top-0 bottom-0 w-1.5 rounded-l-2xl" style="background-color: {{ $vacancy->institution->primary_color }}"></div>
+                    <div class="absolute left-0 top-0 bottom-0 w-1.5 rounded-l-2xl" style="background-color: {{ $inst->primary_color }}"></div>
                     
                     <div class="flex justify-between items-start mb-3 pl-3">
                         <div>
@@ -76,7 +85,7 @@
                                 @php
                                     $showRealName = false;
                                     if (auth()->check()) {
-                                        if (auth()->user()->isAdmin() || (auth()->user()->isInstitution() && auth()->user()->id == $vacancy->institution->user_id)) {
+                                        if (auth()->user()->isAdmin() || (auth()->user()->isInstitution() && auth()->user()->id == $inst->user_id)) {
                                             $showRealName = true;
                                         } elseif (auth()->user()->isCandidate()) {
                                             $userApp = \App\Models\Application::where('vacancy_id', $vacancy->id)
@@ -89,15 +98,15 @@
                                     }
                                 @endphp
                                 <span class="font-semibold text-theme-text/80">
-                                    {{ $showRealName ? $vacancy->institution->company_name : 'Confidential Partner Brand' }}
+                                    {{ $showRealName ? $inst->company_name : 'Confidential Partner Brand' }}
                                 </span>
                                 <span>&bull;</span>
                                 <span>{{ $vacancy->location }}</span>
                             </div>
                         </div>
 
-                        <span class="px-3 py-1 text-xs font-semibold rounded-full text-white" style="background-color: {{ $vacancy->institution->primary_color }}">
-                            {{ ucfirst(str_replace('_', ' ', $vacancy->institution->type)) }}
+                        <span class="px-3 py-1 text-xs font-semibold rounded-full text-white" style="background-color: {{ $inst->primary_color }}">
+                            {{ ucfirst(str_replace('_', ' ', $inst->type)) }}
                         </span>
                     </div>
 
@@ -132,7 +141,7 @@
                                 </span>
                             @endif
 
-                            <a href="{{ route('vacancies.show', $vacancy->id) }}" class="px-4 py-2 font-bold rounded-lg text-white transition text-xs shadow" style="background-color: {{ $vacancy->institution->primary_color }}">
+                            <a href="{{ route('vacancies.show', $vacancy->id) }}" class="px-4 py-2 font-bold rounded-lg text-white transition text-xs shadow" style="background-color: {{ $inst->primary_color }}">
                                 View Details
                             </a>
                         </div>

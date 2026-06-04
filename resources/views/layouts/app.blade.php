@@ -159,7 +159,7 @@
         }
 
         /* Institutional custom branding override */
-        @if(isset($activeInstitution))
+        @if(isset($activeInstitution) && $activeInstitution)
         :root {
             --theme-primary: {{ $activeInstitution->primary_color }};
             --theme-accent: {{ $activeInstitution->accent_color }};
@@ -226,7 +226,7 @@
                     <span class="text-xl font-bold bg-gradient-to-r from-theme-primary to-theme-accent bg-clip-text text-transparent">
                         {{ $siteSettings->platform_name ?? 'Sourcing Portal' }}
                     </span>
-                    @if(isset($activeInstitution))
+                    @if(isset($activeInstitution) && $activeInstitution)
                         @auth
                             @if(auth()->user()->isAdmin() || (auth()->user()->isInstitution() && auth()->user()->id == $activeInstitution->user_id))
                                 <span class="px-2 py-0.5 text-xs font-semibold rounded-full bg-theme-primary/10 text-theme-primary border border-theme-primary/20">
@@ -772,8 +772,8 @@
     <!-- 🎨 Portal Dynamic Theme Engine Slide-out Customizer Widget -->
     <div x-data="{ 
         open: false, 
-        primary: '{{ isset($activeInstitution) ? ($activeInstitution->branding_settings['primary_color'] ?? '#059669') : '#059669' }}', 
-        accent: '{{ isset($activeInstitution) ? ($activeInstitution->branding_settings['accent_color'] ?? '#047857') : '#047857' }}',
+        primary: '{{ (isset($activeInstitution) && $activeInstitution) ? ($activeInstitution->branding_settings['primary_color'] ?? '#059669') : '#059669' }}', 
+        accent: '{{ (isset($activeInstitution) && $activeInstitution) ? ($activeInstitution->branding_settings['accent_color'] ?? '#047857') : '#047857' }}',
         background: '#f4fbf7',
         text: '#0f172a',
         clearBodyTheme() {
