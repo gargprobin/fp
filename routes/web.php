@@ -125,13 +125,13 @@ Route::get('/realtime/check', function() {
                 ->where('id', '>', $lastNotificationId)
                 ->latest()
                 ->first();
-
             if ($newNotification) {
                 $notification = [
                     'id' => $newNotification->id,
                     'title' => $newNotification->title,
                     'message' => $newNotification->message,
-                    'type' => $newNotification->type
+                    'type' => $newNotification->type,
+                    'created_at_human' => '(' . $newNotification->created_at->format('h:i:s A, d M y ') . ')'
                 ];
             }
         }

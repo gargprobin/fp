@@ -412,9 +412,9 @@
                                 id: {{ $notif->id }},
                                 is_read: {{ $notif->is_read ? 'true' : 'false' }},
                                 type: {{ json_encode($notif->type) }},
-                                title: {{ json_encode($notif->title) }},
+                                                                title: {{ json_encode($notif->title) }},
                                 message: {{ json_encode($notif->message) }},
-                                created_at_human: {{ json_encode($notif->created_at->diffForHumans()) }},
+                                created_at_human: {{ json_encode('(' . $notif->created_at->format('h:i:s A, d M y ') . ')') }},
                                 date_group: {{ json_encode($notif->created_at->isToday() ? 'Today' : ($notif->created_at->isYesterday() ? 'Yesterday' : 'Older')) }},
                                 read_url: {{ json_encode(route('notifications.read', $notif->id)) }},
                                 toggle_url: {{ json_encode(route('notifications.toggle-read', $notif->id)) }}
@@ -486,7 +486,7 @@
                                         type: notif.type || 'info',
                                         title: notif.title,
                                         message: notif.message,
-                                        created_at_human: 'Just now',
+                                        created_at_human: notif.created_at_human || `(${new Date().toLocaleTimeString('en-US', {hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true})}, ${new Date().toLocaleDateString('en-GB', {day: '2-digit', month: 'short', year: '2-digit'}).replace(/ /g, ' ')})`,
                                         date_group: 'Today',
                                         read_url: `{{ url('/notifications') }}/${notif.id}/read`,
                                         toggle_url: `{{ url('/notifications') }}/${notif.id}/toggle-read`

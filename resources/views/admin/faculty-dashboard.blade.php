@@ -114,7 +114,7 @@
                         <span class="text-[10px] font-extrabold uppercase tracking-wider text-theme-text/50">Vacancy Applied</span>
                         <h4 class="text-xl font-extrabold text-theme-text">{{ $app->vacancy->title }}</h4>
                         <p class="text-xs text-theme-text/60 mt-1">
-                            📍 {{ $app->vacancy->location }} &bull; Subject: <strong class="text-theme-text/80">{{ $app->vacancy->subject }}</strong> &bull; Applied: {{ $app->created_at->format('M d, Y') }}
+                            📍 {{ $app->vacancy->location }} &bull; Subject: <strong class="text-theme-text/80">{{ $app->vacancy->subject }}</strong> &bull; Applied: ({{ $app->created_at->format('h:i:s A, d M y ') }})
                         </p>
                     </div>
 

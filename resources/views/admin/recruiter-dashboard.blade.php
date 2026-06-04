@@ -171,7 +171,7 @@
                                 <td class="px-6 py-4">
                                     <div class="font-bold text-theme-text">{{ $app->vacancy->title }}</div>
                                     <div class="text-xs text-theme-text/50">Subject: {{ $app->vacancy->subject }}</div>
-                                    <div class="text-xs text-theme-primary font-bold mt-1">Sourcing ID: #{{ $app->id }}</div>
+                                    <div class="text-xs text-theme-primary font-bold mt-1">Sourcing ID: #{{ $app->id }} &bull; Applied: ({{ $app->created_at->format('h:i:s A, d M y ') }})</div>
                                 </td>
 
                                 <!-- Masked CV profile details -->
@@ -471,7 +471,10 @@
                     <tbody class="divide-y divide-[var(--theme-border)]">
                         @foreach($vacancies as $vac)
                             <tr class="hover:bg-[var(--theme-bg)] transition-colors">
-                                <td class="px-6 py-4 font-bold">{{ $vac->title }}</td>
+                                <td class="px-6 py-4 font-bold">
+                                    {{ $vac->title }}
+                                    <div class="text-[10px] text-theme-text/45 font-normal mt-0.5">Posted: ({{ $vac->created_at->format('h:i:s A, d M y ') }})</div>
+                                </td>
                                 <td class="px-6 py-4 text-theme-text/75">{{ $vac->subject }}</td>
                                 <td class="px-6 py-4 text-theme-text/70">{{ $vac->target_class }}</td>
                                 <td class="px-6 py-4 font-semibold text-theme-text/90">

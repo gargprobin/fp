@@ -336,7 +336,7 @@
                             <div class="flex-1 text-theme-text/70">
                                 <span class="font-black text-theme-text">{{ $rapp->candidate->name }}</span> applied for 
                                 <span class="font-bold text-theme-primary">{{ $rapp->vacancy->title }}</span>
-                                <p class="text-[9px] text-theme-text/45 mt-0.5">{{ $rapp->created_at->diffForHumans() }}</p>
+                                <p class="text-[9px] text-theme-text/45 mt-0.5">({{ $rapp->created_at->format('h:i:s A, d M y ') }})</p>
                             </div>
                         </div>
                     @empty
@@ -352,7 +352,7 @@
                             <div class="flex-1 text-theme-text/70">
                                 <span class="font-black text-theme-text">{{ $rvac->title }}</span> was posted by 
                                 <span class="font-semibold text-theme-accent">{{ $rvac->institution->company_name }}</span>
-                                <p class="text-[9px] text-theme-text/45 mt-0.5">{{ $rvac->created_at->diffForHumans() }}</p>
+                                <p class="text-[9px] text-theme-text/45 mt-0.5">({{ $rvac->created_at->format('h:i:s A, d M y ') }})</p>
                             </div>
                         </div>
                     @empty
@@ -1067,7 +1067,7 @@
                                         </span>
                                     </td>
                                     <td class="px-4 py-3 text-theme-text/50 font-medium">
-                                        {{ $log->created_at ? $log->created_at->format('M d, Y h:i A') : 'N/A' }}
+                                        {{ $log->created_at ? '(' . $log->created_at->format('h:i:s A, d M y ') . ')' : 'N/A' }}
                                     </td>
                                 </tr>
                             @empty
@@ -1151,7 +1151,7 @@
                                         </span>
                                     </td>
                                     <td class="px-6 py-3 text-theme-text/75">{{ $du->email }}</td>
-                                    <td class="px-6 py-3 text-theme-text/50 font-semibold">{{ $du->deleted_at->toDayDateTimeString() }}</td>
+                                    <td class="px-6 py-3 text-theme-text/50 font-semibold">({{ $du->deleted_at->format('h:i:s A, d M y ') }})</td>
                                     <td class="px-6 py-3 text-right">
                                         <form action="{{ route('admin.user.restore', $du->id) }}" method="POST" class="inline">
                                             @csrf
@@ -1220,7 +1220,7 @@
                                     <td class="px-6 py-3 font-bold">{{ $dv->title }}</td>
                                     <td class="px-6 py-3 text-theme-primary font-semibold">{{ $dv->institution->company_name }}</td>
                                     <td class="px-6 py-3 text-theme-text/75">{{ $dv->subject }}</td>
-                                    <td class="px-6 py-3 text-theme-text/50 font-semibold">{{ $dv->deleted_at->toDayDateTimeString() }}</td>
+                                    <td class="px-6 py-3 text-theme-text/50 font-semibold">({{ $dv->deleted_at->format('h:i:s A, d M y ') }})</td>
                                     <td class="px-6 py-3 text-right">
                                         <form action="{{ route('admin.vacancy.restore', $dv->id) }}" method="POST" class="inline">
                                             @csrf
@@ -1289,7 +1289,7 @@
                                     <td class="px-6 py-3 font-bold">{{ $da->candidate->name }}</td>
                                     <td class="px-6 py-3 font-semibold text-theme-primary">{{ $da->vacancy->title }} under {{ $da->vacancy->institution->company_name }}</td>
                                     <td class="px-6 py-3 text-theme-text/75 uppercase font-medium">{{ $da->status }}</td>
-                                    <td class="px-6 py-3 text-theme-text/50 font-semibold">{{ $da->deleted_at->toDayDateTimeString() }}</td>
+                                    <td class="px-6 py-3 text-theme-text/50 font-semibold">({{ $da->deleted_at->format('h:i:s A, d M y ') }})</td>
                                     <td class="px-6 py-3 text-right">
                                         <form action="{{ route('admin.application.restore', $da->id) }}" method="POST" class="inline">
                                             @csrf
