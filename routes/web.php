@@ -79,20 +79,26 @@ Route::get('/vacancy/{vacancy}', [VacancyController::class, 'show'])->name('vaca
 Route::post('/vacancy/{vacancy}/apply', [VacancyController::class, 'apply'])->name('vacancies.apply');
 
 // 4.5 CV File Viewer Routes (Inline with system UI)
-Route::get('/raw-cv/{filename}', function ($filename) {
-    $path = storage_path('app/public/cvs/' . $filename);
+Route::get('/raw-cv/{profile}', function (\App\Models\CandidateProfile $profile) {
+    if (empty($profile->cv_path)) {
+        abort(404, 'CV not found.');
+    }
+    $path = storage_path('app/public/' . $profile->cv_path);
     if (!\Illuminate\Support\Facades\File::exists($path)) {
         abort(404, 'CV file not found.');
     }
     return response()->file($path);
 })->name('cv.raw');
 
-Route::get('/view-cv/{filename}', function ($filename) {
-    $path = storage_path('app/public/cvs/' . $filename);
+Route::get('/view-cv/{profile}', function (\App\Models\CandidateProfile $profile) {
+    if (empty($profile->cv_path)) {
+        abort(404, 'CV not found.');
+    }
+    $path = storage_path('app/public/' . $profile->cv_path);
     if (!\Illuminate\Support\Facades\File::exists($path)) {
         abort(404, 'CV file not found.');
     }
-    return view('cv-viewer', compact('filename'));
+    return view('cv-viewer', compact('profile'));
 })->name('cv.view');
 
 
