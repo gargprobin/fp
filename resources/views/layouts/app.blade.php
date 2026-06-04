@@ -936,6 +936,11 @@
             document.body.className = document.body.className.replace(/\btheme-\S+/g, '');
         },
         init() {
+            // Listen for widget restore event
+            window.addEventListener('restore-widgets', () => {
+                this.hidden = false;
+            });
+
             // If loaded with hash, open the drawer
             if (window.location.hash === '#theme-customizer') {
                 this.open = true;
@@ -962,7 +967,6 @@
             });
         }
     }"
-    @restore-widgets.window="hidden = false"
     class="relative">
         <!-- Floating Gear Button (Left side) -->
         <div x-show="!hidden" class="fixed bottom-4 left-4 md:bottom-6 md:left-6 z-50 flex items-center gap-1 group">
