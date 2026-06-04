@@ -168,7 +168,6 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
 
     // Impersonate Routes
     Route::post('/admin/impersonate/{id}', [AdminController::class, 'impersonate'])->name('admin.impersonate');
-    Route::post('/admin/impersonate-leave', [AdminController::class, 'leaveImpersonate'])->name('admin.impersonate-leave');
 
     // CRUD & Restore Routes
     Route::post('/admin/user/store', [AdminController::class, 'storeUser'])->name('admin.user.store');
@@ -206,6 +205,8 @@ Route::middleware(['auth', 'role:institution'])->group(function () {
 
 // 9. Real-Time Notification Center routes
 Route::middleware(['auth'])->group(function () {
+    Route::post('/admin/impersonate-leave', [AdminController::class, 'leaveImpersonate'])->name('admin.impersonate-leave');
+
     Route::post('/notifications/read-all', function() {
         \App\Models\Notification::where('user_id', auth()->id())->update(['is_read' => true]);
         if (request()->wantsJson() || request()->ajax()) {

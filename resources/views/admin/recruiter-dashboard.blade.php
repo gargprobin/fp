@@ -144,7 +144,7 @@
             </div>
 
             <div class="overflow-x-auto">
-                <table class="w-full text-sm text-left text-theme-text">
+                <table class="w-full min-w-[850px] text-sm text-left text-theme-text">
                     <thead class="text-xs uppercase bg-[var(--theme-bg)] border border-[var(--theme-border)] text-theme-text/60">
                         <tr>
                             <th class="px-6 py-4">Applied Position</th>
@@ -435,7 +435,7 @@
                 </form>
             </div>
             <div class="overflow-x-auto">
-                <table class="w-full text-sm text-left text-theme-text">
+                <table class="w-full min-w-[850px] text-sm text-left text-theme-text">
                     <thead class="text-xs uppercase bg-[var(--theme-bg)] border border-[var(--theme-border)] text-theme-text/60">
                         <tr>
                             <th class="px-6 py-4">Vacancy Title</th>

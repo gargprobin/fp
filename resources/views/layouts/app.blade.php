@@ -212,7 +212,7 @@
     @endif
 
     <!-- Top Navigation Header -->
-    <header x-data="{ mobileMenuOpen: false }" class="shadow-sm border-b border-[var(--theme-border)] bg-[var(--theme-card)] sticky top-0 z-40 transition-colors">
+    <header x-data="{ mobileMenuOpen: false }" class="shadow-sm border-b border-[var(--theme-border)] bg-[var(--theme-card)] sticky top-0 z-[45] transition-colors">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between h-16 items-center">
                 

@@ -224,7 +224,7 @@
                             </span>
                         @else
                             <button 
-                                @click="applyVacancy = { id: {{ $job->id }}, title: {{ json_encode($job->title) }}, institution: 'Confidential Partner Brand' }"
+                                @click='applyVacancy = { id: {{ $job->id }}, title: {{ json_encode($job->title) }}, institution: "Confidential Partner Brand" }'
                                 class="px-6 py-2.5 text-xs font-bold text-white bg-theme-primary hover:bg-theme-accent rounded-xl shadow-md shadow-theme-primary/10 hover:shadow-xl shrink-0 text-center w-full md:w-auto cursor-pointer"
                             >
                                 Apply with 1-Click
