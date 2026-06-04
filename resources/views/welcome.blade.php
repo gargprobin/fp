@@ -623,40 +623,7 @@
         </div>
     </section>
 
-    <!-- ----------------- DYNAMIC WHATSAPP CTA (Same to Same c:\jobs) ----------------- -->
-    <div 
-        x-data="{ 
-            hidden: localStorage.getItem('whatsapp_cta_hidden') === 'true',
-            hideCta() {
-                this.hidden = true;
-                localStorage.setItem('whatsapp_cta_hidden', 'true');
-            },
-            init() {
-                window.addEventListener('restore-widgets', () => {
-                    this.hidden = false;
-                });
-            }
-        }" 
-        x-show="!hidden"
-        class="fixed bottom-4 right-4 md:bottom-6 md:right-6 z-30 flex items-center group"
-    >
-        <a 
-            href="https://wa.me/919876543210?text=Hi, I am interested in hiring faculty / looking for jobs."
-            target="_blank" 
-            rel="noopener noreferrer"
-            class="w-10 h-10 md:w-auto md:h-auto md:px-5 md:py-3 flex items-center justify-center gap-1.5 bg-[#25D366] hover:bg-[#20ba5a] text-white rounded-full shadow-2xl hover:shadow-[#25D366]/30 hover:-translate-y-1 transition-all duration-300 font-bold text-xs md:text-sm"
-        >
-            <span class="text-base md:text-xl">💬</span>
-            <span class="hidden md:inline">Chat on WhatsApp</span>
-        </a>
-        <button 
-            @click="hideCta()" 
-            class="w-4 h-4 md:w-5 md:h-5 bg-red-600 hover:bg-red-700 text-white rounded-full text-[8px] md:text-[10px] flex items-center justify-center font-bold cursor-pointer absolute -top-1 -right-1 md:-top-2 md:-right-2 shadow-sm" 
-            title="Hide WhatsApp option"
-        >
-            &times;
-        </button>
-    </div>
+
 
 </div>
 @endsection
