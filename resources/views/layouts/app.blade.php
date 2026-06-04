@@ -836,6 +836,18 @@
                             <a href="{{ route('set-theme', ['theme' => 'mac_glass_light']) }}" class="block px-4 py-2 hover:bg-theme-primary/15 transition text-theme-text font-medium">🖥️ macOS Glass Light</a>
                             <a href="{{ route('set-theme', ['theme' => 'mac_glass_dark']) }}" class="block px-4 py-2 hover:bg-theme-primary/15 transition text-theme-text font-medium">🖥️ macOS Glass Dark</a>
                             <a href="{{ route('set-theme', ['theme' => 'mac_glass_aurora']) }}" class="block px-4 py-2 hover:bg-theme-primary/15 transition text-theme-text font-medium">🖥️ macOS Glass Aurora</a>
+                            <div class="border-t border-[var(--theme-border)] mt-1 pt-1">
+                                <button 
+                                    @click="
+                                        localStorage.removeItem('theme_gear_hidden'); 
+                                        localStorage.removeItem('whatsapp_cta_hidden'); 
+                                        window.dispatchEvent(new CustomEvent('restore-widgets'));
+                                    " 
+                                    class="w-full text-left px-4 py-2 hover:bg-theme-primary/15 transition text-theme-text font-bold text-xs flex items-center gap-1.5 cursor-pointer"
+                                >
+                                    🔄 Reset Hidden Icons
+                                </button>
+                            </div>
                         </div>
                     </div>
 
@@ -949,7 +961,9 @@
                 }
             });
         }
-    }">
+    }"
+    @restore-widgets.window="hidden = false"
+    class="relative">
         <!-- Floating Gear Button (Left side) -->
         <div x-show="!hidden" class="fixed bottom-4 left-4 md:bottom-6 md:left-6 z-50 flex items-center gap-1 group">
             <button @click="open = true" class="p-2 md:p-4 bg-slate-900 text-white rounded-full shadow-2xl hover:scale-110 active:scale-95 transition transform duration-300 flex items-center justify-center border border-white/10" title="Open Portal Theme Engine Demo Customizer">
