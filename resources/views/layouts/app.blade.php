@@ -352,7 +352,30 @@
     @endif
 
     <!-- Top Navigation Header -->
-    <header x-data="{ mobileMenuOpen: false }" class="shadow-sm border-b border-[var(--theme-border)] sticky top-0 z-[45] transition-colors bg-transparent">
+    <header x-data="{ 
+        mobileMenuOpen: false,
+        init() {
+            if (window.location.hash === '#menu') {
+                this.mobileMenuOpen = true;
+            }
+            window.addEventListener('hashchange', () => {
+                if (window.location.hash !== '#menu' && this.mobileMenuOpen) {
+                    this.mobileMenuOpen = false;
+                }
+            });
+            this.$watch('mobileMenuOpen', value => {
+                if (value) {
+                    if (window.location.hash !== '#menu') {
+                        window.location.hash = 'menu';
+                    }
+                } else {
+                    if (window.location.hash === '#menu') {
+                        history.back();
+                    }
+                }
+            });
+        }
+    }" class="shadow-sm border-b border-[var(--theme-border)] sticky top-0 z-[45] transition-colors bg-transparent">
         <!-- Glassmorphic Background Layer for macOS glass themes to prevent stacking context bug -->
         <div class="absolute inset-0 bg-[var(--theme-card)] backdrop-blur-xl -z-10"></div>
         
@@ -477,6 +500,31 @@
                             );
                         },
                         init() {
+                            // If loaded with hash, open the drawer
+                            if (window.location.hash === '#notifications') {
+                                this.open = true;
+                            }
+
+                            // Listen to hashchange event to handle browser/hardware back button
+                            window.addEventListener('hashchange', () => {
+                                if (window.location.hash !== '#notifications' && this.open) {
+                                    this.open = false;
+                                }
+                            });
+                            
+                            // Watch open variable
+                            this.$watch('open', value => {
+                                if (value) {
+                                    if (window.location.hash !== '#notifications') {
+                                        window.location.hash = 'notifications';
+                                    }
+                                } else {
+                                    if (window.location.hash === '#notifications') {
+                                        history.back();
+                                    }
+                                }
+                            });
+
                             window.addEventListener('new-notification-received', (e) => {
                                 const notif = e.detail;
                                 if (!this.notifications.some(n => n.id === notif.id)) {

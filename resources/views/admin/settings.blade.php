@@ -112,25 +112,12 @@
                 </p>
             </div>
             <div class="flex flex-wrap items-center gap-3">
-                <div x-data="{ time: '' }" x-init="
-                    const updateTime = () => {
-                        const options = { timeZone: 'Asia/Kolkata', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true };
-                        time = new Intl.DateTimeFormat('en-US', options).format(new Date());
-                    };
-                    updateTime();
-                    setInterval(updateTime, 1000);
-                }" class="px-4 py-2.5 bg-blue-500/10 text-blue-500 border border-blue-500/20 text-xs font-extrabold rounded-xl flex items-center gap-1.5 shadow-sm">
-                    ⏰ IST Time: <span x-text="time" class="font-black"></span>
-                </div>
                 <form action="{{ route('admin.clear-cache') }}" method="POST" onsubmit="return confirm('Are you sure you want to clear the entire system cache? This will reset all cached views and route settings.')">
                     @csrf
                     <button type="submit" class="px-4 py-2.5 bg-amber-500 hover:bg-amber-600 active:scale-95 text-white font-bold text-xs rounded-xl shadow-sm transition-all duration-200 flex items-center gap-1.5 border border-amber-600/20 cursor-pointer">
                         ⚡ Clear System Cache
                     </button>
                 </form>
-                <span class="px-4 py-2.5 bg-red-500/10 text-red-500 border border-red-500/20 text-xs font-bold rounded-full">
-                    SYSTEM CONTROL
-                </span>
             </div>
         </div>
     </div>

@@ -17,6 +17,39 @@
     activeVideo: null,
     applyVacancy: null,
     
+    init() {
+        window.addEventListener('hashchange', () => {
+            if (window.location.hash !== '#apply' && this.applyVacancy !== null) {
+                this.applyVacancy = null;
+            }
+            if (window.location.hash !== '#video' && this.activeVideo !== null) {
+                this.activeVideo = null;
+            }
+        });
+        this.$watch('applyVacancy', value => {
+            if (value !== null) {
+                if (window.location.hash !== '#apply') {
+                    window.location.hash = 'apply';
+                }
+            } else {
+                if (window.location.hash === '#apply') {
+                    history.back();
+                }
+            }
+        });
+        this.$watch('activeVideo', value => {
+            if (value !== null) {
+                if (window.location.hash !== '#video') {
+                    window.location.hash = 'video';
+                }
+            } else {
+                if (window.location.hash === '#video') {
+                    history.back();
+                }
+            }
+        });
+    },
+    
     // Check if job matches filters
     matchesFilters(jobSubject, jobTitle, jobDesc, jobLoc) {
         let matchSubject = true;
