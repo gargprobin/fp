@@ -207,6 +207,7 @@ Route::middleware(['auth', 'role:institution'])->group(function () {
     Route::post('/recruiter/vacancy/{vacancy}/update', [RecruiterController::class, 'updateVacancy'])->name('recruiter.vacancy.update');
     Route::post('/recruiter/application/{application}/unlock', [RecruiterController::class, 'requestUnlock'])->name('recruiter.request-unlock');
     Route::post('/recruiter/application/{application}/pipeline', [RecruiterController::class, 'updatePipeline'])->name('recruiter.update-pipeline');
+    Route::post('/recruiter/profile', [RecruiterController::class, 'updateProfile'])->name('recruiter.profile.update');
 });
 
 // 9. Real-Time Notification Center routes

@@ -130,27 +130,27 @@ class RecruiterController extends Controller
 
         $request->validate([
             'title' => 'required|string|max:100',
-            'subject' => 'required|string|max:50',
-            'target_class' => 'required|string|max:50',
-            'experience_required' => 'required|string|max:50',
-            'location' => 'required|string|max:100',
-            'salary_min' => 'required|numeric|min:0',
-            'salary_max' => 'required|numeric|gt:salary_min',
+            'subject' => 'nullable|string|max:50',
+            'target_class' => 'nullable|string|max:50',
+            'experience_required' => 'nullable|string|max:50',
+            'location' => 'nullable|string|max:100',
+            'salary_min' => 'nullable|numeric|min:0',
+            'salary_max' => 'nullable|numeric|min:0',
             'description' => 'required|string',
-            'deadline' => 'required|date|after:today',
+            'deadline' => 'nullable|date|after:today',
         ]);
 
         Vacancy::create([
             'institution_id' => $institution->id,
             'title' => $request->title,
-            'subject' => $request->subject,
-            'target_class' => $request->target_class,
-            'experience_required' => $request->experience_required,
-            'location' => $request->location,
+            'subject' => $request->subject ?: 'General',
+            'target_class' => $request->target_class ?: 'Any Class',
+            'experience_required' => $request->experience_required ?: 'Any',
+            'location' => $request->location ?: ($institution->location ?: 'Anywhere'),
             'salary_min' => $request->salary_min,
             'salary_max' => $request->salary_max,
             'description' => $request->description,
-            'deadline' => $request->deadline,
+            'deadline' => $request->deadline ?: now()->addDays(30)->toDateString(),
             'status' => 'open'
         ]);
 
@@ -299,30 +299,74 @@ class RecruiterController extends Controller
 
         $request->validate([
             'title' => 'required|string|max:100',
-            'subject' => 'required|string|max:50',
-            'target_class' => 'required|string|max:50',
-            'experience_required' => 'required|string|max:50',
-            'location' => 'required|string|max:100',
-            'salary_min' => 'required|numeric|min:0',
-            'salary_max' => 'required|numeric|gt:salary_min',
+            'subject' => 'nullable|string|max:50',
+            'target_class' => 'nullable|string|max:50',
+            'experience_required' => 'nullable|string|max:50',
+            'location' => 'nullable|string|max:100',
+            'salary_min' => 'nullable|numeric|min:0',
+            'salary_max' => 'nullable|numeric|min:0',
             'description' => 'required|string',
-            'deadline' => 'required|date|after:today',
+            'deadline' => 'nullable|date|after:today',
             'status' => 'required|in:open,closed',
         ]);
 
         $vacancy->update([
             'title' => $request->title,
-            'subject' => $request->subject,
-            'target_class' => $request->target_class,
-            'experience_required' => $request->experience_required,
-            'location' => $request->location,
+            'subject' => $request->subject ?: 'General',
+            'target_class' => $request->target_class ?: 'Any Class',
+            'experience_required' => $request->experience_required ?: 'Any',
+            'location' => $request->location ?: ($institution->location ?: 'Anywhere'),
             'salary_min' => $request->salary_min,
             'salary_max' => $request->salary_max,
             'description' => $request->description,
-            'deadline' => $request->deadline,
+            'deadline' => $request->deadline ?: now()->addDays(30)->toDateString(),
             'status' => $request->status,
         ]);
 
         return redirect()->route('recruiter.dashboard', ['tab' => 'my-vacancies'])->with('success', 'Vacancy updated successfully!');
+    }
+
+    /**
+     * Recruiter updates their profile.
+     */
+    public function updateProfile(Request $request)
+    {
+        if (!auth()->check() || !auth()->user()->isInstitution()) {
+            abort(403, 'Unauthorized.');
+        }
+
+        $user = auth()->user();
+        $institution = $user->institution;
+
+        if (!$institution) {
+            abort(404, 'Institution profile not found.');
+        }
+
+        $request->validate([
+            'name' => 'required|string|max:100',
+            'email' => 'required|email|unique:users,email,' . $user->id,
+            'phone' => 'nullable|string|max:20',
+            'company_name' => 'required|string|max:100',
+            'type' => 'required|in:coaching_center,school,university,other',
+            'website' => 'nullable|url|max:150',
+            'location' => 'required|string|max:100',
+            'description' => 'nullable|string',
+        ]);
+
+        $user->update([
+            'name' => $request->name,
+            'email' => $request->email,
+            'phone' => $request->phone,
+        ]);
+
+        $institution->update([
+            'company_name' => $request->company_name,
+            'type' => $request->type,
+            'website' => $request->website,
+            'location' => $request->location,
+            'description' => $request->description,
+        ]);
+
+        return redirect()->route('recruiter.dashboard')->with('success', 'Profile updated successfully!');
     }
 }

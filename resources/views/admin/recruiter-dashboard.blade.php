@@ -4,7 +4,10 @@
 
 @section('content')
 <div x-data="{ 
-    activeTab: '{{ request()->has('search_vac') || request()->has('sort_vac') || request()->has('vacs_page') || request()->has('per_page_vacs') ? 'my-vacancies' : (request()->has('search_app') || request()->has('sort_app') || request()->has('apps_page') || request()->has('per_page_apps') ? 'pipeline' : '') }}' || (window.location.hash.startsWith('#app-') ? 'pipeline' : (localStorage.getItem('recruiter_active_tab') || 'pipeline')),
+    activeTab: '{{ request('tab') }}' 
+        ? '{{ request('tab') }}' 
+        : ('{{ request()->has('search_vac') || request()->has('sort_vac') || request()->has('vacs_page') || request()->has('per_page_vacs') ? 'my-vacancies' : (request()->has('search_app') || request()->has('sort_app') || request()->has('apps_page') || request()->has('per_page_apps') ? 'pipeline' : '') }}' 
+            || (window.location.hash.startsWith('#app-') ? 'pipeline' : (localStorage.getItem('recruiter_active_tab') || 'pipeline'))),
     selectTab(tab) {
         this.activeTab = tab;
         localStorage.setItem('recruiter_active_tab', tab);
@@ -44,6 +47,15 @@
     @if(session('error'))
         <div class="p-4 rounded-xl bg-red-500/10 text-red-500 border border-red-500/20 font-semibold shadow-sm transition">
             ⚠️ {{ session('error') }}
+        </div>
+    @endif
+    @if($errors->any())
+        <div class="p-4 rounded-xl bg-red-500/10 text-red-500 border border-red-500/20 text-sm shadow-sm transition">
+            <ul class="list-disc pl-5 space-y-1 font-semibold text-red-600">
+                @foreach($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
         </div>
     @endif
 
@@ -96,6 +108,9 @@
         </button>
         <button @click="selectTab('my-vacancies')" :class="activeTab === 'my-vacancies' ? 'text-theme-primary border-b-2 border-theme-primary pb-2' : 'text-theme-text/60 pb-2 hover:text-theme-text transition cursor-pointer'">
             💼 My Posted Vacancies ({{ $vacancies->total() }})
+        </button>
+        <button @click="selectTab('edit-profile')" :class="activeTab === 'edit-profile' ? 'text-theme-primary border-b-2 border-theme-primary pb-2' : 'text-theme-text/60 pb-2 hover:text-theme-text transition cursor-pointer'">
+            ⚙️ Edit Recruiter Profile
         </button>
     </div>
 
@@ -359,42 +374,42 @@
                     </div>
 
                     <div>
-                        <label class="block text-xs font-bold text-theme-text/75 uppercase tracking-wider mb-2">Core Subject Discipline *</label>
-                        <input type="text" name="subject" placeholder="e.g. Physics, Botany, Inorganic Chemistry" class="w-full p-3 text-sm bg-[var(--theme-bg)] border border-[var(--theme-border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-theme-primary text-theme-text" required />
+                        <label class="block text-xs font-bold text-theme-text/75 uppercase tracking-wider mb-2">Core Subject Discipline (Optional)</label>
+                        <input type="text" name="subject" placeholder="e.g. Physics, Botany, Inorganic Chemistry" class="w-full p-3 text-sm bg-[var(--theme-bg)] border border-[var(--theme-border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-theme-primary text-theme-text" />
                     </div>
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <div>
-                        <label class="block text-xs font-bold text-theme-text/75 uppercase tracking-wider mb-2">Target Student Class *</label>
-                        <input type="text" name="target_class" placeholder="e.g. IIT-JEE Advanced, NEET UG" class="w-full p-3 text-sm bg-[var(--theme-bg)] border border-[var(--theme-border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-theme-primary text-theme-text" required />
+                        <label class="block text-xs font-bold text-theme-text/75 uppercase tracking-wider mb-2">Target Student Class (Optional)</label>
+                        <input type="text" name="target_class" placeholder="e.g. IIT-JEE Advanced, NEET UG" class="w-full p-3 text-sm bg-[var(--theme-bg)] border border-[var(--theme-border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-theme-primary text-theme-text" />
                     </div>
 
                     <div>
-                        <label class="block text-xs font-bold text-theme-text/75 uppercase tracking-wider mb-2">Experience Required *</label>
-                        <input type="text" name="experience_required" placeholder="e.g. 5+ Years Allen/Resonance" class="w-full p-3 text-sm bg-[var(--theme-bg)] border border-[var(--theme-border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-theme-primary text-theme-text" required />
+                        <label class="block text-xs font-bold text-theme-text/75 uppercase tracking-wider mb-2">Experience Required (Optional)</label>
+                        <input type="text" name="experience_required" placeholder="e.g. 5+ Years Allen/Resonance" class="w-full p-3 text-sm bg-[var(--theme-bg)] border border-[var(--theme-border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-theme-primary text-theme-text" />
                     </div>
 
                     <div>
-                        <label class="block text-xs font-bold text-theme-text/75 uppercase tracking-wider mb-2">Job Location *</label>
-                        <input type="text" name="location" placeholder="e.g. Kota, Rajasthan" class="w-full p-3 text-sm bg-[var(--theme-bg)] border border-[var(--theme-border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-theme-primary text-theme-text" required />
+                        <label class="block text-xs font-bold text-theme-text/75 uppercase tracking-wider mb-2">Job Location (Optional)</label>
+                        <input type="text" name="location" placeholder="e.g. Kota, Rajasthan" class="w-full p-3 text-sm bg-[var(--theme-bg)] border border-[var(--theme-border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-theme-primary text-theme-text" />
                     </div>
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <div>
-                        <label class="block text-xs font-bold text-theme-text/75 uppercase tracking-wider mb-2">Salary Min (Annual CTC in INR) *</label>
-                        <input type="number" name="salary_min" placeholder="e.g. 1200000" class="w-full p-3 text-sm bg-[var(--theme-bg)] border border-[var(--theme-border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-theme-primary text-theme-text" required />
+                        <label class="block text-xs font-bold text-theme-text/75 uppercase tracking-wider mb-2">Salary Min (Annual CTC in INR) (Optional)</label>
+                        <input type="number" name="salary_min" placeholder="e.g. 1200000" class="w-full p-3 text-sm bg-[var(--theme-bg)] border border-[var(--theme-border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-theme-primary text-theme-text" />
                     </div>
 
                     <div>
-                        <label class="block text-xs font-bold text-theme-text/75 uppercase tracking-wider mb-2">Salary Max (Annual CTC in INR) *</label>
-                        <input type="number" name="salary_max" placeholder="e.g. 1800000" class="w-full p-3 text-sm bg-[var(--theme-bg)] border border-[var(--theme-border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-theme-primary text-theme-text" required />
+                        <label class="block text-xs font-bold text-theme-text/75 uppercase tracking-wider mb-2">Salary Max (Annual CTC in INR) (Optional)</label>
+                        <input type="number" name="salary_max" placeholder="e.g. 1800000" class="w-full p-3 text-sm bg-[var(--theme-bg)] border border-[var(--theme-border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-theme-primary text-theme-text" />
                     </div>
 
                     <div>
-                        <label class="block text-xs font-bold text-theme-text/75 uppercase tracking-wider mb-2">Application Deadline *</label>
-                        <input type="date" name="deadline" class="w-full p-3 text-sm bg-[var(--theme-bg)] border border-[var(--theme-border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-theme-primary text-theme-text" required />
+                        <label class="block text-xs font-bold text-theme-text/75 uppercase tracking-wider mb-2">Application Deadline (Optional)</label>
+                        <input type="date" name="deadline" class="w-full p-3 text-sm bg-[var(--theme-bg)] border border-[var(--theme-border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-theme-primary text-theme-text" />
                     </div>
                 </div>
 
@@ -507,6 +522,70 @@
                     </div>
                 </div>
             @endif
+        </div>
+
+        <!-- Tab 4: Edit Recruiter Profile -->
+        <div x-show="activeTab === 'edit-profile'" class="space-y-6">
+            <h3 class="text-lg font-bold border-b border-[var(--theme-border)] pb-3">Edit Recruiter Profile Settings</h3>
+            
+            <form action="{{ route('recruiter.profile.update') }}" method="POST" class="space-y-6">
+                @csrf
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div>
+                        <label class="block text-xs font-bold text-theme-text/75 uppercase tracking-wider mb-2">Recruiter Name *</label>
+                        <input type="text" name="name" value="{{ old('name', auth()->user()->name) }}" class="w-full p-3 text-sm bg-[var(--theme-bg)] border border-[var(--theme-border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-theme-primary text-theme-text" required />
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-theme-text/75 uppercase tracking-wider mb-2">Email Address *</label>
+                        <input type="email" name="email" value="{{ old('email', auth()->user()->email) }}" class="w-full p-3 text-sm bg-[var(--theme-bg)] border border-[var(--theme-border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-theme-primary text-theme-text" required />
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-theme-text/75 uppercase tracking-wider mb-2">Contact Phone (Optional)</label>
+                        <input type="text" name="phone" value="{{ old('phone', auth()->user()->phone) }}" placeholder="e.g. +91 9876543210" class="w-full p-3 text-sm bg-[var(--theme-bg)] border border-[var(--theme-border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-theme-primary text-theme-text" />
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div>
+                        <label class="block text-xs font-bold text-theme-text/75 uppercase tracking-wider mb-2">Company / Institution Name *</label>
+                        <input type="text" name="company_name" value="{{ old('company_name', $institution->company_name) }}" class="w-full p-3 text-sm bg-[var(--theme-bg)] border border-[var(--theme-border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-theme-primary text-theme-text" required />
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-theme-text/75 uppercase tracking-wider mb-2">Institution Type *</label>
+                        <select name="type" class="w-full p-3 text-sm bg-[var(--theme-bg)] border border-[var(--theme-border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-theme-primary text-theme-text" required>
+                            <option value="coaching_center" {{ old('type', $institution->type) === 'coaching_center' ? 'selected' : '' }}>Coaching Center</option>
+                            <option value="school" {{ old('type', $institution->type) === 'school' ? 'selected' : '' }}>School</option>
+                            <option value="university" {{ old('type', $institution->type) === 'university' ? 'selected' : '' }}>University</option>
+                            <option value="other" {{ old('type', $institution->type) === 'other' ? 'selected' : '' }}>Other</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-theme-text/75 uppercase tracking-wider mb-2">Website URL (Optional)</label>
+                        <input type="url" name="website" value="{{ old('website', $institution->website) }}" placeholder="e.g. https://www.allen.ac.in" class="w-full p-3 text-sm bg-[var(--theme-bg)] border border-[var(--theme-border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-theme-primary text-theme-text" />
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-theme-text/75 uppercase tracking-wider mb-2">Job Location / Head Office *</label>
+                    <input type="text" name="location" value="{{ old('location', $institution->location) }}" placeholder="e.g. Kota, Rajasthan" class="w-full p-3 text-sm bg-[var(--theme-bg)] border border-[var(--theme-border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-theme-primary text-theme-text" required />
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-theme-text/75 uppercase tracking-wider mb-2">About / Institution Description (Optional)</label>
+                    <textarea name="description" rows="5" placeholder="Tell candidates about your coaching institute, target exams, student strength, and company culture..." class="w-full p-4 text-sm bg-[var(--theme-bg)] border border-[var(--theme-border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-theme-primary text-theme-text">{{ old('description', $institution->description) }}</textarea>
+                </div>
+
+                <div class="flex justify-end gap-3 pt-4 border-t border-[var(--theme-border)]">
+                    <button type="submit" class="px-6 py-3 text-sm font-bold text-white bg-theme-primary hover:bg-theme-accent rounded-xl shadow transition transform active:scale-95">
+                        Save Profile Settings
+                    </button>
+                </div>
+            </form>
         </div>
 
     </div>

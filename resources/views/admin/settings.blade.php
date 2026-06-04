@@ -1543,37 +1543,37 @@
 
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div>
-                        <label class="block text-xs font-bold uppercase tracking-wider mb-2">Subject / Specialization *</label>
-                        <input type="text" name="subject" placeholder="e.g. Physics, Chemistry, Maths" class="w-full p-3 text-sm bg-[var(--theme-bg)] border border-[var(--theme-border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 text-theme-text font-semibold" required />
+                        <label class="block text-xs font-bold uppercase tracking-wider mb-2">Subject / Specialization (Optional)</label>
+                        <input type="text" name="subject" placeholder="e.g. Physics, Chemistry, Maths" class="w-full p-3 text-sm bg-[var(--theme-bg)] border border-[var(--theme-border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 text-theme-text font-semibold" />
                     </div>
                     <div>
-                        <label class="block text-xs font-bold uppercase tracking-wider mb-2">Target Grade / Class *</label>
-                        <input type="text" name="target_class" placeholder="e.g. Class 11-12, IIT-JEE" class="w-full p-3 text-sm bg-[var(--theme-bg)] border border-[var(--theme-border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 text-theme-text" required />
+                        <label class="block text-xs font-bold uppercase tracking-wider mb-2">Target Grade / Class (Optional)</label>
+                        <input type="text" name="target_class" placeholder="e.g. Class 11-12, IIT-JEE" class="w-full p-3 text-sm bg-[var(--theme-bg)] border border-[var(--theme-border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 text-theme-text" />
                     </div>
                     <div>
-                        <label class="block text-xs font-bold uppercase tracking-wider mb-2">Experience Required *</label>
-                        <input type="text" name="experience_required" placeholder="e.g. 3+ Years" class="w-full p-3 text-sm bg-[var(--theme-bg)] border border-[var(--theme-border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 text-theme-text" required />
+                        <label class="block text-xs font-bold uppercase tracking-wider mb-2">Experience Required (Optional)</label>
+                        <input type="text" name="experience_required" placeholder="e.g. 3+ Years" class="w-full p-3 text-sm bg-[var(--theme-bg)] border border-[var(--theme-border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 text-theme-text" />
                     </div>
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div>
-                        <label class="block text-xs font-bold uppercase tracking-wider mb-2">Job Location *</label>
-                        <input type="text" name="location" placeholder="e.g. Kota, Rajasthan" class="w-full p-3 text-sm bg-[var(--theme-bg)] border border-[var(--theme-border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 text-theme-text font-semibold" required />
+                        <label class="block text-xs font-bold uppercase tracking-wider mb-2">Job Location (Optional)</label>
+                        <input type="text" name="location" placeholder="e.g. Kota, Rajasthan" class="w-full p-3 text-sm bg-[var(--theme-bg)] border border-[var(--theme-border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 text-theme-text font-semibold" />
                     </div>
                     <div>
-                        <label class="block text-xs font-bold uppercase tracking-wider mb-2">Salary Min (Per Annum) *</label>
-                        <input type="number" name="salary_min" placeholder="e.g. 600000" class="w-full p-3 text-sm bg-[var(--theme-bg)] border border-[var(--theme-border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 text-theme-text" required />
+                        <label class="block text-xs font-bold uppercase tracking-wider mb-2">Salary Min (Per Annum) (Optional)</label>
+                        <input type="number" name="salary_min" placeholder="e.g. 600000" class="w-full p-3 text-sm bg-[var(--theme-bg)] border border-[var(--theme-border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 text-theme-text" />
                     </div>
                     <div>
-                        <label class="block text-xs font-bold uppercase tracking-wider mb-2">Salary Max (Per Annum) *</label>
-                        <input type="number" name="salary_max" placeholder="e.g. 1500000" class="w-full p-3 text-sm bg-[var(--theme-bg)] border border-[var(--theme-border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 text-theme-text" required />
+                        <label class="block text-xs font-bold uppercase tracking-wider mb-2">Salary Max (Per Annum) (Optional)</label>
+                        <input type="number" name="salary_max" placeholder="e.g. 1500000" class="w-full p-3 text-sm bg-[var(--theme-bg)] border border-[var(--theme-border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 text-theme-text" />
                     </div>
                 </div>
 
                 <div>
-                    <label class="block text-xs font-bold uppercase tracking-wider mb-2">Application Deadline *</label>
-                    <input type="date" name="deadline" class="w-full p-3 text-sm bg-[var(--theme-bg)] border border-[var(--theme-border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 text-theme-text font-semibold" required />
+                    <label class="block text-xs font-bold uppercase tracking-wider mb-2">Application Deadline (Optional)</label>
+                    <input type="date" name="deadline" class="w-full p-3 text-sm bg-[var(--theme-bg)] border border-[var(--theme-border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 text-theme-text font-semibold" />
                 </div>
 
                 <div class="flex justify-end gap-3 pt-3 border-t border-[var(--theme-border)]">
@@ -1620,37 +1620,37 @@
 
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div>
-                        <label class="block text-xs font-bold uppercase tracking-wider mb-2">Subject / Specialization *</label>
-                        <input type="text" name="subject" x-model="editVacancy.subject" class="w-full p-3 text-sm bg-[var(--theme-bg)] border border-[var(--theme-border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 text-theme-text font-semibold" required />
+                        <label class="block text-xs font-bold uppercase tracking-wider mb-2">Subject / Specialization (Optional)</label>
+                        <input type="text" name="subject" x-model="editVacancy.subject" class="w-full p-3 text-sm bg-[var(--theme-bg)] border border-[var(--theme-border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 text-theme-text font-semibold" />
                     </div>
                     <div>
-                        <label class="block text-xs font-bold uppercase tracking-wider mb-2">Target Grade / Class *</label>
-                        <input type="text" name="target_class" x-model="editVacancy.target_class" class="w-full p-3 text-sm bg-[var(--theme-bg)] border border-[var(--theme-border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 text-theme-text" required />
+                        <label class="block text-xs font-bold uppercase tracking-wider mb-2">Target Grade / Class (Optional)</label>
+                        <input type="text" name="target_class" x-model="editVacancy.target_class" class="w-full p-3 text-sm bg-[var(--theme-bg)] border border-[var(--theme-border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 text-theme-text" />
                     </div>
                     <div>
-                        <label class="block text-xs font-bold uppercase tracking-wider mb-2">Experience Required *</label>
-                        <input type="text" name="experience_required" x-model="editVacancy.experience_required" class="w-full p-3 text-sm bg-[var(--theme-bg)] border border-[var(--theme-border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 text-theme-text" required />
+                        <label class="block text-xs font-bold uppercase tracking-wider mb-2">Experience Required (Optional)</label>
+                        <input type="text" name="experience_required" x-model="editVacancy.experience_required" class="w-full p-3 text-sm bg-[var(--theme-bg)] border border-[var(--theme-border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 text-theme-text" />
                     </div>
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div>
-                        <label class="block text-xs font-bold uppercase tracking-wider mb-2">Job Location *</label>
-                        <input type="text" name="location" x-model="editVacancy.location" class="w-full p-3 text-sm bg-[var(--theme-bg)] border border-[var(--theme-border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 text-theme-text font-semibold" required />
+                        <label class="block text-xs font-bold uppercase tracking-wider mb-2">Job Location (Optional)</label>
+                        <input type="text" name="location" x-model="editVacancy.location" class="w-full p-3 text-sm bg-[var(--theme-bg)] border border-[var(--theme-border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 text-theme-text font-semibold" />
                     </div>
                     <div>
-                        <label class="block text-xs font-bold uppercase tracking-wider mb-2">Salary Min (Per Annum) *</label>
-                        <input type="number" name="salary_min" x-model="editVacancy.salary_min" class="w-full p-3 text-sm bg-[var(--theme-bg)] border border-[var(--theme-border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 text-theme-text" required />
+                        <label class="block text-xs font-bold uppercase tracking-wider mb-2">Salary Min (Per Annum) (Optional)</label>
+                        <input type="number" name="salary_min" x-model="editVacancy.salary_min" class="w-full p-3 text-sm bg-[var(--theme-bg)] border border-[var(--theme-border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 text-theme-text" />
                     </div>
                     <div>
-                        <label class="block text-xs font-bold uppercase tracking-wider mb-2">Salary Max (Per Annum) *</label>
-                        <input type="number" name="salary_max" x-model="editVacancy.salary_max" class="w-full p-3 text-sm bg-[var(--theme-bg)] border border-[var(--theme-border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 text-theme-text" required />
+                        <label class="block text-xs font-bold uppercase tracking-wider mb-2">Salary Max (Per Annum) (Optional)</label>
+                        <input type="number" name="salary_max" x-model="editVacancy.salary_max" class="w-full p-3 text-sm bg-[var(--theme-bg)] border border-[var(--theme-border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 text-theme-text" />
                     </div>
                 </div>
 
                 <div>
-                    <label class="block text-xs font-bold uppercase tracking-wider mb-2">Application Deadline *</label>
-                    <input type="date" name="deadline" x-model="editVacancy.deadline" class="w-full p-3 text-sm bg-[var(--theme-bg)] border border-[var(--theme-border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 text-theme-text font-semibold" required />
+                    <label class="block text-xs font-bold uppercase tracking-wider mb-2">Application Deadline (Optional)</label>
+                    <input type="date" name="deadline" x-model="editVacancy.deadline" class="w-full p-3 text-sm bg-[var(--theme-bg)] border border-[var(--theme-border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 text-theme-text font-semibold" />
                 </div>
 
                 <div class="flex justify-end gap-3 pt-3 border-t border-[var(--theme-border)]">

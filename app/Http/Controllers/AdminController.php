@@ -835,16 +835,30 @@ class AdminController extends Controller
             'institution_id'      => 'required|exists:institutions,id',
             'title'               => 'required|string|max:100',
             'description'         => 'required|string',
-            'subject'             => 'required|string|max:50',
-            'target_class'        => 'required|string|max:50',
-            'experience_required' => 'required|string|max:50',
-            'location'            => 'required|string|max:100',
-            'salary_min'          => 'required|numeric',
-            'salary_max'          => 'required|numeric',
-            'deadline'            => 'required|date',
+            'subject'             => 'nullable|string|max:50',
+            'target_class'        => 'nullable|string|max:50',
+            'experience_required' => 'nullable|string|max:50',
+            'location'            => 'nullable|string|max:100',
+            'salary_min'          => 'nullable|numeric|min:0',
+            'salary_max'          => 'nullable|numeric|min:0',
+            'deadline'            => 'nullable|date',
         ]);
 
-        Vacancy::create($request->all() + ['status' => 'open']);
+        $inst = \App\Models\Institution::findOrFail($request->institution_id);
+
+        Vacancy::create([
+            'institution_id' => $request->institution_id,
+            'title' => $request->title,
+            'subject' => $request->subject ?: 'General',
+            'target_class' => $request->target_class ?: 'Any Class',
+            'experience_required' => $request->experience_required ?: 'Any',
+            'location' => $request->location ?: ($inst->location ?: 'Anywhere'),
+            'salary_min' => $request->salary_min,
+            'salary_max' => $request->salary_max,
+            'description' => $request->description,
+            'deadline' => $request->deadline ?: now()->addDays(30)->toDateString(),
+            'status' => 'open'
+        ]);
 
         return back()->with('success', '💼 Vacancy successfully created under Sourcing Institution!');
     }
@@ -863,16 +877,26 @@ class AdminController extends Controller
         $request->validate([
             'title'               => 'required|string|max:100',
             'description'         => 'required|string',
-            'subject'             => 'required|string|max:50',
-            'target_class'        => 'required|string|max:50',
-            'experience_required' => 'required|string|max:50',
-            'location'            => 'required|string|max:100',
-            'salary_min'          => 'required|numeric',
-            'salary_max'          => 'required|numeric',
-            'deadline'            => 'required|date',
+            'subject'             => 'nullable|string|max:50',
+            'target_class'        => 'nullable|string|max:50',
+            'experience_required' => 'nullable|string|max:50',
+            'location'            => 'nullable|string|max:100',
+            'salary_min'          => 'nullable|numeric|min:0',
+            'salary_max'          => 'nullable|numeric|min:0',
+            'deadline'            => 'nullable|date',
         ]);
 
-        $vacancy->update($request->all());
+        $vacancy->update([
+            'title' => $request->title,
+            'subject' => $request->subject ?: 'General',
+            'target_class' => $request->target_class ?: 'Any Class',
+            'experience_required' => $request->experience_required ?: 'Any',
+            'location' => $request->location ?: ($vacancy->institution->location ?: 'Anywhere'),
+            'salary_min' => $request->salary_min,
+            'salary_max' => $request->salary_max,
+            'description' => $request->description,
+            'deadline' => $request->deadline ?: now()->addDays(30)->toDateString(),
+        ]);
 
         return back()->with('success', "💼 Vacancy '{$vacancy->title}' updated successfully!");
     }

@@ -303,11 +303,14 @@
                             @if($isLinedUp)
                                 <!-- UNMASKED coaching details! -->
                                 <div class="space-y-2">
-                                    <h5 class="text-lg font-black text-theme-primary">🟢 {{ $app->vacancy->institution->company_name }}</h5>
+                                    <h5 class="text-lg font-black text-theme-primary">🟢 {{ $app->vacancy->institution->company_name }} @if($app->vacancy->institution->user?->phone) <span class="text-sm font-bold text-theme-text/70">(📞 {{ $app->vacancy->institution->user->phone }})</span> @endif</h5>
                                     <p class="text-xs text-theme-text/75 leading-relaxed">{{ $app->vacancy->institution->description }}</p>
                                     <div class="pt-2 text-xs flex flex-wrap gap-x-4 gap-y-1">
                                         <span>🌍 Website: <a href="{{ $app->vacancy->institution->website }}" target="_blank" class="text-theme-primary hover:underline font-bold">{{ $app->vacancy->institution->website }}</a></span>
                                         <span>📍 Main Office: <strong class="text-theme-text/80">{{ $app->vacancy->institution->location }}</strong></span>
+                                        @if($app->vacancy->institution->user?->phone)
+                                            <span>📞 Contact: <strong class="text-theme-text/80">{{ $app->vacancy->institution->user->phone }}</strong></span>
+                                        @endif
                                     </div>
                                 </div>
                             @else
@@ -368,7 +371,7 @@
                                         </p>
                                     @elseif($app->status === 'appointed')
                                         <p class="bg-emerald-500 text-white p-3 rounded-lg font-black text-center shadow">
-                                            🎉 Placed! You have been successfully appointed as faculty member at {{ $app->vacancy->institution->company_name }}. Welcome aboard!
+                                            🎉 Placed! You have been successfully appointed as faculty member at {{ $app->vacancy->institution->company_name }} @if($app->vacancy->institution->user?->phone) (📞 {{ $app->vacancy->institution->user->phone }}) @endif. Welcome aboard!
                                         </p>
                                     @else
                                         <p class="italic text-theme-text/60">
