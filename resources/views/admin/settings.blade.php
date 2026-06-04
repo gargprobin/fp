@@ -847,9 +847,61 @@
                     </p>
                 </div>
 
-                <div class="flex items-center gap-3">
-                    <input type="checkbox" name="whatsapp_enabled" value="1" id="whatsapp_enabled" {{ $whatsappEnabled == '1' ? 'checked' : '' }} class="w-4 h-4 rounded text-red-500 focus:ring-red-500 bg-[var(--theme-bg)] border-[var(--theme-border)]" />
-                    <label for="whatsapp_enabled" class="text-xs font-bold text-theme-text/75 uppercase tracking-wider cursor-pointer">Enable Automated WhatsApp Push Triggers on Sourcing & Placement events</label>
+                <div class="space-y-4 pt-2" x-data="{ whatsappEnabled: {{ $whatsappEnabled == '1' ? 'true' : 'false' }} }">
+                    <div class="flex items-center gap-3">
+                        <input type="checkbox" name="whatsapp_enabled" value="1" id="whatsapp_enabled" x-model="whatsappEnabled" {{ $whatsappEnabled == '1' ? 'checked' : '' }} class="w-4 h-4 rounded text-red-500 focus:ring-red-500 bg-[var(--theme-bg)] border-[var(--theme-border)]" />
+                        <label for="whatsapp_enabled" class="text-xs font-bold text-theme-text/75 uppercase tracking-wider cursor-pointer">Enable Automated WhatsApp Push Triggers on Sourcing & Placement events</label>
+                    </div>
+
+                    <!-- Event specific checkboxes -->
+                    <div x-show="whatsappEnabled" x-transition class="ml-6 p-4 rounded-xl border border-[var(--theme-border)] bg-[var(--theme-bg)]/50 space-y-3">
+                        <span class="block text-xs font-black uppercase tracking-wider text-theme-text/80 mb-2">🎯 Select Event Triggers to Dispatch</span>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="flex items-start gap-3">
+                                <input type="checkbox" name="whatsapp_event_candidate_applied" value="1" id="whatsapp_event_candidate_applied" {{ $whatsapp_event_candidate_applied == '1' ? 'checked' : '' }} class="mt-0.5 w-4 h-4 rounded text-red-500 focus:ring-red-500 bg-[var(--theme-bg)] border-[var(--theme-border)]" />
+                                <div>
+                                    <label for="whatsapp_event_candidate_applied" class="block text-xs font-bold text-theme-text/80 cursor-pointer">Candidate Applied Alert</label>
+                                    <span class="block text-[10px] text-theme-text/50">Triggers: fp_candidate_applied</span>
+                                </div>
+                            </div>
+                            <div class="flex items-start gap-3">
+                                <input type="checkbox" name="whatsapp_event_recruiter_sourced" value="1" id="whatsapp_event_recruiter_sourced" {{ $whatsapp_event_recruiter_sourced == '1' ? 'checked' : '' }} class="mt-0.5 w-4 h-4 rounded text-red-500 focus:ring-red-500 bg-[var(--theme-bg)] border-[var(--theme-border)]" />
+                                <div>
+                                    <label for="whatsapp_event_recruiter_sourced" class="block text-xs font-bold text-theme-text/80 cursor-pointer">Recruiter Sourced Alert</label>
+                                    <span class="block text-[10px] text-theme-text/50">Triggers: fp_recruiter_sourced</span>
+                                </div>
+                            </div>
+                            <div class="flex items-start gap-3">
+                                <input type="checkbox" name="whatsapp_event_candidate_lined_up" value="1" id="whatsapp_event_candidate_lined_up" {{ $whatsapp_event_candidate_lined_up == '1' ? 'checked' : '' }} class="mt-0.5 w-4 h-4 rounded text-red-500 focus:ring-red-500 bg-[var(--theme-bg)] border-[var(--theme-border)]" />
+                                <div>
+                                    <label for="whatsapp_event_candidate_lined_up" class="block text-xs font-bold text-theme-text/80 cursor-pointer">Candidate Lined Up Alert</label>
+                                    <span class="block text-[10px] text-theme-text/50">Triggers: fp_candidate_lined_up</span>
+                                </div>
+                            </div>
+                            <div class="flex items-start gap-3">
+                                <input type="checkbox" name="whatsapp_event_lineup_approved_candidate" value="1" id="whatsapp_event_lineup_approved_candidate" {{ $whatsapp_event_lineup_approved_candidate == '1' ? 'checked' : '' }} class="mt-0.5 w-4 h-4 rounded text-red-500 focus:ring-red-500 bg-[var(--theme-bg)] border-[var(--theme-border)]" />
+                                <div>
+                                    <label for="whatsapp_event_lineup_approved_candidate" class="block text-xs font-bold text-theme-text/80 cursor-pointer">Lineup Approved (Candidate)</label>
+                                    <span class="block text-[10px] text-theme-text/50">Triggers: fp_lineup_approved_candidate</span>
+                                </div>
+                            </div>
+                            <div class="flex items-start gap-3">
+                                <input type="checkbox" name="whatsapp_event_lineup_approved_recruiter" value="1" id="whatsapp_event_lineup_approved_recruiter" {{ $whatsapp_event_lineup_approved_recruiter == '1' ? 'checked' : '' }} class="mt-0.5 w-4 h-4 rounded text-red-500 focus:ring-red-500 bg-[var(--theme-bg)] border-[var(--theme-border)]" />
+                                <div>
+                                    <label for="whatsapp_event_lineup_approved_recruiter" class="block text-xs font-bold text-theme-text/80 cursor-pointer">Lineup Approved (Recruiter)</label>
+                                    <span class="block text-[10px] text-theme-text/50">Triggers: fp_lineup_approved_recruiter</span>
+                                </div>
+                            </div>
+                            <div class="flex items-start gap-3">
+                                <input type="checkbox" name="whatsapp_event_pipeline_stage_updated" value="1" id="whatsapp_event_pipeline_stage_updated" {{ $whatsapp_event_pipeline_stage_updated == '1' ? 'checked' : '' }} class="mt-0.5 w-4 h-4 rounded text-red-500 focus:ring-red-500 bg-[var(--theme-bg)] border-[var(--theme-border)]" />
+                                <div>
+                                    <label for="whatsapp_event_pipeline_stage_updated" class="block text-xs font-bold text-theme-text/80 cursor-pointer">Vetting Stage Funnel Updated</label>
+                                    <span class="block text-[10px] text-theme-text/50">Triggers: fp_pipeline_stage_updated</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="flex justify-end pt-4 border-t border-[var(--theme-border)]">

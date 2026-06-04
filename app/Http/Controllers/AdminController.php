@@ -37,6 +37,12 @@ class AdminController extends Controller
             $whatsappApiUrl = '********************';
         }
         $whatsappEnabled = SiteSetting::getVal('whatsapp_enabled', '1');
+        $whatsapp_event_candidate_applied = SiteSetting::getVal('whatsapp_event_candidate_applied', '1');
+        $whatsapp_event_recruiter_sourced = SiteSetting::getVal('whatsapp_event_recruiter_sourced', '1');
+        $whatsapp_event_candidate_lined_up = SiteSetting::getVal('whatsapp_event_candidate_lined_up', '1');
+        $whatsapp_event_lineup_approved_candidate = SiteSetting::getVal('whatsapp_event_lineup_approved_candidate', '1');
+        $whatsapp_event_lineup_approved_recruiter = SiteSetting::getVal('whatsapp_event_lineup_approved_recruiter', '1');
+        $whatsapp_event_pipeline_stage_updated = SiteSetting::getVal('whatsapp_event_pipeline_stage_updated', '1');
 
         // Auto-port legacy logs if the new database table is empty and migrated
         if (\Schema::hasTable('whatsapp_logs') && \App\Models\WhatsappLog::count() === 0) {
@@ -309,6 +315,9 @@ class AdminController extends Controller
         return view('admin.settings', compact(
             'platformName', 'platformTagline', 'supportEmail',
             'whatsappProvider', 'whatsappApiKey', 'whatsappApiUrl', 'whatsappEnabled', 'whatsappSentLogs',
+            'whatsapp_event_candidate_applied', 'whatsapp_event_recruiter_sourced',
+            'whatsapp_event_candidate_lined_up', 'whatsapp_event_lineup_approved_candidate',
+            'whatsapp_event_lineup_approved_recruiter', 'whatsapp_event_pipeline_stage_updated',
             'totalCandidates', 'totalInstitutions', 'totalVacancies', 'totalApplications',
             'users', 'vacancies', 'applications',
             'deletedUsers', 'deletedVacancies', 'deletedApplications',
@@ -356,6 +365,12 @@ class AdminController extends Controller
             }
 
             SiteSetting::setVal('whatsapp_enabled', $request->has('whatsapp_enabled') ? '1' : '0');
+            SiteSetting::setVal('whatsapp_event_candidate_applied', $request->has('whatsapp_event_candidate_applied') ? '1' : '0');
+            SiteSetting::setVal('whatsapp_event_recruiter_sourced', $request->has('whatsapp_event_recruiter_sourced') ? '1' : '0');
+            SiteSetting::setVal('whatsapp_event_candidate_lined_up', $request->has('whatsapp_event_candidate_lined_up') ? '1' : '0');
+            SiteSetting::setVal('whatsapp_event_lineup_approved_candidate', $request->has('whatsapp_event_lineup_approved_candidate') ? '1' : '0');
+            SiteSetting::setVal('whatsapp_event_lineup_approved_recruiter', $request->has('whatsapp_event_lineup_approved_recruiter') ? '1' : '0');
+            SiteSetting::setVal('whatsapp_event_pipeline_stage_updated', $request->has('whatsapp_event_pipeline_stage_updated') ? '1' : '0');
 
             return back()->with('success', 'WhatsApp API Gateway configurations and messaging triggers updated successfully!');
         }
@@ -511,7 +526,7 @@ class AdminController extends Controller
         foreach ($admins as $ad) {
             \App\Models\Notification::send(
                 $ad->id,
-                '🟢 Line Up Approved',
+                '🟢 Line Up Approved!',
                 "You approved the Line Up of {$application->candidate->name} under {$application->vacancy->institution->company_name}.",
                 route('admin.settings') . '#app-' . $application->id,
                 'success'

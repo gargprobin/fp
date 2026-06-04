@@ -329,7 +329,8 @@ class Notification extends Model
         // ── 2. WhatsApp dispatch (if enabled) ─────────────────────────
         $whatsappEnabled = SiteSetting::getVal('whatsapp_enabled', '1') === '1';
 
-        if (!$whatsappEnabled || !$user) {
+        // Admins only receive in-app notifications. Skip WhatsApp dispatch and logging for Admin recipients.
+        if (!$whatsappEnabled || !$user || $user->isAdmin()) {
             return $notification;
         }
 
@@ -368,28 +369,41 @@ class Notification extends Model
         }
 
         // ── 3. Route to correct template helper ───────────────────────
+        $templateMatched = false;
         $sent = false;
 
         if ($title === '📥 Application Submitted') {
             if (preg_match('/You have applied for (.+?)\./', $message, $m)) {
-                $sent = self::notifyCandidateApplied($user, $m[1]);
+                if (SiteSetting::getVal('whatsapp_event_candidate_applied', '1') === '1') {
+                    $templateMatched = true;
+                    $sent = self::notifyCandidateApplied($user, $m[1]);
+                }
             }
 
         } elseif ($title === '📥 New Sourced Applicant') {
             if (preg_match('/A new candidate has applied for (.+?)\./', $message, $m)) {
-                $sent = self::notifyRecruiterSourced($user, $m[1]);
+                if (SiteSetting::getVal('whatsapp_event_recruiter_sourced', '1') === '1') {
+                    $templateMatched = true;
+                    $sent = self::notifyRecruiterSourced($user, $m[1]);
+                }
             }
 
         } elseif ($title === '🤝 Recruiter Shortlisted') {
             if (preg_match('/shortlisted your profile for (.+?) and requested/', $message, $m)) {
-                // Get company name from recruiter's institution
-                $companyName = 'Sourcing Institution';
-                $sent = self::notifyCandidateLinedUp($user, $m[1], $companyName);
+                if (SiteSetting::getVal('whatsapp_event_candidate_lined_up', '1') === '1') {
+                    $templateMatched = true;
+                    // Get company name from recruiter's institution
+                    $companyName = 'Sourcing Institution';
+                    $sent = self::notifyCandidateLinedUp($user, $m[1], $companyName);
+                }
             }
 
         } elseif ($title === '🟢 Line Up Approved!' && $user->role === 'candidate') {
             if (preg_match('/You are Lined Up with (.+?) for (.+?)\. Coaching/', $message, $m)) {
-                $sent = self::notifyLineUpApprovedCandidate($user, $m[1], $m[2]);
+                if (SiteSetting::getVal('whatsapp_event_lineup_approved_candidate', '1') === '1') {
+                    $templateMatched = true;
+                    $sent = self::notifyLineUpApprovedCandidate($user, $m[1], $m[2]);
+                }
             }
 
         } elseif ($title === '🟢 Line Up Approved!' && $user->role === 'institution') {
@@ -399,15 +413,29 @@ class Notification extends Model
                     $candidateUser = User::where('name', $m[1])->first();
                 }
                 if ($candidateUser) {
-                    $sent = self::notifyLineUpApprovedRecruiter($user, $candidateUser, $m[2]);
+                    if (SiteSetting::getVal('whatsapp_event_lineup_approved_recruiter', '1') === '1') {
+                        $templateMatched = true;
+                        $sent = self::notifyLineUpApprovedRecruiter($user, $candidateUser, $m[2]);
+                    }
                 }
             }
 
         } elseif ($title === '📊 Vetting Stage Updated') {
             if (preg_match('/placement funnel for (.+?) moved to: (.+?)\./', $message, $m)) {
-                $sent = self::notifyPipelineStageUpdated($user, $m[1], $m[2]);
+                if (SiteSetting::getVal('whatsapp_event_pipeline_stage_updated', '1') === '1') {
+                    $templateMatched = true;
+                    $sent = self::notifyPipelineStageUpdated($user, $m[1], $m[2]);
+                }
             }
         }
+
+        // If no template matched (or the event is disabled), skip logging entirely
+        if (!$templateMatched) {
+            return $notification;
+        }
+
+        // Determine broadcast log status
+        $status = $sent ? '✅ Sent' : '❌ Gateway Error / Failed';
 
         // ── 4. Update sent-messages log in database / fallback ─────────
         if (\Schema::hasTable('whatsapp_logs')) {
@@ -417,7 +445,7 @@ class Notification extends Model
                 'recipient_role'  => $user->role,
                 'title'           => $title,
                 'message'         => $message,
-                'status'          => $sent ? '✅ Sent' : '⚠️ No Template Match / Skipped',
+                'status'          => $status,
             ]);
         } else {
             // Fallback: log to Laravel's file log
@@ -427,7 +455,7 @@ class Notification extends Model
                 'recipient_role'  => $user->role,
                 'title'           => $title,
                 'message'         => $message,
-                'status'          => $sent ? '✅ Sent' : '⚠️ No Template Match / Skipped',
+                'status'          => $status,
             ]));
 
             // Fallback: Update legacy logs in SiteSetting
@@ -439,7 +467,7 @@ class Notification extends Model
                     'recipient_role'  => $user->role,
                     'title'           => $title,
                     'message'         => $message,
-                    'status'          => $sent ? '✅ Sent' : '⚠️ No Template Match / Skipped',
+                    'status'          => $status,
                     'timestamp'       => now()->toDateTimeString(),
                 ]);
                 if (count($legacyLogs) > 100) {

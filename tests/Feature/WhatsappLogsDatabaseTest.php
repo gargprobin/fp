@@ -216,4 +216,81 @@ class WhatsappLogsDatabaseTest extends TestCase
         $response->assertStatus(200);
         $response->assertSee('Candidate Fallback Test');
     }
+
+    /**
+     * Test that disabling a specific event trigger prevents sending and logging.
+     */
+    public function test_event_triggers_granular_control()
+    {
+        SiteSetting::setVal('whatsapp_enabled', '1');
+        
+        $candidate = new User([
+            'name' => 'Candidate Event Control Test',
+            'email' => 'event_ctrl@example.com',
+            'password' => bcrypt('password'),
+            'phone' => '919876543213',
+        ]);
+        $candidate->role = 'candidate';
+        $candidate->save();
+
+        // 1. Disable "Candidate Applied" event trigger
+        SiteSetting::setVal('whatsapp_event_candidate_applied', '0');
+
+        $this->assertEquals(0, WhatsappLog::count());
+
+        // Dispatch notification
+        \App\Models\Notification::send(
+            $candidate->id,
+            '📥 Application Submitted',
+            'You have applied for English Teacher. Your profile is sent for Admin screening.',
+            '/'
+        );
+
+        // Verification: Log count should STILL be 0 because it was skipped
+        $this->assertEquals(0, WhatsappLog::count());
+
+        // 2. Enable "Candidate Applied" event trigger
+        SiteSetting::setVal('whatsapp_event_candidate_applied', '1');
+
+        // Dispatch notification again
+        \App\Models\Notification::send(
+            $candidate->id,
+            '📥 Application Submitted',
+            'You have applied for English Teacher. Your profile is sent for Admin screening.',
+            '/'
+        );
+
+        // Verification: Log count should now be 1
+        $this->assertEquals(1, WhatsappLog::count());
+    }
+
+    /**
+     * Test that any notifications with unmatched templates are completely omitted from logging.
+     */
+    public function test_no_template_match_not_logged()
+    {
+        SiteSetting::setVal('whatsapp_enabled', '1');
+
+        $candidate = new User([
+            'name' => 'Candidate Unmatched Test',
+            'email' => 'unmatched@example.com',
+            'password' => bcrypt('password'),
+            'phone' => '919876543214',
+        ]);
+        $candidate->role = 'candidate';
+        $candidate->save();
+
+        $this->assertEquals(0, WhatsappLog::count());
+
+        // Dispatch unmatched notification (different title / message structure)
+        \App\Models\Notification::send(
+            $candidate->id,
+            'General Info Alert',
+            'This is a general system notification that does not match any WhatsApp templates.',
+            '/'
+        );
+
+        // Verification: Log count should remain 0
+        $this->assertEquals(0, WhatsappLog::count());
+    }
 }
