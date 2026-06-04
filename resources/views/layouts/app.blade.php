@@ -200,7 +200,7 @@
 <body class="theme-{{ $themePreference ?? 'light' }} min-h-screen flex flex-col antialiased">
 
     @if(session()->has('impersonate_admin_id') && auth()->check())
-        <div class="bg-amber-500 text-white px-4 py-2.5 text-center text-sm font-bold flex justify-center items-center gap-2 relative z-50 shadow-md">
+        <div class="bg-amber-500 text-white px-4 py-2.5 text-center text-sm font-bold flex justify-center items-center gap-2 relative z-[40] shadow-md">
             <span>👤 You are currently logged in as: <strong>{{ auth()->user()->name }}</strong> (Impersonating Mode)</span>
             <form action="{{ route('admin.impersonate-leave') }}" method="POST" class="inline">
                 @csrf
@@ -1081,21 +1081,30 @@
     </script>
 
     <!-- Real-time Polling & Toast Notifications System -->
-    <div x-data="realtimePollingSystem()" x-init="initPolling()" class="fixed top-6 right-6 z-50 space-y-3 max-w-sm pointer-events-none">
+    <div x-data="realtimePollingSystem()" x-init="initPolling()" class="fixed top-6 right-6 z-[9999] space-y-3 max-w-sm pointer-events-none">
         <template x-for="toast in toasts" :key="toast.id">
             <div 
                 x-show="toast.show" 
-                x-transition:enter="transition ease-out duration-300 transform"
-                x-transition:enter-start="translate-y-2 opacity-0 sm:translate-y-0 sm:translate-x-2"
-                x-transition:enter-end="translate-y-0 opacity-100 sm:translate-x-0"
-                x-transition:leave="transition ease-in duration-200"
-                x-transition:leave-start="opacity-100"
-                x-transition:leave-end="opacity-0"
-                class="p-4 rounded-2xl text-white border shadow-2xl backdrop-blur-md flex items-center gap-3 pointer-events-auto transition-all bg-slate-900/90 border-white/10"
+                x-transition:enter="transition ease-out duration-350 transform"
+                x-transition:enter-start="translate-y-4 opacity-0 scale-95"
+                x-transition:enter-end="translate-y-0 opacity-100 scale-100"
+                x-transition:leave="transition ease-in duration-250 transform"
+                x-transition:leave-start="opacity-100 scale-100"
+                x-transition:leave-end="opacity-0 scale-95"
+                class="p-4 rounded-2xl border shadow-[0_20px_50px_rgba(59,130,246,0.18)] backdrop-blur-xl flex items-center gap-4 pointer-events-auto transition-all bg-gradient-to-br from-blue-500/15 via-white/80 to-orange-500/15 dark:from-blue-500/25 dark:via-slate-900/75 dark:to-orange-500/25 border-white/40 dark:border-slate-700/40 relative overflow-hidden"
             >
-                <span x-text="toast.icon" class="text-xl shrink-0"></span>
-                <div>
-                    <p x-text="toast.message" class="text-xs font-bold leading-relaxed"></p>
+                <!-- Top border accent gradient strip -->
+                <div class="absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-blue-500 via-indigo-500 to-orange-500"></div>
+                
+                <!-- Left border accent gradient strip -->
+                <div class="absolute left-0 top-0 bottom-0 w-[3px] bg-gradient-to-b from-blue-500 to-orange-500"></div>
+
+                <!-- Icon Container with glass styling -->
+                <span x-text="toast.icon" class="text-2xl shrink-0 p-2.5 bg-gradient-to-br from-blue-500/10 to-orange-500/10 rounded-xl border border-white/30 dark:border-slate-700/30 shadow-inner"></span>
+                
+                <!-- Message content -->
+                <div class="pr-2 flex-1">
+                    <p x-text="toast.message" class="text-xs font-black leading-relaxed text-slate-800 dark:text-slate-100"></p>
                 </div>
             </div>
         </template>
@@ -1158,11 +1167,6 @@
                             if (changeDetected) {
                                 if (showToast) {
                                     this.showNotification(toastMessage, toastIcon);
-                                    setTimeout(() => {
-                                        window.location.reload();
-                                    }, 3000);
-                                } else {
-                                    window.location.reload();
                                 }
                             }
                         })
