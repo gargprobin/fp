@@ -79,7 +79,7 @@ Route::get('/vacancy/{vacancy}', [VacancyController::class, 'show'])->name('vaca
 Route::post('/vacancy/{vacancy}/apply', [VacancyController::class, 'apply'])->name('vacancies.apply');
 
 // 4.5 Fallback CV File Viewer Route (handles cases when storage symlink is broken on live servers)
-Route::get('/storage/cvs/{filename}', function ($filename) {
+Route::get('/view-cv/{filename}', function ($filename) {
     $path = storage_path('app/public/cvs/' . $filename);
     if (!\Illuminate\Support\Facades\File::exists($path)) {
         abort(404, 'CV file not found.');
