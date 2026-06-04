@@ -78,6 +78,15 @@ Route::get('/vacancies', function (Request $request) {
 Route::get('/vacancy/{vacancy}', [VacancyController::class, 'show'])->name('vacancies.show');
 Route::post('/vacancy/{vacancy}/apply', [VacancyController::class, 'apply'])->name('vacancies.apply');
 
+// 4.5 Fallback CV File Viewer Route (handles cases when storage symlink is broken on live servers)
+Route::get('/storage/cvs/{filename}', function ($filename) {
+    $path = storage_path('app/public/cvs/' . $filename);
+    if (!\Illuminate\Support\Facades\File::exists($path)) {
+        abort(404, 'CV file not found.');
+    }
+    return response()->file($path);
+})->name('cv.view');
+
 // 5. Secure Signed Routes for Confidential Recommendation Letters
 Route::get('/referee/upload/{token}', [RefereeController::class, 'showForm'])->name('referee.upload-form');
 Route::post('/referee/upload/{token}', [RefereeController::class, 'submit'])->name('referee.submit');
@@ -172,6 +181,9 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::post('/admin/settings', [AdminController::class, 'update'])->name('admin.settings.update');
     Route::post('/admin/clear-cache', [AdminController::class, 'clearCache'])->name('admin.clear-cache');
     Route::post('/admin/storage-link', function() {
+        if (!function_exists('symlink')) {
+            return back()->with('error', '❌ symlink() function is disabled on this server. Storage files will be served via fallback router.');
+        }
         try {
             \Illuminate\Support\Facades\Artisan::call('storage:link');
             return back()->with('success', '🔗 Storage symbolic link created successfully!');
