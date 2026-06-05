@@ -93,33 +93,7 @@ Route::get('/raw-cv/{filename}', function ($filename) {
 Route::get('/view-cv/{filename}', function ($filename) {
     $path = storage_path('app/public/cvs/' . $filename);
     if (!\Illuminate\Support\Facades\File::exists($path)) {
-        $dir = storage_path('app/public/cvs');
-        $parentDir = storage_path('app/public');
-        
-        if (!is_dir($dir)) {
-            @mkdir($dir, 0755, true);
-        }
-        
-        $files = is_dir($dir) ? scandir($dir) : [];
-        $isCvsWritable = is_writable($dir);
-        $isParentWritable = is_writable($parentDir);
-        
-        $testFile = $dir . '/write_test.txt';
-        $writeSuccess = @file_put_contents($testFile, 'test') !== false;
-        if ($writeSuccess) {
-            @unlink($testFile);
-        }
-
-        return response()->json([
-            'searched_path' => $path,
-            'file_exists' => false,
-            'storage_path' => storage_path(),
-            'cvs_folder_exists' => is_dir($dir),
-            'cvs_folder_writable' => $isCvsWritable,
-            'parent_folder_writable' => $isParentWritable,
-            'write_test_success' => $writeSuccess,
-            'files_in_cvs_folder' => $files,
-        ]);
+        abort(404, 'CV file not found.');
     }
     return view('cv-viewer', compact('filename'));
 })->name('cv.view');
