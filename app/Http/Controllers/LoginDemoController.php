@@ -25,7 +25,6 @@ class LoginDemoController extends Controller
      */
     public function login(Request $request)
     {
-
         $role = $request->query('role', 'candidate');
 
         // 1. Create or Find mock user

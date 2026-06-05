@@ -409,8 +409,16 @@ class Notification extends Model
         } elseif ($title === '🟢 Line Up Approved!' && $user->role === 'institution') {
             $candidateUser = $candidateId ? User::find($candidateId) : null;
             if (preg_match('/Admin approved Line Up for (.+?) for (.+?)\. Contact/', $message, $m)) {
+                if (!$candidateUser && $url) {
+                    if (preg_match('/#app-(\d+)/', $url, $appM)) {
+                        $application = \App\Models\Application::find($appM[1]);
+                        if ($application) {
+                            $candidateUser = $application->candidate;
+                        }
+                    }
+                }
                 if (!$candidateUser) {
-                    $candidateUser = User::where('name', $m[1])->first();
+                    $candidateUser = User::where('name', $m[1])->where('role', 'candidate')->first();
                 }
                 if ($candidateUser) {
                     if (SiteSetting::getVal('whatsapp_event_lineup_approved_recruiter', '1') === '1') {

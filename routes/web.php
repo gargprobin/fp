@@ -83,6 +83,33 @@ Route::post('/vacancy/{vacancy}/apply', [VacancyController::class, 'apply'])->na
 
 // 4.5 CV File Viewer Routes (Inline with system UI)
 Route::get('/raw-cv/{filename}', function ($filename) {
+    if (!auth()->check()) {
+        abort(403, 'Unauthorized. Please log in first.');
+    }
+
+    $profile = \App\Models\CandidateProfile::where('cv_path', 'like', '%' . $filename)->first();
+    if (!$profile) {
+        abort(404, 'CV profile not found.');
+    }
+
+    $user = auth()->user();
+    if ($user->isAdmin() || $user->id === $profile->user_id) {
+        // Access granted
+    } elseif ($user->isInstitution()) {
+        $inst = $user->institution;
+        $allowed = $inst && \App\Models\Application::where('candidate_id', $profile->user_id)
+            ->whereHas('vacancy', function($q) use ($inst) {
+                $q->where('institution_id', $inst->id);
+            })
+            ->whereNotIn('status', ['applied', 'shortlisted_by_admin', 'shortlisted_by_institution'])
+            ->exists();
+        if (!$allowed) {
+            abort(403, 'Unauthorized access to masked CV.');
+        }
+    } else {
+        abort(403, 'Unauthorized.');
+    }
+
     $path = storage_path('app/public/cvs/' . $filename);
     if (!\Illuminate\Support\Facades\File::exists($path)) {
         abort(404, 'CV file not found.');
@@ -91,6 +118,33 @@ Route::get('/raw-cv/{filename}', function ($filename) {
 })->name('cv.raw');
 
 Route::get('/view-cv/{filename}', function ($filename) {
+    if (!auth()->check()) {
+        abort(403, 'Unauthorized. Please log in first.');
+    }
+
+    $profile = \App\Models\CandidateProfile::where('cv_path', 'like', '%' . $filename)->first();
+    if (!$profile) {
+        abort(404, 'CV profile not found.');
+    }
+
+    $user = auth()->user();
+    if ($user->isAdmin() || $user->id === $profile->user_id) {
+        // Access granted
+    } elseif ($user->isInstitution()) {
+        $inst = $user->institution;
+        $allowed = $inst && \App\Models\Application::where('candidate_id', $profile->user_id)
+            ->whereHas('vacancy', function($q) use ($inst) {
+                $q->where('institution_id', $inst->id);
+            })
+            ->whereNotIn('status', ['applied', 'shortlisted_by_admin', 'shortlisted_by_institution'])
+            ->exists();
+        if (!$allowed) {
+            abort(403, 'Unauthorized access to masked CV.');
+        }
+    } else {
+        abort(403, 'Unauthorized.');
+    }
+
     $path = storage_path('app/public/cvs/' . $filename);
     if (!\Illuminate\Support\Facades\File::exists($path)) {
         abort(404, 'CV file not found.');
@@ -286,7 +340,14 @@ Route::middleware(['auth'])->group(function () {
             $notification->is_read = true;
             $notification->save();
             if ($notification->action_url) {
-                return redirect($notification->action_url);
+                $url = $notification->action_url;
+                if (str_starts_with($url, 'http://') || str_starts_with($url, 'https://')) {
+                    $host = parse_url($url, PHP_URL_HOST);
+                    if ($host !== request()->getHost()) {
+                        return redirect()->route('home');
+                    }
+                }
+                return redirect()->to($url);
             }
         }
         return back();
