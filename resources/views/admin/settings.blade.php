@@ -118,16 +118,9 @@
                         ⚡ Clear System Cache
                     </button>
                 </form>
-                
-                <form action="{{ route('admin.storage-link') }}" method="POST" onsubmit="return confirm('Are you sure you want to regenerate the storage symbolic link? This will connect your public storage folder with uploaded files.')">
-                    @csrf
-                    <button type="submit" class="px-4 py-2.5 bg-blue-500 hover:bg-blue-600 active:scale-95 text-white font-bold text-xs rounded-xl shadow-sm transition-all duration-200 flex items-center gap-1.5 border border-blue-600/20 cursor-pointer">
-                        🔗 Link Storage Folder
-                    </button>
-                </form>
             </div>
             <div class="mt-2 text-left md:text-right">
-                <p class="text-[10px] font-bold text-theme-text/60 italic">💡 Note: On Hostinger shared hosting, the symlink function is often restricted. Our fallback system automatically and securely routes all CV files directly using PHP routing (e.g., if files fail to open, re-uploading them routes them through the fallback system).</p>
+                <p class="text-[10px] font-bold text-theme-text/60 italic">💡 Note: On shared hostings like Hostinger, all CV files are served securely via direct PHP routing (no symlink required). If any older CV fails to open (404), simply ask the candidate to re-upload it.</p>
             </div>
         </div>
     </div>

@@ -192,28 +192,6 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::get('/admin/settings', [AdminController::class, 'index'])->name('admin.settings');
     Route::post('/admin/settings', [AdminController::class, 'update'])->name('admin.settings.update');
     Route::post('/admin/clear-cache', [AdminController::class, 'clearCache'])->name('admin.clear-cache');
-    Route::post('/admin/storage-link', function() {
-        if (!function_exists('symlink')) {
-            return back()->with('error', '❌ symlink() function is disabled on this server. Storage files will be served via fallback router.');
-        }
-        try {
-            \Illuminate\Support\Facades\Artisan::call('storage:link');
-            $output = \Illuminate\Support\Facades\Artisan::output();
-            
-            if (str_contains(strtolower($output), 'fail') || str_contains(strtolower($output), 'could not') || str_contains(strtolower($output), 'error')) {
-                return back()->with('error', '❌ Failed to create symbolic link. Command Output: ' . trim($output) . ' (Note: Files are still served securely via fallback router)');
-            }
-            
-            $linkPath = public_path('storage');
-            if (!file_exists($linkPath) && !is_link($linkPath)) {
-                return back()->with('error', '❌ Artisan command completed, but symbolic link does not exist on filesystem. (Note: Files are still served securely via fallback router)');
-            }
-            
-            return back()->with('success', '🔗 Storage symbolic link created successfully!');
-        } catch (\Exception $e) {
-            return back()->with('error', '❌ Failed to create link: ' . $e->getMessage() . ' (Note: Files are still served securely via fallback router)');
-        }
-    })->name('admin.storage-link');
 
     // Impersonate Routes
     Route::post('/admin/impersonate/{id}', [AdminController::class, 'impersonate'])->name('admin.impersonate');
