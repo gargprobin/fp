@@ -217,8 +217,9 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::delete('/admin/vacancy/{id}', [AdminController::class, 'deleteVacancy'])->name('admin.vacancy.delete');
     Route::post('/admin/vacancy/{id}/restore', [AdminController::class, 'restoreVacancy'])->name('admin.vacancy.restore');
 
-    // WhatsApp Sandbox
+    // WhatsApp Sandbox & Email API Test Bench
     Route::post('/admin/whatsapp/test-send', [AdminController::class, 'sendTestWhatsApp'])->name('admin.whatsapp.test-send');
+    Route::post('/admin/email/test-send', [AdminController::class, 'sendTestEmail'])->name('admin.email.test-send');
 
     // Admin Advanced Faculty Sourcing Pipeline Moderation
     Route::post('/admin/application/{id}/shortlist', [AdminController::class, 'shortlistApplication'])->name('admin.application.shortlist');

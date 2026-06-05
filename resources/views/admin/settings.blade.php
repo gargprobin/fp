@@ -168,6 +168,39 @@
 
     </div>
 
+    <!-- 📈 Visual Analytics & Growth Trends Row -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 my-2">
+        <!-- Monthly Registrations Chart -->
+        <div class="p-5 rounded-2xl bg-[var(--theme-card)] border border-[var(--theme-border)] shadow-sm flex flex-col justify-between">
+            <h3 class="text-xs font-black uppercase tracking-wider text-theme-text/80 mb-4 flex items-center gap-1.5 border-b border-[var(--theme-border)] pb-2">
+                📈 Monthly Registrations
+            </h3>
+            <div class="relative w-full h-[220px]">
+                <canvas id="registrationChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Popular Subjects Distribution Chart -->
+        <div class="p-5 rounded-2xl bg-[var(--theme-card)] border border-[var(--theme-border)] shadow-sm flex flex-col justify-between">
+            <h3 class="text-xs font-black uppercase tracking-wider text-theme-text/80 mb-4 flex items-center gap-1.5 border-b border-[var(--theme-border)] pb-2">
+                📚 Popular Vacancy Subjects
+            </h3>
+            <div class="relative w-full h-[220px]">
+                <canvas id="subjectChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Application Funnel Pipeline Chart -->
+        <div class="p-5 rounded-2xl bg-[var(--theme-card)] border border-[var(--theme-border)] shadow-sm flex flex-col justify-between">
+            <h3 class="text-xs font-black uppercase tracking-wider text-theme-text/80 mb-4 flex items-center gap-1.5 border-b border-[var(--theme-border)] pb-2">
+                🎯 Application Stages Funnel
+            </h3>
+            <div class="relative w-full h-[220px]">
+                <canvas id="pipelineChart"></canvas>
+            </div>
+        </div>
+    </div>
+
     <!-- 🧠 Smart Admin Dashboard Center -->
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
         
@@ -354,7 +387,7 @@
             🔧 Portal Settings
         </button>
         <button @click="selectTab('whatsapp')" :class="activeTab === 'whatsapp' ? 'text-red-500 border-b-2 border-red-500 pb-2' : 'text-theme-text/60 pb-2 hover:text-theme-text transition cursor-pointer'">
-            💬 WhatsApp Settings
+            🔌 API & Messaging Center
         </button>
         <button @click="selectTab('users')" :class="activeTab === 'users' ? 'text-red-500 border-b-2 border-red-500 pb-2' : 'text-theme-text/60 pb-2 hover:text-theme-text transition cursor-pointer'">
             👥 User Moderation
@@ -367,6 +400,9 @@
         </button>
         <button @click="selectTab('trash')" :class="activeTab === 'trash' ? 'text-red-500 border-b-2 border-red-500 pb-2' : 'text-theme-text/60 pb-2 hover:text-theme-text transition cursor-pointer'">
             ♻️ System Trash
+        </button>
+        <button @click="selectTab('activity_logs')" :class="activeTab === 'activity_logs' ? 'text-red-500 border-b-2 border-red-500 pb-2' : 'text-theme-text/60 pb-2 hover:text-theme-text transition cursor-pointer'">
+            ⚙️ Activity Logs
         </button>
     </div>
 
@@ -941,6 +977,123 @@
                 </div>
             </form>
 
+            <!-- Email Gateway & SMTP Settings Form -->
+            <div class="flex justify-between items-center border-b border-[var(--theme-border)] pb-3 pt-6">
+                <h3 class="text-lg font-bold">📧 Email API & SMTP/Mailgun Gateway</h3>
+                <span class="px-3 py-1 bg-blue-500/10 text-blue-500 border border-blue-500/20 text-xs font-bold rounded-full uppercase">
+                    MAIL LIVE
+                </span>
+            </div>
+
+            <form action="{{ route('admin.settings.update') }}" method="POST" class="space-y-6 bg-[var(--theme-bg)] p-6 rounded-xl border border-[var(--theme-border)]" x-data="{ mailer: '{{ old('mail_mailer', $mailMailer) }}' }">
+                @csrf
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div>
+                        <label class="block text-xs font-bold text-theme-text/75 uppercase tracking-wider mb-2">Mail Driver / Mailer *</label>
+                        <select name="mail_mailer" x-model="mailer" class="w-full p-3 text-sm bg-[var(--theme-bg)] border border-[var(--theme-border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 text-theme-text">
+                            <option value="smtp">SMTP Server (Default)</option>
+                            <option value="mailgun">Mailgun HTTP API</option>
+                            <option value="log">Log File (Testing Only)</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-theme-text/75 uppercase tracking-wider mb-2">Sender Name *</label>
+                        <input type="text" name="mail_from_name" value="{{ old('mail_from_name', $mailFromName) }}" placeholder="e.g. Sourcing Portal" class="w-full p-3 text-sm bg-[var(--theme-bg)] border border-[var(--theme-border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 text-theme-text" required />
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-theme-text/75 uppercase tracking-wider mb-2">Sender Email Address *</label>
+                        <input type="email" name="mail_from_address" value="{{ old('mail_from_address', $mailFromAddress) }}" placeholder="e.g. hello@sourcing.com" class="w-full p-3 text-sm bg-[var(--theme-bg)] border border-[var(--theme-border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 text-theme-text" required />
+                    </div>
+                </div>
+
+                <!-- SMTP Config Cards -->
+                <div x-show="mailer === 'smtp'" class="grid grid-cols-1 md:grid-cols-4 gap-6 p-4 rounded-xl border border-[var(--theme-border)] bg-[var(--theme-bg)]/50" x-transition>
+                    <div class="md:col-span-2">
+                        <label class="block text-xs font-bold text-theme-text/75 uppercase tracking-wider mb-2">SMTP Host *</label>
+                        <input type="text" name="mail_host" value="{{ old('mail_host', $mailHost) }}" placeholder="e.g. smtp.mailgun.org" class="w-full p-3 text-sm bg-[var(--theme-bg)] border border-[var(--theme-border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 text-theme-text font-mono" />
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-theme-text/75 uppercase tracking-wider mb-2">SMTP Port *</label>
+                        <input type="text" name="mail_port" value="{{ old('mail_port', $mailPort) }}" placeholder="e.g. 587" class="w-full p-3 text-sm bg-[var(--theme-bg)] border border-[var(--theme-border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 text-theme-text font-mono" />
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-theme-text/75 uppercase tracking-wider mb-2">Encryption *</label>
+                        <select name="mail_encryption" class="w-full p-3 text-sm bg-[var(--theme-bg)] border border-[var(--theme-border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 text-theme-text">
+                            <option value="tls" {{ $mailEncryption === 'tls' ? 'selected' : '' }}>TLS (Port 587)</option>
+                            <option value="ssl" {{ $mailEncryption === 'ssl' ? 'selected' : '' }}>SSL (Port 465)</option>
+                            <option value="none" {{ $mailEncryption === 'none' ? 'selected' : '' }}>None</option>
+                        </select>
+                    </div>
+
+                    <div class="md:col-span-2">
+                        <label class="block text-xs font-bold text-theme-text/75 uppercase tracking-wider mb-2">SMTP Username</label>
+                        <input type="text" name="mail_username" value="{{ old('mail_username', $mailUsername) }}" placeholder="e.g. postmaster@yourdomain.com" class="w-full p-3 text-sm bg-[var(--theme-bg)] border border-[var(--theme-border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 text-theme-text" />
+                    </div>
+
+                    <div class="md:col-span-2">
+                        <label class="block text-xs font-bold text-theme-text/75 uppercase tracking-wider mb-2">SMTP Password</label>
+                        <input type="password" name="mail_password" value="{{ old('mail_password', $mailPassword) }}" placeholder="e.g. ********************" class="w-full p-3 text-sm bg-[var(--theme-bg)] border border-[var(--theme-border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 text-theme-text" />
+                    </div>
+                </div>
+
+                <!-- Mailgun Config Cards -->
+                <div x-show="mailer === 'mailgun'" class="grid grid-cols-1 md:grid-cols-3 gap-6 p-4 rounded-xl border border-[var(--theme-border)] bg-[var(--theme-bg)]/50" x-transition>
+                    <div>
+                        <label class="block text-xs font-bold text-theme-text/75 uppercase tracking-wider mb-2">Mailgun Domain *</label>
+                        <input type="text" name="mailgun_domain" value="{{ old('mailgun_domain', $mailgunDomain) }}" placeholder="e.g. mg.yourdomain.com" class="w-full p-3 text-sm bg-[var(--theme-bg)] border border-[var(--theme-border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 text-theme-text font-mono" />
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-theme-text/75 uppercase tracking-wider mb-2">Mailgun Secret/API Key *</label>
+                        <input type="password" name="mailgun_secret" value="{{ old('mailgun_secret', $mailgunSecret) }}" placeholder="e.g. key-********************" class="w-full p-3 text-sm bg-[var(--theme-bg)] border border-[var(--theme-border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 text-theme-text" />
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-theme-text/75 uppercase tracking-wider mb-2">API Endpoint Region *</label>
+                        <select name="mailgun_endpoint" class="w-full p-3 text-sm bg-[var(--theme-bg)] border border-[var(--theme-border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 text-theme-text">
+                            <option value="api.mailgun.net" {{ $mailgunEndpoint === 'api.mailgun.net' ? 'selected' : '' }}>US Region (api.mailgun.net)</option>
+                            <option value="api.eu.mailgun.net" {{ $mailgunEndpoint === 'api.eu.mailgun.net' ? 'selected' : '' }}>EU Region (api.eu.mailgun.net)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="flex justify-end pt-4 border-t border-[var(--theme-border)]">
+                    <button type="submit" class="px-6 py-3 text-sm font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-xl shadow transition transform active:scale-95 cursor-pointer">
+                        Save Email API Settings
+                    </button>
+                </div>
+            </form>
+
+            <!-- Email Test Bench / Manual Sandbox Form -->
+            <div class="p-6 rounded-2xl bg-gradient-to-br from-blue-500/5 via-theme-accent/5 to-[var(--theme-card)] border border-[var(--theme-border)] shadow-sm space-y-4">
+                <div class="flex justify-between items-center border-b border-[var(--theme-border)] pb-3">
+                    <div>
+                        <h4 class="text-sm font-black uppercase tracking-wider text-theme-text/80">🧪 Email API Test Bench (Manual Sandbox)</h4>
+                        <p class="text-xs text-theme-text/60 mt-0.5">Validate your SMTP and Mailgun credentials by dispatching a real-time test message.</p>
+                    </div>
+                    <span class="px-2 py-0.5 bg-blue-500/10 text-blue-500 text-[10px] font-black rounded-full uppercase">
+                        Mail Sandbox
+                    </span>
+                </div>
+
+                <form action="{{ route('admin.email.test-send') }}" method="POST" class="space-y-4">
+                    @csrf
+                    <div>
+                        <label class="block text-xs font-bold text-theme-text/75 uppercase tracking-wider mb-2">Recipient Email Address *</label>
+                        <div class="flex gap-3">
+                            <input type="email" name="email_address" placeholder="e.g. test@recipient.com" class="flex-1 p-3 text-sm bg-[var(--theme-bg)] border border-[var(--theme-border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 text-theme-text" required />
+                            <button type="submit" class="px-6 py-3 bg-blue-500 hover:bg-blue-600 active:scale-95 text-white font-bold text-xs rounded-xl shadow transition cursor-pointer flex items-center gap-1.5">
+                                🚀 Send Test Email
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
             <!-- WhatsApp Test Bench / Manual Sandbox Form -->
             <div class="p-6 rounded-2xl bg-gradient-to-br from-theme-primary/5 via-theme-accent/5 to-[var(--theme-card)] border border-[var(--theme-border)] shadow-sm space-y-4">
                 <div class="flex justify-between items-center border-b border-[var(--theme-border)] pb-3">
@@ -1328,6 +1481,107 @@
             </div>
         </div>
 
+        <!-- Tab G: Activity Audit Logs -->
+        <div x-show="activeTab === 'activity_logs'" class="space-y-8">
+            <div class="flex justify-between items-center border-b border-[var(--theme-border)] pb-3">
+                <div>
+                    <h3 class="text-lg font-bold">⚙️ Activity Audit Logs</h3>
+                    <p class="text-xs text-theme-text/60 mt-0.5">Real-time records of all administrative actions performed on this platform.</p>
+                </div>
+                <span class="px-3 py-1 bg-amber-500/10 text-amber-500 border border-amber-500/20 text-xs font-bold rounded-full uppercase">
+                    AUDIT ACTIVE
+                </span>
+            </div>
+
+            <!-- Search, Filter & Pagination control -->
+            <form action="{{ route('admin.settings') }}" method="GET" class="flex flex-wrap items-center gap-3 w-full mb-2">
+                <input type="hidden" name="tab" value="activity_logs" />
+                <input type="text" name="search_log" value="{{ request('search_log') }}" placeholder="🔍 Search logs by action, desc, IP..." class="p-2.5 text-xs bg-[var(--theme-bg)] border border-[var(--theme-border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 text-theme-text w-full sm:w-60 font-medium" />
+                <select name="sort_log" onchange="this.form.submit()" class="p-2.5 text-xs bg-[var(--theme-bg)] border border-[var(--theme-border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 text-theme-text font-semibold">
+                    <option value="latest" {{ request('sort_log') === 'latest' ? 'selected' : '' }}>📅 Latest Actions</option>
+                    <option value="oldest" {{ request('sort_log') === 'oldest' ? 'selected' : '' }}>📅 Oldest Actions</option>
+                </select>
+                <select name="per_page_activity_logs" onchange="this.form.submit()" class="p-2.5 text-xs bg-[var(--theme-bg)] border border-[var(--theme-border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 text-theme-text font-bold">
+                    @foreach([10, 25, 50, 100, 500] as $opt)
+                        <option value="{{ $opt }}" {{ $limitActivityLogs == $opt ? 'selected' : '' }}>Show {{ $opt }}</option>
+                    @endforeach
+                </select>
+                <button type="submit" class="px-4 py-2.5 bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold rounded-xl shadow-sm transition cursor-pointer">Filter</button>
+                @if(request()->anyFilled(['search_log', 'sort_log']))
+                    <a href="{{ route('admin.settings', ['tab' => 'activity_logs']) }}" class="text-xs text-red-500 font-bold hover:underline">Clear</a>
+                @endif
+            </form>
+
+            <div class="flex justify-between items-center text-xs text-theme-text/60 mb-2 px-1">
+                @if($activityLogs->total() > 0)
+                    <span class="font-bold">Showing {{ $activityLogs->firstItem() }}-{{ $activityLogs->lastItem() }}/{{ $activityLogs->total() }} entries</span>
+                @else
+                    <span class="font-bold">Showing 0 entries</span>
+                @endif
+            </div>
+
+            <div class="overflow-x-auto border border-[var(--theme-border)] rounded-xl">
+                <table class="w-full text-xs text-left text-theme-text">
+                    <thead class="uppercase bg-[var(--theme-bg)] border-b border-[var(--theme-border)] text-theme-text/60 font-black">
+                        <tr>
+                            <th class="px-6 py-3">Timestamp</th>
+                            <th class="px-6 py-3">Admin User</th>
+                            <th class="px-6 py-3">Action Type</th>
+                            <th class="px-6 py-3">Description</th>
+                            <th class="px-6 py-3">IP Address</th>
+                            <th class="px-6 py-3 font-semibold">User Agent</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-[var(--theme-border)] bg-[var(--theme-bg)] font-medium">
+                        @forelse($activityLogs as $log)
+                            <tr class="hover:bg-theme-primary/5 transition-colors">
+                                <td class="px-6 py-3 text-theme-text/50 font-semibold whitespace-nowrap">
+                                    {{ $log->created_at->format('d M Y, h:i A') }}
+                                </td>
+                                <td class="px-6 py-3 font-bold text-theme-text">
+                                    {{ $log->user ? $log->user->name : 'System/Deleted User' }}
+                                    <span class="block text-[10px] text-theme-text/50 font-normal">({{ $log->user ? $log->user->email : 'N/A' }})</span>
+                                </td>
+                                <td class="px-6 py-3">
+                                    @php
+                                        $badgeColor = match($log->action) {
+                                            'clear_cache' => 'bg-amber-500/10 text-amber-500 border-amber-500/20',
+                                            'create_user', 'create_vacancy' => 'bg-green-500/10 text-green-500 border-green-500/20',
+                                            'delete_user', 'delete_vacancy', 'delete_application' => 'bg-red-500/10 text-red-500 border-red-500/20',
+                                            'restore_user', 'restore_vacancy', 'restore_application' => 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20',
+                                            'update_email_settings', 'update_whatsapp_settings', 'update_settings', 'update_logo' => 'bg-blue-500/10 text-blue-500 border-blue-500/20',
+                                            'start_impersonation' => 'bg-purple-500/10 text-purple-500 border-purple-500/20',
+                                            'stop_impersonation' => 'bg-indigo-500/10 text-indigo-500 border-indigo-500/20',
+                                            default => 'bg-slate-500/10 text-slate-500 border-slate-500/20'
+                                        };
+                                    @endphp
+                                    <span class="px-2 py-0.5 border text-[10px] font-black rounded uppercase {{ $badgeColor }} whitespace-nowrap">
+                                        {{ str_replace('_', ' ', $log->action) }}
+                                    </span>
+                                </td>
+                                <td class="px-6 py-3 font-semibold text-theme-text/80 max-w-xs truncate" title="{{ $log->description }}">
+                                    {{ $log->description }}
+                                </td>
+                                <td class="px-6 py-3 text-theme-text/50 font-mono">
+                                    {{ $log->ip_address ?: 'N/A' }}
+                                </td>
+                                <td class="px-6 py-3 text-theme-text/45 truncate max-w-[120px]" title="{{ $log->user_agent }}">
+                                    {{ $log->user_agent ?: 'N/A' }}
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="6" class="px-6 py-6 text-center text-theme-text/40 italic bg-[var(--theme-card)]">No activity logs recorded.</td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+            <div class="mt-4">
+                {{ $activityLogs->appends(request()->query())->links() }}
+            </div>
+        </div>
+
     </div>
 
     <!-- ================================================================
@@ -1689,4 +1943,122 @@
     </div>
 
 </div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // 1. Monthly Registration Chart
+    const regCtx = document.getElementById('registrationChart').getContext('2d');
+    const monthlyData = @json($monthlyStats);
+    const months = monthlyData.map(d => d.month);
+    const candidates = monthlyData.map(d => d.candidates);
+    const recruiters = monthlyData.map(d => d.recruiters);
+
+    new Chart(regCtx, {
+        type: 'line',
+        data: {
+            labels: months,
+            datasets: [
+                {
+                    label: 'Candidates',
+                    data: candidates,
+                    borderColor: '#ef4444',
+                    backgroundColor: 'rgba(239, 68, 68, 0.05)',
+                    borderWidth: 2,
+                    tension: 0.4,
+                    fill: true
+                },
+                {
+                    label: 'Recruiters',
+                    data: recruiters,
+                    borderColor: '#3b82f6',
+                    backgroundColor: 'rgba(59, 130, 246, 0.05)',
+                    borderWidth: 2,
+                    tension: 0.4,
+                    fill: true
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'top',
+                    labels: { color: 'rgba(120, 120, 120, 0.8)', font: { weight: 'bold', size: 10 } }
+                }
+            },
+            scales: {
+                x: { grid: { display: false }, ticks: { color: 'rgba(120, 120, 120, 0.8)' } },
+                y: { grid: { color: 'rgba(120, 120, 120, 0.1)' }, ticks: { precision: 0, color: 'rgba(120, 120, 120, 0.8)' } }
+            }
+        }
+    });
+
+    // 2. Popular Subjects Chart
+    const subCtx = document.getElementById('subjectChart').getContext('2d');
+    const subjectData = @json($popularSubjects);
+    const subjects = subjectData.map(d => d.subject);
+    const totals = subjectData.map(d => d.total);
+
+    new Chart(subCtx, {
+        type: 'doughnut',
+        data: {
+            labels: subjects.length ? subjects : ['No Vacancies Yet'],
+            datasets: [{
+                data: totals.length ? totals : [1],
+                backgroundColor: [
+                    '#ef4444', '#f59e0b', '#10b981', '#3b82f6', '#8b5cf6', '#6b7280'
+                ],
+                borderWidth: 0
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'right',
+                    labels: { color: 'rgba(120, 120, 120, 0.8)', font: { weight: 'bold', size: 10 } }
+                }
+            }
+        }
+    });
+
+    // 3. Application Pipeline stages
+    const pipeCtx = document.getElementById('pipelineChart').getContext('2d');
+    new Chart(pipeCtx, {
+        type: 'bar',
+        data: {
+            labels: ['Applied', 'Shortlisted', 'Interview/Demo', 'Appointed'],
+            datasets: [{
+                label: 'Applications',
+                data: [{{ $appliedCount }}, {{ $shortlistedCount }}, {{ $interviewCount }}, {{ $appointedCount }}],
+                backgroundColor: [
+                    'rgba(59, 130, 246, 0.7)',
+                    'rgba(245, 158, 11, 0.7)',
+                    'rgba(139, 92, 246, 0.7)',
+                    'rgba(16, 185, 129, 0.7)'
+                ],
+                borderColor: [
+                    '#3b82f6', '#f59e0b', '#8b5cf6', '#10b981'
+                ],
+                borderWidth: 1.5,
+                borderRadius: 6
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false }
+            },
+            scales: {
+                x: { grid: { display: false }, ticks: { color: 'rgba(120, 120, 120, 0.8)', font: { weight: 'bold' } } },
+                y: { grid: { color: 'rgba(120, 120, 120, 0.1)' }, ticks: { precision: 0, color: 'rgba(120, 120, 120, 0.8)' } }
+            }
+        }
+    });
+});
+</script>
 @endsection

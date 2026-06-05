@@ -342,6 +342,85 @@ class AdminController extends Controller
         }
         $deletedApplications = $deletedApplicationsQuery->paginate($limitDelApplications, ['*'], 'deleted_apps_page')->withQueryString();
 
+        // --- 5. Dynamic Charts Analytics Data ---
+        $monthlyStats = [];
+        for ($i = 5; $i >= 0; $i--) {
+            $date = \Carbon\Carbon::now()->subMonths($i);
+            $monthName = $date->format('M Y');
+            $year = $date->year;
+            $month = $date->month;
+            
+            $candRegs = User::where('role', 'candidate')
+                ->whereYear('created_at', $year)
+                ->whereMonth('created_at', $month)
+                ->count();
+                
+            $instRegs = User::where('role', 'institution')
+                ->whereYear('created_at', $year)
+                ->whereMonth('created_at', $month)
+                ->count();
+                
+            $monthlyStats[] = [
+                'month' => $monthName,
+                'candidates' => $candRegs,
+                'recruiters' => $instRegs,
+            ];
+        }
+
+        $popularSubjects = Vacancy::select('subject', \Illuminate\Support\Facades\DB::raw('count(*) as total'))
+            ->groupBy('subject')
+            ->orderBy('total', 'desc')
+            ->take(5)
+            ->get()
+            ->filter(fn($v) => !empty($v->subject))
+            ->values();
+
+        // --- 6. Email Configurations ---
+        $mailMailer = SiteSetting::getVal('mail_mailer', 'smtp');
+        $mailHost = SiteSetting::getVal('mail_host', 'smtp.mailgun.org');
+        $mailPort = SiteSetting::getVal('mail_port', '587');
+        $mailUsername = SiteSetting::getVal('mail_username');
+        $mailPassword = SiteSetting::getVal('mail_password');
+        if (!empty($mailPassword)) {
+            $mailPassword = '********************';
+        }
+        $mailEncryption = SiteSetting::getVal('mail_encryption', 'tls');
+        $mailFromAddress = SiteSetting::getVal('mail_from_address', 'info@rj19web.com');
+        $mailFromName = SiteSetting::getVal('mail_from_name', 'Placement Portal');
+        $mailgunDomain = SiteSetting::getVal('mailgun_domain');
+        $mailgunSecret = SiteSetting::getVal('mailgun_secret');
+        if (!empty($mailgunSecret)) {
+            $mailgunSecret = '********************';
+        }
+        $mailgunEndpoint = SiteSetting::getVal('mailgun_endpoint', 'api.mailgun.net');
+
+        // --- 7. Activity Audit Logs ---
+        $limitActivityLogs = intval($request->input('per_page_activity_logs', session('per_page_activity_logs', 25)));
+        if (!in_array($limitActivityLogs, $allowedLimits)) $limitActivityLogs = 25;
+        session(['per_page_activity_logs' => $limitActivityLogs]);
+
+        $searchLog = $request->input('search_log');
+        $sortLog = $request->input('sort_log', 'latest');
+
+        $logsQuery = \App\Models\ActivityLog::with('user');
+        if ($searchLog) {
+            $logsQuery->where(function($q) use ($searchLog) {
+                $q->where('action', 'like', "%{$searchLog}%")
+                  ->orWhere('description', 'like', "%{$searchLog}%")
+                  ->orWhere('ip_address', 'like', "%{$searchLog}%")
+                  ->orWhereHas('user', function($uQ) use ($searchLog) {
+                      $uQ->where('name', 'like', "%{$searchLog}%")
+                         ->orWhere('email', 'like', "%{$searchLog}%");
+                  });
+            });
+        }
+        if ($sortLog === 'oldest') {
+            $logsQuery->oldest();
+        } else {
+            $logsQuery->latest();
+        }
+        $activityLogs = $logsQuery->paginate($limitActivityLogs, ['*'], 'logs_page')->appends(['tab' => 'activity_logs'])->withQueryString();
+
         return view('admin.settings', compact(
             'platformName', 'platformTagline', 'supportEmail',
             'whatsappProvider', 'whatsappApiKey', 'whatsappApiUrl', 'whatsappEnabled', 'whatsappSentLogs',
@@ -354,7 +433,10 @@ class AdminController extends Controller
             'phdCount', 'masterCount', 'bachelorCount', 'otherDegreeCount',
             'appliedCount', 'shortlistedCount', 'interviewCount', 'appointedCount',
             'recentApplications', 'recentVacancies', 'searchWap', 'sortWap',
-            'limitUsers', 'limitVacancies', 'limitApplications', 'limitDelUsers', 'limitDelVacancies', 'limitDelApplications', 'limitWapLogs'
+            'limitUsers', 'limitVacancies', 'limitApplications', 'limitDelUsers', 'limitDelVacancies', 'limitDelApplications', 'limitWapLogs',
+            'monthlyStats', 'popularSubjects',
+            'mailMailer', 'mailHost', 'mailPort', 'mailUsername', 'mailPassword', 'mailEncryption', 'mailFromAddress', 'mailFromName', 'mailgunDomain', 'mailgunSecret', 'mailgunEndpoint',
+            'activityLogs', 'searchLog', 'sortLog', 'limitActivityLogs'
         ));
     }
 
@@ -393,6 +475,9 @@ class AdminController extends Controller
                 }
 
                 SiteSetting::setVal('platform_logo', $path);
+                \App\Models\ActivityLog::write('update_logo', 'Admin updated the portal platform logo.');
+            } else {
+                \App\Models\ActivityLog::write('update_settings', 'Admin updated the global portal branding/details.');
             }
 
             return back()->with('success', 'Portal Platform global settings updated successfully!');
@@ -420,7 +505,36 @@ class AdminController extends Controller
             SiteSetting::setVal('whatsapp_event_lineup_approved_recruiter', $request->has('whatsapp_event_lineup_approved_recruiter') ? '1' : '0');
             SiteSetting::setVal('whatsapp_event_pipeline_stage_updated', $request->has('whatsapp_event_pipeline_stage_updated') ? '1' : '0');
 
+            \App\Models\ActivityLog::write('update_whatsapp_settings', 'Admin updated WhatsApp API credentials and trigger events.');
+
             return back()->with('success', 'WhatsApp API Gateway configurations and messaging triggers updated successfully!');
+        }
+
+        if ($request->has('mail_mailer')) {
+            SiteSetting::setVal('mail_mailer', $request->mail_mailer);
+            SiteSetting::setVal('mail_host', $request->mail_host);
+            SiteSetting::setVal('mail_port', $request->mail_port);
+            SiteSetting::setVal('mail_encryption', $request->mail_encryption);
+            SiteSetting::setVal('mail_from_address', $request->mail_from_address);
+            SiteSetting::setVal('mail_from_name', $request->mail_from_name);
+            SiteSetting::setVal('mailgun_domain', $request->mailgun_domain);
+            SiteSetting::setVal('mailgun_endpoint', $request->mailgun_endpoint);
+
+            SiteSetting::setVal('mail_username', $request->mail_username);
+
+            $mailPassword = $request->mail_password;
+            if (!preg_match('/^[\*•]{3,}$/', (string)$mailPassword)) {
+                SiteSetting::setVal('mail_password', $mailPassword);
+            }
+
+            $mailgunSecret = $request->mailgun_secret;
+            if (!preg_match('/^[\*•]{3,}$/', (string)$mailgunSecret)) {
+                SiteSetting::setVal('mailgun_secret', $mailgunSecret);
+            }
+
+            \App\Models\ActivityLog::write('update_email_settings', 'Admin updated Email/SMTP gateway settings.');
+
+            return back()->with('success', 'Email API / SMTP Gateway settings updated successfully!');
         }
 
         return back();
@@ -441,6 +555,8 @@ class AdminController extends Controller
             \Illuminate\Support\Facades\Artisan::call('view:clear');
             \Illuminate\Support\Facades\Artisan::call('cache:clear');
 
+            \App\Models\ActivityLog::write('clear_cache', 'Admin cleared the entire system cache (configs, routes, views, app cache).');
+
             return back()->with('success', '⚡ System Cache cleared successfully! All settings and routes have been reloaded.');
         } catch (\Exception $e) {
             return back()->with('error', '❌ Failed to clear system cache: ' . $e->getMessage());
@@ -460,6 +576,8 @@ class AdminController extends Controller
         $user->is_verified = !$user->is_verified;
         $user->save();
 
+        \App\Models\ActivityLog::write('toggle_verification', "Admin toggled verification status of User '{$user->name}' to " . ($user->is_verified ? 'Verified' : 'Unverified') . ".");
+
         return back()->with('success', "User '{$user->name}' verification status updated successfully!");
     }
 
@@ -475,6 +593,8 @@ class AdminController extends Controller
         $vacancy = Vacancy::findOrFail($id);
         $vacancy->status = ($vacancy->status === 'open') ? 'closed' : 'open';
         $vacancy->save();
+
+        \App\Models\ActivityLog::write('toggle_vacancy_status', "Admin toggled status of Vacancy '{$vacancy->title}' to " . strtoupper($vacancy->status) . ".");
 
         return back()->with('success', "Vacancy status for '{$vacancy->title}' updated successfully!");
     }
@@ -492,6 +612,8 @@ class AdminController extends Controller
         $title = $vacancy->title;
         $vacancy->delete();
 
+        \App\Models\ActivityLog::write('delete_vacancy', "Admin soft-deleted Vacancy '{$title}' (ID: {$id}).");
+
         return back()->with('success', "Vacancy '{$title}' has been successfully deleted.");
     }
 
@@ -507,6 +629,8 @@ class AdminController extends Controller
         $application = Application::findOrFail($id);
         $application->status = 'shortlisted_by_admin';
         $application->save();
+
+        \App\Models\ActivityLog::write('shortlist_application', "Admin shortlisted Application ID: {$application->id} (Candidate: {$application->candidate->name}, Vacancy: {$application->vacancy->title}).");
 
         // Trigger Notifications for all 3 categories of users
         \App\Models\Notification::send(
@@ -551,6 +675,8 @@ class AdminController extends Controller
         $application = Application::findOrFail($id);
         $application->status = 'unlocked';
         $application->save();
+
+        \App\Models\ActivityLog::write('approve_candidate_unlock', "Admin approved details unlock request for Application ID: {$application->id} (Candidate: {$application->candidate->name}, Institution: {$application->vacancy->institution->company_name}).");
 
         // Trigger Notifications for all 3 categories of users
         \App\Models\Notification::send(
@@ -606,6 +732,8 @@ class AdminController extends Controller
         // Store original admin ID in session
         session(['impersonate_admin_id' => auth()->id()]);
 
+        \App\Models\ActivityLog::write('start_impersonation', "Admin started impersonating User '{$user->name}' (ID: {$user->id}, Role: {$user->role}).");
+
         // Login as target user
         auth()->login($user);
 
@@ -640,6 +768,8 @@ class AdminController extends Controller
         // Login as Admin
         auth()->login($admin);
         session()->forget('impersonate_admin_id');
+
+        \App\Models\ActivityLog::write('stop_impersonation', "Admin returned to their admin session (Admin ID: {$adminId}).");
 
         return redirect()->route('admin.settings')->with('success', '⚡ Returned to Portal Control Center successfully.');
     }
@@ -703,6 +833,8 @@ class AdminController extends Controller
                 ]
             ]);
         }
+
+        \App\Models\ActivityLog::write('create_user', "Admin created new User '{$user->name}' (Role: " . ucfirst($user->role) . ", ID: {$user->id}).");
 
         return back()->with('success', "👥 User '{$user->name}' successfully created!");
     }
@@ -797,6 +929,8 @@ class AdminController extends Controller
             $inst->save();
         }
 
+        \App\Models\ActivityLog::write('update_user', "Admin updated details of User '{$user->name}' (ID: {$user->id}).");
+
         return back()->with('success', "👥 User '{$user->name}' updated successfully!");
     }
 
@@ -817,6 +951,8 @@ class AdminController extends Controller
 
         $user->delete();
 
+        \App\Models\ActivityLog::write('delete_user', "Admin soft-deleted User '{$user->name}' (ID: {$user->id}).");
+
         return back()->with('success', "👥 User '{$user->name}' successfully soft-deleted! Added to System Trash.");
     }
 
@@ -831,6 +967,8 @@ class AdminController extends Controller
 
         $user = User::onlyTrashed()->findOrFail($id);
         $user->restore();
+
+        \App\Models\ActivityLog::write('restore_user', "Admin restored User '{$user->name}' (ID: {$user->id}).");
 
         return back()->with('success', "👥 User '{$user->name}' successfully restored!");
     }
@@ -863,7 +1001,7 @@ class AdminController extends Controller
 
         $inst = \App\Models\Institution::findOrFail($request->institution_id);
 
-        Vacancy::create([
+        $vac = Vacancy::create([
             'institution_id' => $request->institution_id,
             'title' => $request->title,
             'subject' => $request->subject ?: 'General',
@@ -876,6 +1014,8 @@ class AdminController extends Controller
             'deadline' => $request->deadline ?: now()->addDays(30)->toDateString(),
             'status' => 'open'
         ]);
+
+        \App\Models\ActivityLog::write('create_vacancy', "Admin created new Vacancy '{$request->title}' (ID: {$vac->id}) under Institution '{$inst->company_name}'.");
 
         return back()->with('success', '💼 Vacancy successfully created under Sourcing Institution!');
     }
@@ -915,6 +1055,8 @@ class AdminController extends Controller
             'deadline' => $request->deadline ?: now()->addDays(30)->toDateString(),
         ]);
 
+        \App\Models\ActivityLog::write('update_vacancy', "Admin updated Vacancy '{$vacancy->title}' (ID: {$vacancy->id}).");
+
         return back()->with('success', "💼 Vacancy '{$vacancy->title}' updated successfully!");
     }
 
@@ -929,6 +1071,8 @@ class AdminController extends Controller
 
         $vacancy = Vacancy::onlyTrashed()->findOrFail($id);
         $vacancy->restore();
+
+        \App\Models\ActivityLog::write('restore_vacancy', "Admin restored Vacancy '{$vacancy->title}' (ID: {$vacancy->id}).");
 
         return back()->with('success', "💼 Vacancy '{$vacancy->title}' successfully restored!");
     }
@@ -949,6 +1093,8 @@ class AdminController extends Controller
         $application = Application::findOrFail($id);
         $application->delete();
 
+        \App\Models\ActivityLog::write('delete_application', "Admin soft-deleted Application ID: {$application->id} (Candidate: {$application->candidate->name}, Vacancy: {$application->vacancy->title}).");
+
         return back()->with('success', "📝 Application successfully soft-deleted! Added to System Trash.");
     }
 
@@ -963,6 +1109,8 @@ class AdminController extends Controller
 
         $application = Application::onlyTrashed()->findOrFail($id);
         $application->restore();
+
+        \App\Models\ActivityLog::write('restore_application', "Admin restored Application ID: {$application->id} (Candidate: {$application->candidate->name}, Vacancy: {$application->vacancy->title}).");
 
         return back()->with('success', "📝 Application successfully restored!");
     }
@@ -1013,10 +1161,40 @@ class AdminController extends Controller
         );
 
         if ($success) {
+            \App\Models\ActivityLog::write('send_test_whatsapp', "Admin sent test WhatsApp template '{$request->template_name}' to '{$request->phone_number}'.");
             return back()->with('success', '⚡ WhatsApp sandbox message successfully sent! Verify your phone.');
         }
 
         return back()->with('error', '❌ WhatsApp sandbox dispatch failed. Check laravel.log for errors.');
+    }
+
+    /**
+     * Send manual Test Email to verify SMTP configurations.
+     */
+    public function sendTestEmail(Request $request)
+    {
+        if (!auth()->check() || !auth()->user()->isAdmin()) {
+            abort(403, 'Unauthorized.');
+        }
+
+        $request->validate([
+            'email_address' => 'required|email|max:100',
+        ]);
+
+        try {
+            $email = $request->email_address;
+            
+            \Illuminate\Support\Facades\Mail::raw("⚡ Test Email Successful!\n\nYour SMTP/Mailgun configuration on the Portal Control Center is active and working correctly.", function($message) use ($email) {
+                $message->to($email)
+                        ->subject("🧪 Portal Email Gateway Test Bench successful");
+            });
+
+            \App\Models\ActivityLog::write('send_test_email', "Admin sent a test email to '{$email}'.");
+
+            return back()->with('success', "⚡ Test Email successfully dispatched to '{$email}'! Verify your inbox/spam folder.");
+        } catch (\Exception $e) {
+            return back()->with('error', "❌ Email dispatch failed: " . $e->getMessage());
+        }
     }
 
     /**
