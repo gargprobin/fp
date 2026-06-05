@@ -126,6 +126,9 @@
                     </button>
                 </form>
             </div>
+            <div class="mt-2 text-left md:text-right">
+                <p class="text-[10px] font-bold text-theme-text/60 italic">💡 Note: On Hostinger shared hosting, the symlink function is often restricted. Our fallback system automatically and securely routes all CV files directly using PHP routing (e.g., if files fail to open, re-uploading them routes them through the fallback system).</p>
+            </div>
         </div>
     </div>
 
