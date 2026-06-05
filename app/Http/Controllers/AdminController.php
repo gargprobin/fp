@@ -372,11 +372,28 @@ class AdminController extends Controller
                 'platform_name' => 'required|string|max:50',
                 'platform_tagline' => 'required|string|max:150',
                 'support_email' => 'required|email|max:100',
+                'platform_logo' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
             ]);
 
             SiteSetting::setVal('platform_name', $request->platform_name);
             SiteSetting::setVal('platform_tagline', $request->platform_tagline);
             SiteSetting::setVal('support_email', $request->support_email);
+
+            if ($request->hasFile('platform_logo')) {
+                $file = $request->file('platform_logo');
+                $filename = 'logo_' . time() . '.' . $file->getClientOriginalExtension();
+                $path = $file->storeAs('logos', $filename, 'public');
+
+                $fullPath = storage_path('app/public/' . $path);
+                $this->resizeImage($fullPath, 120);
+
+                $oldLogo = SiteSetting::getVal('platform_logo');
+                if ($oldLogo) {
+                    \Illuminate\Support\Facades\Storage::disk('public')->delete($oldLogo);
+                }
+
+                SiteSetting::setVal('platform_logo', $path);
+            }
 
             return back()->with('success', 'Portal Platform global settings updated successfully!');
         }
@@ -1000,5 +1017,81 @@ class AdminController extends Controller
         }
 
         return back()->with('error', '❌ WhatsApp sandbox dispatch failed. Check laravel.log for errors.');
+    }
+
+    /**
+     * Helper to auto-resize uploaded images to a maximum height.
+     */
+    private function resizeImage($filePath, $maxHeight = 120)
+    {
+        if (!extension_loaded('gd')) {
+            return;
+        }
+
+        list($width, $height, $type) = getimagesize($filePath);
+
+        if ($height <= $maxHeight) {
+            return;
+        }
+
+        $newHeight = $maxHeight;
+        $newWidth = intval($width * ($maxHeight / $height));
+
+        switch ($type) {
+            case IMAGETYPE_JPEG:
+                $src = imagecreatefromjpeg($filePath);
+                break;
+            case IMAGETYPE_PNG:
+                $src = imagecreatefrompng($filePath);
+                if ($src) {
+                    imagealphablending($src, true);
+                }
+                break;
+            case IMAGETYPE_GIF:
+                $src = imagecreatefromgif($filePath);
+                break;
+            case IMAGETYPE_WEBP:
+                if (function_exists('imagecreatefromwebp')) {
+                    $src = imagecreatefromwebp($filePath);
+                } else {
+                    return;
+                }
+                break;
+            default:
+                return;
+        }
+
+        if (!$src) {
+            return;
+        }
+
+        $dst = imagecreatetruecolor($newWidth, $newHeight);
+
+        if ($type == IMAGETYPE_PNG || $type == IMAGETYPE_GIF) {
+            imagealphablending($dst, false);
+            imagesavealpha($dst, true);
+            $transparent = imagecolorallocatealpha($dst, 255, 255, 255, 127);
+            imagefilledrectangle($dst, 0, 0, $newWidth, $newHeight, $transparent);
+        }
+
+        imagecopyresampled($dst, $src, 0, 0, 0, 0, $newWidth, $newHeight, $width, $height);
+
+        switch ($type) {
+            case IMAGETYPE_JPEG:
+                imagejpeg($dst, $filePath, 90);
+                break;
+            case IMAGETYPE_PNG:
+                imagepng($dst, $filePath, 6);
+                break;
+            case IMAGETYPE_GIF:
+                imagegif($dst, $filePath);
+                break;
+            case IMAGETYPE_WEBP:
+                imagewebp($dst, $filePath, 85);
+                break;
+        }
+
+        imagedestroy($src);
+        imagedestroy($dst);
     }
 }

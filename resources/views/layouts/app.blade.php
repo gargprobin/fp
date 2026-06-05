@@ -42,6 +42,10 @@
 
     <!-- Inject Theme Stylesheets using CSS Custom Properties -->
     <style>
+        [x-cloak] {
+            display: none !important;
+        }
+
         /* Base Theme Tokens */
         :root {
             /* Theme Fallback (Royal Blue) */
@@ -383,15 +387,33 @@
             <div class="flex justify-between h-16 items-center">
                 
                 <!-- Logo -->
+                @php
+                    $logoLink = route('home');
+                    if (auth()->check()) {
+                        if (auth()->user()->isAdmin()) {
+                            $logoLink = route('admin.settings');
+                        } elseif (auth()->user()->isInstitution()) {
+                            $logoLink = route('recruiter.dashboard');
+                        } elseif (auth()->user()->isCandidate()) {
+                            $logoLink = route('faculty.dashboard');
+                        }
+                    }
+                @endphp
                 <div class="flex items-center gap-3">
-                    <div class="p-2 bg-theme-primary text-white rounded-lg shadow-md flex items-center justify-center">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
-                        </svg>
-                    </div>
-                    <span class="text-xl font-bold bg-gradient-to-r from-theme-primary to-theme-accent bg-clip-text text-transparent">
-                        {{ $siteSettings->platform_name ?? 'Sourcing Portal' }}
-                    </span>
+                    <a href="{{ $logoLink }}" class="flex items-center gap-3 no-underline group">
+                        @if(!empty($siteSettings->platform_logo))
+                            <img src="{{ route('logo.raw', ['filename' => basename($siteSettings->platform_logo)]) }}" alt="Logo" class="h-8 w-auto object-contain rounded-lg group-hover:brightness-110 transition" />
+                        @else
+                            <div class="p-2 bg-theme-primary text-white rounded-lg shadow-md flex items-center justify-center group-hover:brightness-110 transition">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+                                </svg>
+                            </div>
+                        @endif
+                        <span class="text-xl font-bold bg-gradient-to-r from-theme-primary to-theme-accent bg-clip-text text-transparent group-hover:opacity-90 transition">
+                            {{ $siteSettings->platform_name ?? 'Sourcing Portal' }}
+                        </span>
+                    </a>
                     @if(isset($activeInstitution) && $activeInstitution)
                         @auth
                             @if(auth()->user()->isAdmin() || (auth()->user()->isInstitution() && auth()->user()->id == $activeInstitution->user_id))

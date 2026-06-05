@@ -98,6 +98,14 @@ Route::get('/view-cv/{filename}', function ($filename) {
     return view('cv-viewer', compact('filename'));
 })->name('cv.view');
 
+Route::get('/raw-logo/{filename}', function ($filename) {
+    $path = storage_path('app/public/logos/' . $filename);
+    if (!\Illuminate\Support\Facades\File::exists($path)) {
+        abort(404, 'Logo not found.');
+    }
+    return response()->file($path);
+})->name('logo.raw');
+
 
 // 5. Secure Signed Routes for Confidential Recommendation Letters
 Route::get('/referee/upload/{token}', [RefereeController::class, 'showForm'])->name('referee.upload-form');

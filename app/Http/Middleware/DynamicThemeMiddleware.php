@@ -30,6 +30,7 @@ class DynamicThemeMiddleware
             'platform_name' => \App\Models\SiteSetting::getVal('platform_name', 'Sourcing Portal'),
             'platform_tagline' => \App\Models\SiteSetting::getVal('platform_tagline', "Premium Faculty Placement & Recruitment Service"),
             'support_email' => \App\Models\SiteSetting::getVal('support_email', 'support@sourcing.com'),
+            'platform_logo' => \App\Models\SiteSetting::getVal('platform_logo'),
         ];
         View::share('siteSettings', (object) $siteSettings);
 

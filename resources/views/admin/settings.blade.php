@@ -377,7 +377,7 @@
         <div x-show="activeTab === 'settings'" class="space-y-6">
             <h3 class="text-lg font-bold border-b border-[var(--theme-border)] pb-3">Update Global Portal Info</h3>
             
-            <form action="{{ route('admin.settings.update') }}" method="POST" class="space-y-6">
+            <form action="{{ route('admin.settings.update') }}" method="POST" enctype="multipart/form-data" class="space-y-6">
                 @csrf
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
@@ -390,9 +390,21 @@
                     </div>
                 </div>
 
-                <div>
-                    <label class="block text-xs font-bold text-theme-text/75 uppercase tracking-wider mb-2">Homepage Hero Tagline *</label>
-                    <input type="text" name="platform_tagline" value="{{ old('platform_tagline', $platformTagline) }}" class="w-full p-3 text-sm bg-[var(--theme-bg)] border border-[var(--theme-border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 text-theme-text" required />
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-xs font-bold text-theme-text/75 uppercase tracking-wider mb-2">Homepage Hero Tagline *</label>
+                        <input type="text" name="platform_tagline" value="{{ old('platform_tagline', $platformTagline) }}" class="w-full p-3 text-sm bg-[var(--theme-bg)] border border-[var(--theme-border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 text-theme-text" required />
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-theme-text/75 uppercase tracking-wider mb-2">Portal Logo (Auto Resizes)</label>
+                        <input type="file" name="platform_logo" accept="image/*" class="w-full p-2 text-sm bg-[var(--theme-bg)] border border-[var(--theme-border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 text-theme-text file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-theme-primary/10 file:text-theme-primary hover:file:bg-theme-primary/20" />
+                        @if(\App\Models\SiteSetting::getVal('platform_logo'))
+                            <div class="mt-2 flex items-center gap-3">
+                                <span class="text-xs text-theme-text/60">Current Logo:</span>
+                                <img src="{{ route('logo.raw', ['filename' => basename(\App\Models\SiteSetting::getVal('platform_logo'))]) }}" alt="Portal Logo" class="h-8 w-auto object-contain bg-gray-100 p-1 rounded border" />
+                            </div>
+                        @endif
+                    </div>
                 </div>
 
                 <div class="flex justify-end gap-3 pt-4 border-t border-[var(--theme-border)]">
