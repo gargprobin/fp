@@ -101,15 +101,12 @@
     @endphp
 
     <!-- Header Banner -->
-    <div class="p-8 rounded-2xl bg-gradient-to-br from-red-500/10 via-theme-accent/5 to-[var(--theme-card)] border border-[var(--theme-border)] shadow-sm relative overflow-hidden transition-all duration-300">
+    <div class="p-6 rounded-2xl bg-gradient-to-br from-red-500/10 via-theme-accent/5 to-[var(--theme-card)] border border-[var(--theme-border)] shadow-sm relative overflow-hidden transition-all duration-300">
         <div class="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
             <div>
-                <h1 class="text-3xl font-extrabold tracking-tight mb-1 flex items-center gap-2">
-                    ⚙️ Portal Control, Branding & Messaging Center
+                <h1 class="text-2xl font-extrabold tracking-tight flex items-center gap-2">
+                    ⚙️ Control Center
                 </h1>
-                <p class="text-sm text-theme-text/75">
-                    Manage global dynamic settings, configure WhatsApp API integrations, moderate active vacancies, track applications, and verify candidate/partner credentials.
-                </p>
             </div>
             <div class="flex flex-wrap items-center gap-3">
                 <form action="{{ route('admin.clear-cache') }}" method="POST" onsubmit="return confirm('Are you sure you want to clear the entire system cache? This will reset all cached views and route settings.')">
@@ -118,9 +115,6 @@
                         ⚡ Clear System Cache
                     </button>
                 </form>
-            </div>
-            <div class="mt-2 text-left md:text-right">
-                <p class="text-[10px] font-bold text-theme-text/60 italic">💡 Note: On shared hostings like Hostinger, all CV files are served securely via direct PHP routing (no symlink required). If any older CV fails to open (404), simply ask the candidate to re-upload it.</p>
             </div>
         </div>
     </div>

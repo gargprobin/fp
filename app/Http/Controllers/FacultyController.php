@@ -139,7 +139,17 @@ class FacultyController extends Controller
 
         if ($request->hasFile('cv_file')) {
             $file = $request->file('cv_file');
-            $filename = 'cv_' . $user->id . '_' . time() . '.' . $file->getClientOriginalExtension();
+            
+            $safeName = preg_replace('/[^A-Za-z0-9]/', '_', $user->name);
+            $safeName = preg_replace('/_+/', '_', $safeName);
+            $safeName = trim($safeName, '_');
+
+            $firstSubject = !empty($subjects) ? $subjects[0] : 'General';
+            $safeSubject = preg_replace('/[^A-Za-z0-9]/', '_', $firstSubject);
+            $safeSubject = preg_replace('/_+/', '_', $safeSubject);
+            $safeSubject = trim($safeSubject, '_');
+
+            $filename = $safeName . '_' . $safeSubject . '_' . time() . '.' . $file->getClientOriginalExtension();
             $path = $file->storeAs('cvs', $filename, 'public');
             
             if ($profile->cv_path) {
