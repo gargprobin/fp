@@ -71,6 +71,44 @@ Route::get('/logout', [LoginDemoController::class, 'logout'])->name('logout');
 Route::get('/signup', [LoginDemoController::class, 'showSignUp'])->name('signup');
 Route::post('/signup', [LoginDemoController::class, 'signUp'])->name('signup.submit');
 
+Route::get('/diagnose-cv', function () {
+    $results = [];
+    $results['public_path'] = public_path();
+    $results['storage_path'] = storage_path();
+    $results['storage_public_path'] = storage_path('app/public');
+    $results['cvs_path'] = storage_path('app/public/cvs');
+
+    $link = public_path('storage');
+    $results['link_path'] = $link;
+    $results['link_exists'] = file_exists($link);
+    $results['link_is_link'] = is_link($link);
+    if (is_link($link)) {
+        $results['link_target'] = readlink($link);
+    }
+
+    $cvsPath = storage_path('app/public/cvs');
+    $files = [];
+    if (is_dir($cvsPath)) {
+        $dirFiles = scandir($cvsPath);
+        foreach ($dirFiles as $file) {
+            if ($file === '.' || $file === '..') continue;
+            $filePath = $cvsPath . '/' . $file;
+            $files[] = [
+                'name' => $file,
+                'exists' => file_exists($filePath),
+                'readable' => is_readable($filePath),
+                'writable' => is_writable($filePath),
+                'size' => filesize($filePath),
+                'permissions' => substr(sprintf('%o', fileperms($filePath)), -4),
+                'owner_uid' => fileowner($filePath),
+                'owner_name' => function_exists('posix_getpwuid') ? posix_getpwuid(fileowner($filePath))['name'] : 'N/A',
+            ];
+        }
+    }
+    $results['cv_files'] = $files;
+    return response()->json($results);
+});
+
 // 3. Dynamic Theme Route
 Route::get('/set-theme', [ThemeController::class, 'setTheme'])->name('set-theme');
 
