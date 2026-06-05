@@ -45,7 +45,7 @@ class AdminController extends Controller
         $whatsapp_event_pipeline_stage_updated = SiteSetting::getVal('whatsapp_event_pipeline_stage_updated', '1');
 
         // Auto-port legacy logs if the new database table is empty and migrated
-        if (\Schema::hasTable('whatsapp_logs') && \App\Models\WhatsappLog::count() === 0) {
+        if (\Illuminate\Support\Facades\Schema::hasTable('whatsapp_logs') && \App\Models\WhatsappLog::count() === 0) {
             $legacyLogs = json_decode(SiteSetting::getVal('whatsapp_sent_logs', '[]'), true) ?: [];
             foreach ($legacyLogs as $log) {
                 $wLog = new \App\Models\WhatsappLog([
@@ -96,7 +96,7 @@ class AdminController extends Controller
         $searchWap = $request->input('search_wap');
         $sortWap = $request->input('sort_wap', 'latest');
 
-        if (\Schema::hasTable('whatsapp_logs')) {
+        if (\Illuminate\Support\Facades\Schema::hasTable('whatsapp_logs')) {
             $wapQuery = \App\Models\WhatsappLog::query();
             if ($searchWap) {
                 $wapQuery->where(function($q) use ($searchWap) {

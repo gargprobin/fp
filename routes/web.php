@@ -61,6 +61,9 @@ Route::get('/', function (Request $request) {
 
 
 // 2. Demo Auth Routes
+Route::get('/login', function () {
+    return redirect()->route('login-demo');
+})->name('login');
 Route::get('/login-demo', [LoginDemoController::class, 'show'])->name('login-demo');
 Route::post('/login-demo', [LoginDemoController::class, 'submitLogin'])->name('login.submit');
 Route::get('/login-quick', [LoginDemoController::class, 'login'])->name('login-quick');
@@ -242,6 +245,9 @@ Route::middleware(['auth', 'role:institution'])->group(function () {
 // 9. Real-Time Notification Center routes
 Route::middleware(['auth'])->group(function () {
     Route::post('/admin/impersonate-leave', [AdminController::class, 'leaveImpersonate'])->name('admin.impersonate-leave');
+    Route::get('/admin/impersonate-leave', function () {
+        return redirect()->route('home');
+    });
 
     Route::post('/notifications/read-all', function() {
         \App\Models\Notification::where('user_id', auth()->id())->update(['is_read' => true]);

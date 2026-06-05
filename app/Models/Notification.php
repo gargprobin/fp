@@ -438,7 +438,7 @@ class Notification extends Model
         $status = $sent ? '✅ Sent' : '❌ Gateway Error / Failed';
 
         // ── 4. Update sent-messages log in database / fallback ─────────
-        if (\Schema::hasTable('whatsapp_logs')) {
+        if (\Illuminate\Support\Facades\Schema::hasTable('whatsapp_logs')) {
             \App\Models\WhatsappLog::create([
                 'recipient_name'  => $user->name,
                 'recipient_phone' => $rawPhone,
