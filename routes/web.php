@@ -93,7 +93,14 @@ Route::get('/raw-cv/{filename}', function ($filename) {
 Route::get('/view-cv/{filename}', function ($filename) {
     $path = storage_path('app/public/cvs/' . $filename);
     if (!\Illuminate\Support\Facades\File::exists($path)) {
-        abort(404, 'CV file not found.');
+        $dir = storage_path('app/public/cvs');
+        $files = is_dir($dir) ? scandir($dir) : [];
+        return response()->json([
+            'searched_path' => $path,
+            'file_exists' => false,
+            'storage_path' => storage_path(),
+            'files_in_cvs_folder' => $files,
+        ]);
     }
     return view('cv-viewer', compact('filename'));
 })->name('cv.view');
