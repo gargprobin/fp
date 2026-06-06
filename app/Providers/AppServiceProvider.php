@@ -35,5 +35,36 @@ class AppServiceProvider extends ServiceProvider
                 'services.mailgun.endpoint' => \App\Models\SiteSetting::getVal('mailgun_endpoint', config('services.mailgun.endpoint')),
             ]);
         }
+
+        // Register Global Email Logger
+        \Illuminate\Support\Facades\Event::listen(
+            \Illuminate\Mail\Events\MessageSent::class,
+            function (\Illuminate\Mail\Events\MessageSent $event) {
+                try {
+                    if (\Illuminate\Support\Facades\Schema::hasTable('email_logs')) {
+                        $message = $event->message;
+                        
+                        // Extract recipients
+                        $to = collect($message->getTo() ?? [])
+                            ->map(fn($address) => $address->getAddress())
+                            ->implode(', ');
+                        
+                        $subject = $message->getSubject() ?? '(No Subject)';
+                        
+                        // Extract body content (HTML or Text)
+                        $body = $message->getHtmlBody() ?: $message->getTextBody();
+                        
+                        \App\Models\EmailLog::create([
+                            'recipient_email' => $to ?: '(Unknown)',
+                            'subject' => $subject,
+                            'body' => $body ?: '(Empty Body)',
+                            'status' => 'sent',
+                        ]);
+                    }
+                } catch (\Exception $e) {
+                    \Illuminate\Support\Facades\Log::error('Failed to log sent email: ' . $e->getMessage());
+                }
+            }
+        );
     }
 }

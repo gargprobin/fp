@@ -93,6 +93,14 @@
             institution_id: vacancy.institution_id
         };
         this.showEditVacancyModal = true;
+    },
+    
+    // Email Log Modal States
+    showEmailBodyModal: false,
+    activeEmailLog: { recipient: '', subject: '', body: '', created_at: '' },
+    openEmailModal(recipient, subject, body, created_at) {
+        this.activeEmailLog = { recipient, subject, body, created_at };
+        this.showEmailBodyModal = true;
     }
 }" class="space-y-8">
     
@@ -1255,6 +1263,116 @@
                     </div>
                 @endif
             </div>
+
+            <!-- Live Sent Email Log Table -->
+            <div class="space-y-4 pt-6 border-t border-[var(--theme-border)]">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                    <h4 class="text-sm font-black uppercase tracking-wider text-theme-text/70">📧 Live Sent E-Mail Log (Recent SMTP/Mailgun Gateway Broadcasts)</h4>
+                    
+                    <!-- Search & Sort Filter for Email Logs -->
+                    <form action="{{ route('admin.settings') }}" method="GET" class="flex flex-wrap items-center gap-2 text-xs">
+                        <input type="hidden" name="tab" value="whatsapp" />
+                        @if(request('users_page')) <input type="hidden" name="users_page" value="{{ request('users_page') }}" /> @endif
+                        @if(request('vacancies_page')) <input type="hidden" name="vacancies_page" value="{{ request('vacancies_page') }}" /> @endif
+                        @if(request('apps_page')) <input type="hidden" name="apps_page" value="{{ request('apps_page') }}" /> @endif
+                        @if(request('wap_page')) <input type="hidden" name="wap_page" value="{{ request('wap_page') }}" /> @endif
+
+                        <div class="relative">
+                            <input 
+                                type="text" 
+                                name="search_email_log" 
+                                value="{{ request('search_email_log') }}" 
+                                placeholder="Search email logs..." 
+                                class="pl-8 pr-2.5 py-1.5 w-44 bg-[var(--theme-bg)] border border-[var(--theme-border)] rounded-lg text-theme-text text-xs focus:outline-none focus:ring-1 focus:ring-red-500"
+                            />
+                            <span class="absolute left-2.5 top-2 text-theme-text/40 text-[10px]">🔍</span>
+                        </div>
+
+                        <select name="sort_email_log" onchange="this.form.submit()" class="px-2 py-1.5 bg-[var(--theme-bg)] border border-[var(--theme-border)] rounded-lg text-theme-text focus:outline-none focus:ring-1 focus:ring-red-500 text-xs">
+                            <option value="latest" {{ request('sort_email_log') === 'latest' ? 'selected' : '' }}>Latest First</option>
+                            <option value="oldest" {{ request('sort_email_log') === 'oldest' ? 'selected' : '' }}>Oldest First</option>
+                            <option value="recipient" {{ request('sort_email_log') === 'recipient' ? 'selected' : '' }}>By Recipient</option>
+                        </select>
+                        <select name="per_page_email_logs" onchange="this.form.submit()" class="px-2 py-1.5 bg-[var(--theme-bg)] border border-[var(--theme-border)] rounded-lg text-theme-text focus:outline-none focus:ring-1 focus:ring-red-500 text-xs font-bold">
+                            @foreach([10, 25, 50, 100, 500] as $opt)
+                                <option value="{{ $opt }}" {{ $limitEmailLogs == $opt ? 'selected' : '' }}>Show {{ $opt }}</option>
+                            @endforeach
+                        </select>
+
+                        <button type="submit" class="px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white font-bold rounded-lg transition text-xs">Filter</button>
+                        @if(request('search_email_log') || request('sort_email_log'))
+                            <a href="{{ route('admin.settings', ['tab' => 'whatsapp']) }}" class="px-3 py-1.5 bg-theme-primary/10 text-theme-primary hover:bg-theme-primary hover:text-white font-bold rounded-lg text-center flex items-center justify-center transition text-xs font-bold">Clear</a>
+                        @endif
+                    </form>
+                </div>
+
+                <div class="flex justify-between items-center text-xs text-theme-text/60">
+                    <div>
+                        @if($emailSentLogs instanceof \Illuminate\Pagination\LengthAwarePaginator && $emailSentLogs->total() > 0)
+                            <span class="font-bold">Showing {{ $emailSentLogs->firstItem() }}-{{ $emailSentLogs->lastItem() }}/{{ $emailSentLogs->total() }}</span>
+                        @else
+                            <span class="font-bold">Showing 0-0/0</span>
+                        @endif
+                    </div>
+                    <span class="px-2 py-0.5 bg-blue-500/10 text-blue-500 text-[10px] font-extrabold rounded-full">SYSTEM CAPTURED</span>
+                </div>
+
+                <div class="overflow-x-auto border border-[var(--theme-border)] rounded-xl">
+                    <table class="w-full text-xs text-left text-theme-text">
+                        <thead class="uppercase bg-[var(--theme-bg)] border-b border-[var(--theme-border)] text-theme-text/60 font-black">
+                            <tr>
+                                <th class="px-4 py-3">Recipient Email</th>
+                                <th class="px-4 py-3">Subject</th>
+                                <th class="px-4 py-3">Status</th>
+                                <th class="px-4 py-3">Sent Date</th>
+                                <th class="px-4 py-3 text-right">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-[var(--theme-border)] bg-[var(--theme-bg)]">
+                            @forelse($emailSentLogs as $elog)
+                                <tr class="hover:bg-theme-primary/5 transition-colors" x-data="{
+                                    recipient: '{{ $elog->recipient_email }}',
+                                    subject: '{{ $elog->subject }}',
+                                    date: '{{ $elog->created_at ? $elog->created_at->format('h:i A, d M Y') : 'N/A' }}'
+                                }">
+                                    <td class="px-4 py-3 font-bold text-theme-primary">{{ $elog->recipient_email }}</td>
+                                    <td class="px-4 py-3 text-theme-text/80 font-semibold max-w-xs truncate">{{ $elog->subject }}</td>
+                                    <td class="px-4 py-3">
+                                        <span class="px-2 py-0.5 text-[10px] font-bold rounded-full bg-green-500/10 text-green-500">
+                                            {{ $elog->status }}
+                                        </span>
+                                    </td>
+                                    <td class="px-4 py-3 text-theme-text/50 font-medium">
+                                        {{ $elog->created_at ? $elog->created_at->format('h:i A, d M Y') : 'N/A' }}
+                                    </td>
+                                    <td class="px-4 py-3 text-right">
+                                        <textarea class="hidden">{{ $elog->body }}</textarea>
+                                        <button 
+                                            type="button"
+                                            @click="openEmailModal(recipient, subject, $el.previousElementSibling.value, date)"
+                                            class="px-2.5 py-1.5 bg-blue-500/10 hover:bg-blue-500 text-blue-500 hover:text-white font-bold rounded-lg text-[10px] transition cursor-pointer"
+                                        >
+                                            🔎 View Content
+                                        </button>
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="5" class="px-4 py-6 text-center text-theme-text/40 italic">
+                                        No sent emails found. Use the sandbox tool above to dispatch test emails.
+                                    </td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+
+                @if($emailSentLogs instanceof \Illuminate\Pagination\LengthAwarePaginator)
+                    <div class="mt-4">
+                        {{ $emailSentLogs->appends(['tab' => 'whatsapp'])->links() }}
+                    </div>
+                @endif
+            </div>
         </div>
 
         <!-- Tab F: System Trash -->
@@ -1939,6 +2057,51 @@
                     </button>
                 </div>
             </form>
+        </div>
+    </div>
+
+    <!-- Modal 5: View Email Log Body Content -->
+    <div x-show="showEmailBodyModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs" x-cloak>
+        <div @click.away="showEmailBodyModal = false" class="relative w-full max-w-3xl p-4 sm:p-6 bg-[var(--theme-card)] border border-[var(--theme-border)] rounded-2xl shadow-2xl space-y-4 text-theme-text max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center border-b border-[var(--theme-border)] pb-3">
+                <h4 class="text-base font-extrabold flex items-center gap-1.5">📧 Email Dispatch Details</h4>
+                <button @click="showEmailBodyModal = false" class="text-theme-text/50 hover:text-theme-text text-lg cursor-pointer">&times;</button>
+            </div>
+
+            <div class="space-y-3 text-xs md:text-sm">
+                <div class="grid grid-cols-3 gap-2 border-b border-[var(--theme-border)] pb-3 bg-[var(--theme-bg)] p-3 rounded-xl">
+                    <div>
+                        <span class="block font-black text-theme-text/50 uppercase text-[10px]">Recipient</span>
+                        <span class="font-extrabold text-theme-primary" x-text="activeEmailLog.recipient"></span>
+                    </div>
+                    <div>
+                        <span class="block font-black text-theme-text/50 uppercase text-[10px]">Subject</span>
+                        <span class="font-bold text-theme-text" x-text="activeEmailLog.subject"></span>
+                    </div>
+                    <div>
+                        <span class="block font-black text-theme-text/50 uppercase text-[10px]">Sent Date</span>
+                        <span class="font-bold text-theme-text/80" x-text="activeEmailLog.created_at"></span>
+                    </div>
+                </div>
+
+                <div class="space-y-1">
+                    <span class="block font-black text-theme-text/50 uppercase text-[10px]">Email Body Content</span>
+                    <div class="p-4 rounded-xl border border-[var(--theme-border)] bg-white text-black overflow-auto max-h-[50vh] font-mono leading-relaxed" style="color-scheme: light;">
+                        <template x-if="activeEmailLog.body.includes('<')">
+                            <iframe :srcdoc="activeEmailLog.body" class="w-full min-h-[300px] border-none" sandbox></iframe>
+                        </template>
+                        <template x-if="!activeEmailLog.body.includes('<')">
+                            <pre class="whitespace-pre-wrap font-sans text-xs md:text-sm" x-text="activeEmailLog.body"></pre>
+                        </template>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex justify-end pt-2 border-t border-[var(--theme-border)]">
+                <button type="button" @click="showEmailBodyModal = false" class="px-4 py-2.5 text-xs font-bold rounded-xl border border-[var(--theme-border)] hover:bg-theme-primary/10 transition cursor-pointer">
+                    Close Preview
+                </button>
+            </div>
         </div>
     </div>
 

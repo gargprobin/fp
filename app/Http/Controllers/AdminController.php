@@ -178,6 +178,37 @@ class AdminController extends Controller
             $whatsappSentLogs->appends(['tab' => 'whatsapp'])->withQueryString();
         }
 
+        // Email Sent Logs Query
+        $limitEmailLogs = intval($request->input('per_page_email_logs', session('per_page_email_logs', 25)));
+        if (!in_array($limitEmailLogs, $allowedLimits)) $limitEmailLogs = 25;
+        session(['per_page_email_logs' => $limitEmailLogs]);
+
+        $searchEmail = $request->input('search_email_log');
+        $sortEmail = $request->input('sort_email_log', 'latest');
+
+        if (\Illuminate\Support\Facades\Schema::hasTable('email_logs')) {
+            $emailQuery = \App\Models\EmailLog::query();
+            if ($searchEmail) {
+                $emailQuery->where(function($q) use ($searchEmail) {
+                    $q->where('recipient_email', 'like', "%{$searchEmail}%")
+                      ->orWhere('subject', 'like', "%{$searchEmail}%")
+                      ->orWhere('body', 'like', "%{$searchEmail}%");
+                });
+            }
+
+            if ($sortEmail === 'oldest') {
+                $emailQuery->oldest();
+            } elseif ($sortEmail === 'recipient') {
+                $emailQuery->orderBy('recipient_email', 'asc');
+            } else {
+                $emailQuery->latest();
+            }
+
+            $emailSentLogs = $emailQuery->paginate($limitEmailLogs, ['*'], 'email_page')->appends(['tab' => 'whatsapp'])->withQueryString();
+        } else {
+            $emailSentLogs = new \Illuminate\Pagination\LengthAwarePaginator([], 0, $limitEmailLogs);
+        }
+
         // Smart Admin Breakdown stats
         $phdCount = CandidateProfile::where('highest_degree', 'PhD')->count();
         $masterCount = CandidateProfile::where(function($q) {
@@ -436,7 +467,8 @@ class AdminController extends Controller
             'limitUsers', 'limitVacancies', 'limitApplications', 'limitDelUsers', 'limitDelVacancies', 'limitDelApplications', 'limitWapLogs',
             'monthlyStats', 'popularSubjects',
             'mailMailer', 'mailHost', 'mailPort', 'mailUsername', 'mailPassword', 'mailEncryption', 'mailFromAddress', 'mailFromName', 'mailgunDomain', 'mailgunSecret', 'mailgunEndpoint',
-            'activityLogs', 'searchLog', 'sortLog', 'limitActivityLogs'
+            'activityLogs', 'searchLog', 'sortLog', 'limitActivityLogs',
+            'emailSentLogs', 'searchEmail', 'sortEmail', 'limitEmailLogs'
         ));
     }
 
