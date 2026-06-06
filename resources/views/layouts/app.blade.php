@@ -399,8 +399,8 @@
                         }
                     }
                 @endphp
-                <div class="flex items-center gap-3">
-                    <a href="{{ $logoLink }}" class="flex items-center gap-3 no-underline group">
+                <div class="flex items-center gap-1.5 sm:gap-3">
+                    <a href="{{ $logoLink }}" class="flex items-center gap-1.5 sm:gap-3 no-underline group">
                         @if(!empty($siteSettings->platform_logo))
                             <img src="{{ route('logo.raw', ['filename' => basename($siteSettings->platform_logo)]) }}" alt="Logo" class="h-8 w-auto object-contain rounded-lg group-hover:brightness-110 transition" />
                         @else
@@ -410,7 +410,7 @@
                                 </svg>
                             </div>
                         @endif
-                        <span class="text-xl font-bold bg-gradient-to-r from-theme-primary to-theme-accent bg-clip-text text-transparent group-hover:opacity-90 transition">
+                        <span class="text-sm sm:text-base md:text-xl font-bold bg-gradient-to-r from-theme-primary to-theme-accent bg-clip-text text-transparent group-hover:opacity-90 transition">
                             {{ $siteSettings->platform_name ?? 'Sourcing Portal' }}
                         </span>
                     </a>
@@ -918,8 +918,9 @@
 
                     <!-- Dynamic Theme Selector -->
                     <div x-data="{ open: false }" class="relative">
-                        <button @click="open = !open" class="p-2 rounded-lg bg-theme-bg hover:bg-theme-primary/10 border border-[var(--theme-border)] text-theme-text/80 flex items-center gap-2 transition text-sm">
-                            <span class="capitalize font-semibold text-xs md:text-sm">{{ str_replace('_', ' ', $themePreference ?? 'Light') }}</span>
+                        <button @click="open = !open" class="p-2 rounded-lg bg-theme-bg hover:bg-theme-primary/10 border border-[var(--theme-border)] text-theme-text/80 flex items-center gap-1.5 transition text-sm">
+                            <span>🎨</span>
+                            <span class="capitalize font-semibold text-xs hidden sm:inline">{{ str_replace('_', ' ', $themePreference ?? 'Light') }}</span>
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
                         </button>
                         

@@ -12,7 +12,7 @@
 <div class="space-y-8">
     
     <!-- Hero / Job Search Header -->
-    <div class="p-8 rounded-2xl bg-gradient-to-br from-theme-primary/10 via-theme-accent/5 to-[var(--theme-card)] border border-[var(--theme-border)] shadow-sm relative overflow-hidden transition-all duration-300">
+    <div class="p-4 sm:p-8 rounded-2xl bg-gradient-to-br from-theme-primary/10 via-theme-accent/5 to-[var(--theme-card)] border border-[var(--theme-border)] shadow-sm relative overflow-hidden transition-all duration-300">
         <div class="relative z-10 max-w-3xl">
             <h1 class="text-4xl font-extrabold tracking-tight mb-2">
                 Find Your Next Faculty Placement on {{ $siteSettings->platform_name ?? 'Sourcing Portal' }}

@@ -334,7 +334,7 @@
             <a 
                 href="{{ route('home', ['category' => 'Physics']) }}"
                 :class="selectedCategory === 'Physics' ? 'border-theme-primary bg-theme-primary/5 ring-2 ring-theme-primary/20' : 'bg-[var(--theme-card)] border-[var(--theme-border)] hover:border-theme-primary/20'"
-                class="group p-8 rounded-2xl border text-left shadow-xs hover:shadow-xl hover:-translate-y-1 transition-all duration-300 cursor-pointer block"
+                class="group p-4 sm:p-8 rounded-2xl border text-left shadow-xs hover:shadow-xl hover:-translate-y-1 transition-all duration-300 cursor-pointer block"
             >
                 <span class="text-4xl block mb-6 filter drop-shadow">📐</span>
                 <h3 class="text-xl font-bold text-theme-text mb-2 group-hover:text-theme-primary transition-colors">IIT-JEE Physics</h3>
@@ -345,7 +345,7 @@
             <a 
                 href="{{ route('home', ['category' => 'Chemistry']) }}"
                 :class="selectedCategory === 'Chemistry' ? 'border-theme-primary bg-theme-primary/5 ring-2 ring-theme-primary/20' : 'bg-[var(--theme-card)] border-[var(--theme-border)] hover:border-theme-primary/20'"
-                class="group p-8 rounded-2xl border text-left shadow-xs hover:shadow-xl hover:-translate-y-1 transition-all duration-300 cursor-pointer block"
+                class="group p-4 sm:p-8 rounded-2xl border text-left shadow-xs hover:shadow-xl hover:-translate-y-1 transition-all duration-300 cursor-pointer block"
             >
                 <span class="text-4xl block mb-6 filter drop-shadow">🧬</span>
                 <h3 class="text-xl font-bold text-theme-text mb-2 group-hover:text-theme-primary transition-colors">NEET Chemistry</h3>
@@ -356,7 +356,7 @@
             <a 
                 href="{{ route('home', ['category' => 'Computer Science']) }}"
                 :class="selectedCategory === 'Computer Science' ? 'border-theme-primary bg-theme-primary/5 ring-2 ring-theme-primary/20' : 'bg-[var(--theme-card)] border-[var(--theme-border)] hover:border-theme-primary/20'"
-                class="group p-8 rounded-2xl border text-left shadow-xs hover:shadow-xl hover:-translate-y-1 transition-all duration-300 cursor-pointer block"
+                class="group p-4 sm:p-8 rounded-2xl border text-left shadow-xs hover:shadow-xl hover:-translate-y-1 transition-all duration-300 cursor-pointer block"
             >
                 <span class="text-4xl block mb-6 filter drop-shadow">🏫</span>
                 <h3 class="text-xl font-bold text-theme-text mb-2 group-hover:text-theme-primary transition-colors">Computer Science</h3>
@@ -367,7 +367,7 @@
             <a 
                 href="{{ route('home') }}"
                 :class="selectedCategory === 'all' ? 'border-theme-primary bg-theme-primary/5 ring-2 ring-theme-primary/20' : 'bg-[var(--theme-card)] border-[var(--theme-border)] hover:border-theme-primary/20'"
-                class="group p-8 rounded-2xl border text-left shadow-xs hover:shadow-xl hover:-translate-y-1 transition-all duration-300 cursor-pointer block"
+                class="group p-4 sm:p-8 rounded-2xl border text-left shadow-xs hover:shadow-xl hover:-translate-y-1 transition-all duration-300 cursor-pointer block"
             >
                 <span class="text-4xl block mb-6 filter drop-shadow">🎓</span>
                 <h3 class="text-xl font-bold text-theme-text mb-2 group-hover:text-theme-primary transition-colors">All Categories</h3>
@@ -588,7 +588,7 @@
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-12 max-w-5xl mx-auto">
             <!-- For Coaching Owners -->
-            <div class="bg-[var(--theme-card)] p-8 rounded-3xl border border-[var(--theme-border)] text-left hover:shadow-lg transition-all duration-300">
+            <div class="bg-[var(--theme-card)] p-4 sm:p-8 rounded-3xl border border-[var(--theme-border)] text-left hover:shadow-lg transition-all duration-300">
                 <h3 class="text-2xl font-extrabold text-theme-text mb-6 flex items-center gap-3">
                     <span class="text-2xl">🏢</span> For Coaching & Schools
                 </h3>
@@ -620,7 +620,7 @@
             </div>
 
             <!-- For Teachers -->
-            <div class="bg-[var(--theme-card)] p-8 rounded-3xl border border-[var(--theme-border)] text-left hover:shadow-lg transition-all duration-300">
+            <div class="bg-[var(--theme-card)] p-4 sm:p-8 rounded-3xl border border-[var(--theme-border)] text-left hover:shadow-lg transition-all duration-300">
                 <h3 class="text-2xl font-extrabold text-theme-text mb-6 flex items-center gap-3">
                     <span class="text-2xl">🧑‍🏫</span> For Teachers & Faculty
                 </h3>

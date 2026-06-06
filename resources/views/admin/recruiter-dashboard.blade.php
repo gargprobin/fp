@@ -15,7 +15,7 @@
 }" class="space-y-8">
     
     <!-- Recruiter Header Banner -->
-    <div class="p-8 rounded-2xl bg-gradient-to-br from-theme-primary/10 via-theme-accent/5 to-[var(--theme-card)] border border-[var(--theme-border)] shadow-sm relative overflow-hidden transition-all duration-300">
+    <div class="p-4 sm:p-8 rounded-2xl bg-gradient-to-br from-theme-primary/10 via-theme-accent/5 to-[var(--theme-card)] border border-[var(--theme-border)] shadow-sm relative overflow-hidden transition-all duration-300">
         <div class="absolute left-0 top-0 bottom-0 w-2 bg-theme-primary"></div>
         <div class="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-6 pl-4">
             <div>
@@ -115,7 +115,7 @@
     </div>
 
     <!-- Tab Contents -->
-    <div class="bg-[var(--theme-card)] rounded-2xl p-8 border border-[var(--theme-border)] shadow-sm">
+    <div class="bg-[var(--theme-card)] rounded-2xl p-4 sm:p-8 border border-[var(--theme-border)] shadow-sm">
         
         <!-- Tab 1: Candidates Sourcing Funnel -->
         <div x-show="activeTab === 'pipeline'" class="space-y-6">

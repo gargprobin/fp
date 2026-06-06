@@ -101,7 +101,7 @@
     @endphp
 
     <!-- Header Banner -->
-    <div class="p-6 rounded-2xl bg-gradient-to-br from-red-500/10 via-theme-accent/5 to-[var(--theme-card)] border border-[var(--theme-border)] shadow-sm relative overflow-hidden transition-all duration-300">
+    <div class="p-4 sm:p-6 rounded-2xl bg-gradient-to-br from-red-500/10 via-theme-accent/5 to-[var(--theme-card)] border border-[var(--theme-border)] shadow-sm relative overflow-hidden transition-all duration-300">
         <div class="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
             <div>
                 <h1 class="text-2xl font-extrabold tracking-tight flex items-center gap-2">
@@ -205,7 +205,7 @@
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
         
         <!-- Breakdown Charts Card -->
-        <div class="p-6 rounded-2xl bg-[var(--theme-card)] border border-[var(--theme-border)] shadow-sm space-y-5">
+        <div class="p-4 sm:p-6 rounded-2xl bg-[var(--theme-card)] border border-[var(--theme-border)] shadow-sm space-y-5">
             <h3 class="text-sm font-black uppercase tracking-wider text-theme-text/80 flex items-center gap-1.5 border-b border-[var(--theme-border)] pb-2.5">
                 📊 Analytics & Breakdowns
             </h3>
@@ -294,7 +294,7 @@
         </div>
 
         <!-- Quick Actions Panel -->
-        <div class="p-6 rounded-2xl bg-[var(--theme-card)] border border-[var(--theme-border)] shadow-sm space-y-4">
+        <div class="p-4 sm:p-6 rounded-2xl bg-[var(--theme-card)] border border-[var(--theme-border)] shadow-sm space-y-4">
             <h3 class="text-sm font-black uppercase tracking-wider text-theme-text/80 flex items-center gap-1.5 border-b border-[var(--theme-border)] pb-2.5">
                 ⚡ Command Shortcuts
             </h3>
@@ -334,7 +334,7 @@
         </div>
 
         <!-- Recent Activities Feed -->
-        <div class="p-6 rounded-2xl bg-[var(--theme-card)] border border-[var(--theme-border)] shadow-sm space-y-4">
+        <div class="p-4 sm:p-6 rounded-2xl bg-[var(--theme-card)] border border-[var(--theme-border)] shadow-sm space-y-4">
             <h3 class="text-sm font-black uppercase tracking-wider text-theme-text/80 flex items-center gap-1.5 border-b border-[var(--theme-border)] pb-2.5">
                 🔔 Live Sourcing Feed
             </h3>
@@ -407,7 +407,7 @@
     </div>
 
     <!-- Tab Contents -->
-    <div class="bg-[var(--theme-card)] rounded-2xl p-8 border border-[var(--theme-border)] shadow-sm">
+    <div class="bg-[var(--theme-card)] rounded-2xl p-4 sm:p-8 border border-[var(--theme-border)] shadow-sm">
         
         <!-- Tab A: Portal Settings -->
         <div x-show="activeTab === 'settings'" class="space-y-6">
@@ -884,7 +884,7 @@
                 </span>
             </div>
 
-            <form action="{{ route('admin.settings.update') }}" method="POST" class="space-y-6 bg-[var(--theme-bg)] p-6 rounded-xl border border-[var(--theme-border)]">
+            <form action="{{ route('admin.settings.update') }}" method="POST" class="space-y-6 bg-[var(--theme-bg)] p-4 sm:p-6 rounded-xl border border-[var(--theme-border)]">
                 @csrf
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
@@ -985,7 +985,7 @@
                 </span>
             </div>
 
-            <form action="{{ route('admin.settings.update') }}" method="POST" class="space-y-6 bg-[var(--theme-bg)] p-6 rounded-xl border border-[var(--theme-border)]" x-data="{ mailer: '{{ old('mail_mailer', $mailMailer) }}' }">
+            <form action="{{ route('admin.settings.update') }}" method="POST" class="space-y-6 bg-[var(--theme-bg)] p-4 sm:p-6 rounded-xl border border-[var(--theme-border)]" x-data="{ mailer: '{{ old('mail_mailer', $mailMailer) }}' }">
                 @csrf
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <div>
@@ -1069,7 +1069,7 @@
             </form>
 
             <!-- Email Test Bench / Manual Sandbox Form -->
-            <div class="p-6 rounded-2xl bg-gradient-to-br from-blue-500/5 via-theme-accent/5 to-[var(--theme-card)] border border-[var(--theme-border)] shadow-sm space-y-4">
+            <div class="p-4 sm:p-6 rounded-2xl bg-gradient-to-br from-blue-500/5 via-theme-accent/5 to-[var(--theme-card)] border border-[var(--theme-border)] shadow-sm space-y-4">
                 <div class="flex justify-between items-center border-b border-[var(--theme-border)] pb-3">
                     <div>
                         <h4 class="text-sm font-black uppercase tracking-wider text-theme-text/80">🧪 Email API Test Bench (Manual Sandbox)</h4>
@@ -1095,7 +1095,7 @@
             </div>
 
             <!-- WhatsApp Test Bench / Manual Sandbox Form -->
-            <div class="p-6 rounded-2xl bg-gradient-to-br from-theme-primary/5 via-theme-accent/5 to-[var(--theme-card)] border border-[var(--theme-border)] shadow-sm space-y-4">
+            <div class="p-4 sm:p-6 rounded-2xl bg-gradient-to-br from-theme-primary/5 via-theme-accent/5 to-[var(--theme-card)] border border-[var(--theme-border)] shadow-sm space-y-4">
                 <div class="flex justify-between items-center border-b border-[var(--theme-border)] pb-3">
                     <div>
                         <h4 class="text-sm font-black uppercase tracking-wider text-theme-text/80">🧪 WhatsApp API Test Bench (Manual Sandbox)</h4>
@@ -1589,8 +1589,8 @@
      | ================================================================ -->
 
     <!-- Modal 1: Add User -->
-    <div x-show="showAddUserModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm" x-transition x-cloak>
-        <div @click.away="showAddUserModal = false" class="relative w-full max-w-lg p-6 bg-[var(--theme-card)] border border-[var(--theme-border)] rounded-2xl shadow-2xl space-y-4 text-theme-text">
+    <div x-show="showAddUserModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs" x-cloak>
+        <div @click.away="showAddUserModal = false" class="relative w-full max-w-lg p-4 sm:p-6 bg-[var(--theme-card)] border border-[var(--theme-border)] rounded-2xl shadow-2xl space-y-4 text-theme-text">
             <div class="flex justify-between items-center border-b border-[var(--theme-border)] pb-3">
                 <h4 class="text-base font-extrabold flex items-center gap-1.5">👤 Create Platform Account</h4>
                 <button @click="showAddUserModal = false" class="text-theme-text/50 hover:text-theme-text text-lg cursor-pointer">&times;</button>
@@ -1647,8 +1647,8 @@
     </div>
 
     <!-- Modal 2: Edit User -->
-    <div x-show="showEditUserModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm" x-transition x-cloak>
-        <div @click.away="showEditUserModal = false" class="relative w-full max-w-2xl p-6 bg-[var(--theme-card)] border border-[var(--theme-border)] rounded-2xl shadow-2xl space-y-4 text-theme-text max-h-[90vh] overflow-y-auto">
+    <div x-show="showEditUserModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs" x-cloak>
+        <div @click.away="showEditUserModal = false" class="relative w-full max-w-2xl p-4 sm:p-6 bg-[var(--theme-card)] border border-[var(--theme-border)] rounded-2xl shadow-2xl space-y-4 text-theme-text max-h-[90vh] overflow-y-auto">
             <div class="flex justify-between items-center border-b border-[var(--theme-border)] pb-3">
                 <h4 class="text-base font-extrabold flex items-center gap-1.5">👤 Edit User Account</h4>
                 <button @click="showEditUserModal = false" class="text-theme-text/50 hover:text-theme-text text-lg cursor-pointer">&times;</button>
@@ -1788,8 +1788,8 @@
     </div>
 
     <!-- Modal 3: Add Vacancy -->
-    <div x-show="showAddVacancyModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm" x-transition x-cloak>
-        <div @click.away="showAddVacancyModal = false" class="relative w-full max-w-2xl p-6 bg-[var(--theme-card)] border border-[var(--theme-border)] rounded-2xl shadow-2xl space-y-4 text-theme-text max-h-[90vh] overflow-y-auto">
+    <div x-show="showAddVacancyModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs" x-cloak>
+        <div @click.away="showAddVacancyModal = false" class="relative w-full max-w-2xl p-4 sm:p-6 bg-[var(--theme-card)] border border-[var(--theme-border)] rounded-2xl shadow-2xl space-y-4 text-theme-text max-h-[90vh] overflow-y-auto">
             <div class="flex justify-between items-center border-b border-[var(--theme-border)] pb-3">
                 <h4 class="text-base font-extrabold flex items-center gap-1.5">💼 Post Dynamic Job Vacancy</h4>
                 <button @click="showAddVacancyModal = false" class="text-theme-text/50 hover:text-theme-text text-lg cursor-pointer">&times;</button>
@@ -1866,8 +1866,8 @@
     </div>
 
     <!-- Modal 4: Edit Vacancy -->
-    <div x-show="showEditVacancyModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm" x-transition x-cloak>
-        <div @click.away="showEditVacancyModal = false" class="relative w-full max-w-2xl p-6 bg-[var(--theme-card)] border border-[var(--theme-border)] rounded-2xl shadow-2xl space-y-4 text-theme-text max-h-[90vh] overflow-y-auto">
+    <div x-show="showEditVacancyModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs" x-cloak>
+        <div @click.away="showEditVacancyModal = false" class="relative w-full max-w-2xl p-4 sm:p-6 bg-[var(--theme-card)] border border-[var(--theme-border)] rounded-2xl shadow-2xl space-y-4 text-theme-text max-h-[90vh] overflow-y-auto">
             <div class="flex justify-between items-center border-b border-[var(--theme-border)] pb-3">
                 <h4 class="text-base font-extrabold flex items-center gap-1.5">💼 Edit Job Board details</h4>
                 <button @click="showEditVacancyModal = false" class="text-theme-text/50 hover:text-theme-text text-lg cursor-pointer">&times;</button>
