@@ -74,4 +74,37 @@ class EmailLogsDatabaseTest extends TestCase
         $this->assertEquals(1, $logs->total());
         $this->assertEquals('beta@test.com', $logs->first()->recipient_email);
     }
+
+    /**
+     * Test that sending notifications dispatches emails and creates database logs.
+     */
+    public function test_sending_notifications_dispatches_emails()
+    {
+        $candidate = User::factory()->create([
+            'role' => 'candidate',
+            'name' => 'John Doe',
+            'email' => 'john@test.com',
+        ]);
+
+        // Trigger notification
+        \App\Models\Notification::send(
+            $candidate->id,
+            '📥 Application Submitted',
+            'You have applied for Mathematics Professor Position.',
+            url('/'),
+            'success'
+        );
+
+        // Assert that the email log was captured
+        $this->assertDatabaseHas('email_logs', [
+            'recipient_email' => 'john@test.com',
+            'subject' => '📥 Application Submitted: Mathematics Professor Position',
+            'status' => 'sent',
+        ]);
+
+        $log = EmailLog::where('recipient_email', 'john@test.com')->first();
+        $this->assertNotNull($log);
+        $this->assertStringContainsString('Mathematics Professor Position', $log->body);
+        $this->assertStringContainsString('John Doe', $log->body);
+    }
 }

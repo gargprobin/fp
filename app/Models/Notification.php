@@ -326,6 +326,101 @@ class Notification extends Model
             ]);
         }
 
+        // ── Email dispatch (if enabled & not admin) ───────────────────────
+        if ($user && !$user->isAdmin()) {
+            $settings = $user->getNotificationSettings();
+            $emailEnabled = $settings['email'] ?? true;
+            if ($emailEnabled) {
+                $emailSubject = '';
+                $emailContent = '';
+
+                if ($title === '📥 Application Submitted') {
+                    if (preg_match('/You have applied for (.+?)\./', $message, $m)) {
+                        $vacancyTitle = $m[1];
+                        $emailSubject = "📥 Application Submitted: {$vacancyTitle}";
+                        $emailContent = "<p>Dear <strong>{$user->name}</strong>,</p>
+                                         <p>Your job application has been successfully submitted for the position of <strong>{$vacancyTitle}</strong>.</p>
+                                         <p>The recruitment team will review your application soon. You can monitor the progress of your application on your dashboard timeline.</p>";
+                    }
+                } elseif ($title === '📥 New Sourced Applicant') {
+                    if (preg_match('/A new candidate has applied for (.+?)\./', $message, $m)) {
+                        $vacancyTitle = $m[1];
+                        $emailSubject = "📥 New Sourced Applicant: {$vacancyTitle}";
+                        $emailContent = "<p>Dear <strong>{$user->name}</strong>,</p>
+                                         <p>A new candidate profile has been sourced and applied for your active vacancy <strong>{$vacancyTitle}</strong>.</p>
+                                         <p>Please log in to your recruiter dashboard to review the application and candidate credentials.</p>";
+                    }
+                } elseif ($title === '🤝 Recruiter Shortlisted') {
+                    if (preg_match('/shortlisted your profile for (.+?) and requested/', $message, $m)) {
+                        $vacancyTitle = $m[1];
+                        $emailSubject = "🤝 Profile Shortlisted: {$vacancyTitle}";
+                        $emailContent = "<p>Dear <strong>{$user->name}</strong>,</p>
+                                         <p>Excellent news! The recruiter has shortlisted your profile for the position of <strong>{$vacancyTitle}</strong> and requested a line-up approval from the admin.</p>
+                                         <p>No immediate action is required. We will notify you once the admin approves the line-up.</p>";
+                    }
+                } elseif ($title === '🟢 Line Up Approved!' && $user->role === 'candidate') {
+                    if (preg_match('/You are Lined Up with (.+?) for (.+?)\. Coaching/', $message, $m)) {
+                        $companyName = $m[1];
+                        $vacancyTitle = $m[2];
+                        $emailSubject = "🟢 Line Up Approved: {$vacancyTitle}";
+                        $emailContent = "<p>Dear <strong>{$user->name}</strong>,</p>
+                                         <p>Congratulations! Your line-up request has been approved by the admin for <strong>{$vacancyTitle}</strong> with <strong>{$companyName}</strong>.</p>
+                                         <p>The recruiter's contact details and requirements are now fully unlocked and visible on your dashboard timeline.</p>";
+                    }
+                } elseif ($title === '🟢 Line Up Approved!' && $user->role === 'institution') {
+                    $candidateUser = $candidateId ? User::find($candidateId) : null;
+                    if (preg_match('/Admin approved Line Up for (.+?) for (.+?)\. Contact/', $message, $m)) {
+                        if (!$candidateUser && $url) {
+                            if (preg_match('/#app-(\d+)/', $url, $appM)) {
+                                $application = \App\Models\Application::find($appM[1]);
+                                if ($application) {
+                                    $candidateUser = $application->candidate;
+                                }
+                            }
+                        }
+                        if (!$candidateUser) {
+                            $candidateUser = User::where('name', $m[1])->where('role', 'candidate')->first();
+                        }
+                        if ($candidateUser) {
+                            $vacancyTitle = $m[2];
+                            $emailSubject = "🟢 Candidate Details Unlocked: {$vacancyTitle}";
+                            $emailContent = "<p>Dear <strong>{$user->name}</strong>,</p>
+                                             <p>Admin has approved your Line Up request for <strong>{$candidateUser->name}</strong> for the vacancy <strong>{$vacancyTitle}</strong>.</p>
+                                             <p>The candidate's full credentials, resume, and contact details have been unlocked. You can reach out to them directly:</p>
+                                             <table style='width: 100%; border-collapse: collapse; margin-top: 15px;'>
+                                                <tr>
+                                                    <td style='padding: 8px; border: 1px solid #e5e7eb; font-weight: bold; width: 30%;'>Name:</td>
+                                                    <td style='padding: 8px; border: 1px solid #e5e7eb;'>{$candidateUser->name}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td style='padding: 8px; border: 1px solid #e5e7eb; font-weight: bold;'>Email:</td>
+                                                    <td style='padding: 8px; border: 1px solid #e5e7eb;'>{$candidateUser->email}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td style='padding: 8px; border: 1px solid #e5e7eb; font-weight: bold;'>Phone:</td>
+                                                    <td style='padding: 8px; border: 1px solid #e5e7eb;'>{$candidateUser->phone}</td>
+                                                </tr>
+                                             </table>";
+                        }
+                    }
+                } elseif ($title === '📊 Vetting Stage Updated') {
+                    if (preg_match('/placement funnel for (.+?) moved to: (.+?)\./', $message, $m)) {
+                        $vacancyTitle = $m[1];
+                        $stageName = $m[2];
+                        $emailSubject = "📊 Vetting Stage Updated: {$vacancyTitle}";
+                        $emailContent = "<p>Dear <strong>{$user->name}</strong>,</p>
+                                         <p>Your placement process status for <strong>{$vacancyTitle}</strong> has been updated.</p>
+                                         <p>Current Funnel Stage: <span style='padding: 4px 8px; background-color: #f3f4f6; border-radius: 4px; font-weight: bold; color: #111827;'>{$stageName}</span></p>";
+                    }
+                }
+
+                if (!empty($emailSubject) && !empty($emailContent)) {
+                    $emailBodyHtml = self::getEmailHtmlWrapper($emailSubject, $emailContent, $url);
+                    self::dispatchEmail($user->email, $emailSubject, $emailBodyHtml);
+                }
+            }
+        }
+
         // ── 2. WhatsApp dispatch (if enabled) ─────────────────────────
         $whatsappEnabled = SiteSetting::getVal('whatsapp_enabled', '1') === '1';
 
@@ -488,5 +583,86 @@ class Notification extends Model
         }
 
         return $notification;
+    }
+
+    /**
+     * Dispatch an HTML email using Laravel's Mail facade.
+     */
+    protected static function dispatchEmail(string $email, string $subject, string $bodyHtml): bool
+    {
+        try {
+            \Illuminate\Support\Facades\Mail::html($bodyHtml, function($message) use ($email, $subject) {
+                $message->to($email)
+                        ->subject($subject);
+            });
+            return true;
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error("Failed to dispatch email to {$email}: " . $e->getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Get HTML email wrapper.
+     */
+    protected static function getEmailHtmlWrapper(string $title, string $contentHtml, string $actionUrl = null): string
+    {
+        $platformName = SiteSetting::getVal('platform_name', 'Sourcing Portal');
+        $platformTagline = SiteSetting::getVal('platform_tagline', 'Premium Faculty Placement & Recruitment Service');
+        $supportEmail = SiteSetting::getVal('support_email', 'support@sourcing.com');
+        
+        $actionBtnHtml = '';
+        if ($actionUrl) {
+            $actionBtnHtml = "
+                <div style='text-align: center; margin: 30px 0 10px 0;'>
+                    <a href='{$actionUrl}' style='background-color: #ef4444; color: #ffffff; padding: 12px 24px; font-size: 14px; font-weight: bold; text-decoration: none; border-radius: 8px; display: inline-block; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);'>
+                        Go to Dashboard
+                    </a>
+                </div>";
+        }
+
+        return "
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset='utf-8'>
+    <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+    <title>{$title}</title>
+</head>
+<body style='margin: 0; padding: 0; background-color: #f3f4f6; font-family: -apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, sans-serif; -webkit-font-smoothing: antialiased;'>
+    <table border='0' cellpadding='0' cellspacing='0' width='100%' style='background-color: #f3f4f6; padding: 20px 0;'>
+        <tr>
+            <td align='center'>
+                <table border='0' cellpadding='0' cellspacing='0' width='600' style='background-color: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);'>
+                    <!-- Header -->
+                    <tr>
+                        <td style='background-color: #ef4444; padding: 30px; text-align: center;'>
+                            <h1 style='margin: 0; color: #ffffff; font-size: 24px; font-weight: 800; letter-spacing: -0.5px;'>{$platformName}</h1>
+                            <p style='margin: 5px 0 0 0; color: rgba(255, 255, 255, 0.85); font-size: 12px; font-weight: 600; text-transform: uppercase; tracking-wider: 1px;'>{$platformTagline}</p>
+                        </td>
+                    </tr>
+                    <!-- Body -->
+                    <tr>
+                        <td style='padding: 40px 30px; background-color: #ffffff; color: #1f2937;'>
+                            <h2 style='margin: 0 0 20px 0; color: #111827; font-size: 18px; font-weight: 700; border-bottom: 2px solid #f3f4f6; padding-bottom: 10px;'>{$title}</h2>
+                            <div style='font-size: 14px; line-height: 1.6; color: #4b5563;'>
+                                {$contentHtml}
+                            </div>
+                            {$actionBtnHtml}
+                        </td>
+                    </tr>
+                    <!-- Footer -->
+                    <tr>
+                        <td style='background-color: #f9fafb; padding: 30px; border-top: 1px solid #f3f4f6; text-align: center; color: #9ca3af; font-size: 11px;'>
+                            <p style='margin: 0 0 5px 0;'>This is an automated notification from {$platformName}. Please do not reply directly to this email.</p>
+                            <p style='margin: 0;'>Need help? Contact <a href='mailto:{$supportEmail}' style='color: #ef4444; text-decoration: none; font-weight: 600;'>{$supportEmail}</a></p>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>";
     }
 }
